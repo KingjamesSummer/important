@@ -3,36 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>智汇云知｜工作台</title>
-<meta name="theme-color" content="#edf3f7">
-<style>
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#edf3f7}#workspace{display:block;width:100%;height:100%;border:0;background:#edf3f7}.patch-error{position:fixed;inset:0;display:none;place-items:center;background:#edf3f7;color:#5b7085;font-family:Inter,"PingFang SC","Microsoft YaHei",sans-serif}.patch-error.show{display:grid}.patch-error div{max-width:520px;padding:26px;border:1px solid #dce5ec;border-radius:15px;background:#fff;box-shadow:0 18px 48px rgba(31,52,72,.1)}.patch-error strong{display:block;margin-bottom:7px;color:#203247;font-size:17px}.patch-error p{margin:0;line-height:1.7}
-</style>
+<meta http-equiv="refresh" content="0; url=web-prototype.html">
+<title>正在进入智汇云知工作台</title>
+<style>html,body{height:100%;margin:0}body{display:grid;place-items:center;background:#edf3f6;color:#5f7386;font-family:Inter,"PingFang SC","Microsoft YaHei",sans-serif}a{color:#496f8a}</style>
 </head>
-<body>
-<iframe id="workspace" src="workbench-main.html?v=202606231528" title="智汇云知智能知识库管理平台"></iframe>
-<div class="patch-error" id="patchError"><div><strong>工作台导航增强未能加载</strong><p>请通过同一站点地址访问本页面；你仍可直接打开 enterprise.html 查看企业空间。</p></div></div>
-<script>
-(function(){
- const frame=document.getElementById('workspace');
- const error=document.getElementById('patchError');
- frame.addEventListener('load',function(){
-  try{
-   const doc=frame.contentDocument;
-   if(!doc)return;
-   const links=[...doc.querySelectorAll('a')];
-   links.forEach(link=>{
-    const text=(link.textContent||'').replace(/\s+/g,'').trim();
-    if(text.includes('企业空间')||text.includes('进入企业空间'))link.setAttribute('href','enterprise.html?v=202606231528');
-   });
-   if((frame.contentWindow.location.pathname||'').endsWith('/enterprise.html'))document.title='智汇云知｜企业空间';
-   else document.title='智汇云知｜工作台';
-  }catch(err){
-   console.error('Navigation enhancement failed:',err);
-   error.classList.add('show');
-  }
- });
-})();
-</script>
-</body>
+<body><p>正在进入完整 Web 原型；未自动跳转时，请<a href="web-prototype.html">点击这里</a>。</p></body>
 </html>
