@@ -9,7 +9,7 @@ html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;backgr
 </style>
 </head>
 <body>
-<div class="loader"><strong>正在载入 GDG知识库原型…</strong><small>正在加载纯蓝白部门管理界面与完整交互</small></div>
+<div class="loader"><strong>正在载入 GDG知识库原型…</strong><small>正在加载纯蓝白管理员设置界面与完整交互</small></div>
 <script>
 (async()=>{
   const revision='1ac99de78e4af6875f73cf446f8659b074b0f68d';
@@ -29,7 +29,7 @@ html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;backgr
   const systemBlueTheme=`<style id="admin-system-blue-v3">
 body.admin-console-v2{background:#fff!important}
 body.admin-console-v2 .app{background:#fff!important}
-body.admin-console-v2 .main{background:linear-gradient(180deg,#f4f9ff 0%,#fff 100%)!important}
+body.admin-console-v2 .main{background:#fff!important;background-image:none!important}
 body.admin-console-v2 .sidebar{border-right-color:#d8eaff!important}
 body.admin-console-v2 .nav-item:hover{background:#eef7ff!important;color:#075fe9!important}
 body.admin-console-v2 .nav-item.active{background:#e2f0ff!important;color:#075fe9!important;border-color:#bcd9ff!important}
@@ -55,7 +55,7 @@ body.admin-console-v2 .admin-shell-brand .gdg-brand-v4:before{display:none!impor
   source=source.replace(styleNeedle,styleReplacement);
 
   const oldOrder="    \"  html=html.replace('</body>','<scr'+'ipt src=\\\"assets/admin-dept-console-v1.js?v=1\\\"></scr'+'ipt>'+memberAdminScript+'</body>');\\n\";";
-  const newOrder="    \"  html=html.replace('</body>',memberAdminScript+'<scr'+'ipt src=\\\"assets/admin-dept-console-v2.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/public-shell-v1.js?v=3\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/public-shell-hotfix-v1.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-grant-polish-v2.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-shell-hotfix-v1.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-sunny-theme-v1.js?v=1\\\"></scr'+'ipt></body>');\\n\";";
+  const newOrder="    \"  html=html.replace('</body>',memberAdminScript+'<scr'+'ipt src=\\\"assets/admin-dept-console-v2.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/public-shell-v1.js?v=3\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/public-shell-hotfix-v1.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-grant-polish-v2.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-shell-hotfix-v1.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-sunny-theme-v1.js?v=1\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-grant-flat-blue-v4.js?v=1\\\"></scr'+'ipt></body>');\\n\";";
   if(!source.includes(oldOrder))throw new Error('部门管理脚本顺序补丁结构不兼容');
   source=source.replace(oldOrder,newOrder);
   source=source.replace(/assets\/workbench-v4\.js\?v=3/g,'assets/workbench-v4.js?v=10');
