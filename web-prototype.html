@@ -24,8 +24,8 @@ html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;backgr
     }catch(error){}
   }
   if(!html)throw new Error('原型基础文件加载失败');
-  html=html.replace('</head>','<link rel="stylesheet" href="assets/personal-space-v8.css?v=1"></head>');
-  html=html.replace('</body>','<script src="assets/personal-space-v8.js?v=1"><\/script></body>');
+  html=html.replace('</head>','<link rel="stylesheet" href="assets/personal-space-v8.css?v=1"><link rel="stylesheet" href="assets/workbench-v2.css?v=2"></head>');
+  html=html.replace('</body>','<script src="assets/personal-space-v8.js?v=1"><\/script><script src="assets/workbench-v2.js?v=2"><\/script></body>');
   document.open();document.write(html);document.close();
 })().catch(error=>{
   document.body.innerHTML='<div class="loader"><strong>原型载入失败</strong><small>'+String(error.message||error)+'</small></div>';
