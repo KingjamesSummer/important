@@ -1,55 +1,87 @@
-/* Workbench activity avatars — richer, polished blue-family gradients. */
+/* Workbench activity avatars — refined squircle design with controlled shadows. */
 body.workbench-v4 .activity-avatar{
-  width:36px;
-  height:36px;
+  --avatar-a:#eef5ff;
+  --avatar-b:#dbe9ff;
+  --avatar-ink:#2f6fbe;
+  --avatar-border:#c7daf4;
+  position:relative;
+  width:34px;
+  height:34px;
   display:grid;
   place-items:center;
   flex:none;
-  border:2px solid rgba(255,255,255,.94);
-  outline:1px solid rgba(61,102,166,.16);
-  border-radius:50%;
-  color:#fff!important;
+  overflow:hidden;
+  border:1px solid var(--avatar-border);
+  outline:0;
+  border-radius:11px;
+  background:
+    radial-gradient(circle at 28% 22%,rgba(255,255,255,.95) 0 7%,rgba(255,255,255,.40) 8%,transparent 31%),
+    linear-gradient(145deg,var(--avatar-a) 0%,var(--avatar-b) 100%)!important;
+  color:var(--avatar-ink)!important;
   font-size:11px;
   font-weight:760;
+  line-height:1;
   letter-spacing:.02em;
-  text-shadow:0 1px 2px rgba(35,63,106,.28);
+  text-shadow:none;
   box-shadow:
-    0 7px 16px rgba(49,83,138,.16),
-    inset 0 1px rgba(255,255,255,.48),
-    inset 0 -8px 14px rgba(29,57,102,.08);
-  transition:transform .18s ease,box-shadow .18s ease,filter .18s ease;
+    0 1px 2px rgba(35,63,106,.07),
+    0 5px 12px rgba(35,63,106,.09),
+    inset 0 1px rgba(255,255,255,.88),
+    inset 0 -1px rgba(79,117,169,.05);
+  transition:
+    transform .20s cubic-bezier(.2,.75,.25,1),
+    box-shadow .20s ease,
+    filter .20s ease,
+    border-color .20s ease;
+}
+body.workbench-v4 .activity-avatar::after{
+  content:"";
+  position:absolute;
+  left:5px;
+  right:5px;
+  bottom:3px;
+  height:1px;
+  border-radius:999px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.72),transparent);
+  opacity:.72;
+  pointer-events:none;
 }
 body.workbench-v4 .activity:nth-child(1) .activity-avatar{
-  background:
-    radial-gradient(circle at 28% 22%,rgba(255,255,255,.78) 0 7%,rgba(255,255,255,.18) 8%,transparent 31%),
-    linear-gradient(145deg,#4f8df7 0%,#76a8ff 56%,#5f93ef 100%)!important;
-  outline-color:rgba(79,141,247,.24);
+  --avatar-a:#eff6ff;
+  --avatar-b:#d8e8ff;
+  --avatar-ink:#2d6fbe;
+  --avatar-border:#c3d9f4;
 }
 body.workbench-v4 .activity:nth-child(2) .activity-avatar{
-  background:
-    radial-gradient(circle at 28% 22%,rgba(255,255,255,.76) 0 7%,rgba(255,255,255,.16) 8%,transparent 31%),
-    linear-gradient(145deg,#6676e9 0%,#8d9cff 58%,#7281e9 100%)!important;
-  outline-color:rgba(102,118,233,.24);
+  --avatar-a:#f1f2ff;
+  --avatar-b:#dfe3ff;
+  --avatar-ink:#5b63bd;
+  --avatar-border:#d0d4f6;
 }
 body.workbench-v4 .activity:nth-child(3) .activity-avatar{
-  background:
-    radial-gradient(circle at 28% 22%,rgba(255,255,255,.75) 0 7%,rgba(255,255,255,.15) 8%,transparent 31%),
-    linear-gradient(145deg,#7d69e5 0%,#a68df3 58%,#8872e7 100%)!important;
-  outline-color:rgba(125,105,229,.23);
+  --avatar-a:#f6f1ff;
+  --avatar-b:#e8ddff;
+  --avatar-ink:#7357b6;
+  --avatar-border:#dacbf5;
 }
 body.workbench-v4 .activity:nth-child(4) .activity-avatar{
-  background:
-    radial-gradient(circle at 28% 22%,rgba(255,255,255,.76) 0 7%,rgba(255,255,255,.16) 8%,transparent 31%),
-    linear-gradient(145deg,#358eb4 0%,#67b8d5 58%,#4198bb 100%)!important;
-  outline-color:rgba(53,142,180,.23);
+  --avatar-a:#edf9ff;
+  --avatar-b:#d4eef9;
+  --avatar-ink:#287d9b;
+  --avatar-border:#c3e1ed;
 }
 body.workbench-v4 .activity:hover .activity-avatar{
-  transform:translateY(-2px) scale(1.055);
-  filter:saturate(1.06) brightness(1.02);
+  transform:translateY(-1px) scale(1.025);
+  filter:saturate(1.04) brightness(1.015);
+  border-color:color-mix(in srgb,var(--avatar-border) 68%,var(--avatar-ink));
   box-shadow:
-    0 10px 22px rgba(49,83,138,.22),
-    inset 0 1px rgba(255,255,255,.56),
-    inset 0 -8px 14px rgba(29,57,102,.08);
+    0 2px 4px rgba(35,63,106,.08),
+    0 8px 16px rgba(35,63,106,.12),
+    inset 0 1px rgba(255,255,255,.94),
+    inset 0 -1px rgba(79,117,169,.06);
+}
+body.workbench-v4 .activity:active .activity-avatar{
+  transform:translateY(0) scale(.985);
 }
 @media(prefers-reduced-motion:reduce){
   body.workbench-v4 .activity-avatar{transition:none!important;transform:none!important}
