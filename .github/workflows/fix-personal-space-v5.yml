@@ -24,6 +24,9 @@ jobs:
       - name: Apply personal-space v5 patch
         run: python scripts/fix_personal_space_v5.py
 
+      - name: Apply v5.1 scope polish
+        run: python scripts/personal_space_v51.py
+
       - name: Validate HTML and JavaScript
         run: |
           python - <<'PY'
@@ -33,11 +36,13 @@ jobs:
           html = Path('web-prototype.html').read_text(encoding='utf-8')
           required = [
               'personal-space-v5-stable-interaction',
+              'personal-space-v5-1-scope-polish',
               'function syncPersonalSelection',
               'function destinationTree',
               "oncontextmenu=\"openMenu",
               '复制到此处',
               'iconify-ready',
+              "if(space!=='personal')",
           ]
           for item in required:
               assert item in html, item
@@ -57,6 +62,6 @@ jobs:
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add web-prototype.html scripts/fix_personal_space_v5.py
-          git commit -m 'fix: stabilize personal space interactions'
+          git add web-prototype.html scripts/fix_personal_space_v5.py scripts/personal_space_v51.py
+          git commit -m 'fix: polish personal space stability and scope'
           git push
