@@ -19,14 +19,12 @@ style.textContent=`
 .smart-select-panel-v13{position:fixed;z-index:99999;min-width:180px;max-height:270px;padding:6px;border:1px solid #dbe5f0;border-radius:11px;background:#fff;box-shadow:0 18px 48px rgba(27,51,82,.17),0 3px 10px rgba(27,51,82,.06);overflow:auto;opacity:0;transform:translateY(-4px) scale(.985);transform-origin:top;transition:opacity .13s ease,transform .13s ease}
 .smart-select-panel-v13.open{opacity:1;transform:none}
 .smart-select-panel-v13.above{transform-origin:bottom}
-.smart-select-option-v13{width:100%;min-height:38px;padding:0 9px;border:0;border-radius:8px;background:#fff;color:#52667c;display:grid;grid-template-columns:minmax(0,1fr) 18px;align-items:center;gap:9px;text-align:left;font-size:11px;transition:background .13s,color .13s}
+.smart-select-option-v13{width:100%;min-height:38px;padding:0 10px;border:0;border-radius:8px;background:#fff;color:#52667c;display:flex;align-items:center;text-align:left;font-size:11px;transition:background .13s,color .13s}
 .smart-select-option-v13:hover,.smart-select-option-v13.keyboard{background:#f4f8ff;color:#315f8d}
 .smart-select-option-v13.selected{background:#edf5ff;color:#1769ff;font-weight:650}
 .smart-select-option-v13:disabled{opacity:.42;cursor:not-allowed;background:#fff;color:#9ba8b5}
-.smart-select-option-v13 span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.smart-select-check-v13{width:18px;height:18px;border-radius:50%;background:#1769ff;color:#fff;display:grid;place-items:center;opacity:0;transform:scale(.82);transition:.13s}
-.smart-select-option-v13.selected .smart-select-check-v13{opacity:1;transform:none}
-.smart-select-check-v13 svg,.smart-select-chevron-v13 svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.smart-select-option-v13 span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.smart-select-chevron-v13 svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .smart-select-empty-v13{padding:18px 12px;text-align:center;color:#9aa7b4;font-size:11px}
 
 /* Fallback styling before enhancement */
@@ -54,7 +52,6 @@ select.select:hover{border-color:#b9cef0!important}
 document.head.appendChild(style);
 
 const chevron=`<span class="smart-select-chevron-v13" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg></span>`;
-const check=`<span class="smart-select-check-v13" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m7 12 3 3 7-7"/></svg></span>`;
 let active=null;
 
 function eligible(select){
@@ -118,7 +115,7 @@ function openDropdown(select,wrap,trigger){
   panel.setAttribute('aria-label',select.getAttribute('aria-label')||select.closest('.field')?.querySelector('label')?.textContent?.trim()||'下拉选项');
   const options=[...select.options];
   if(!options.length)panel.innerHTML='<div class="smart-select-empty-v13">暂无可选项</div>';
-  else panel.innerHTML=options.map(option=>`<button type="button" class="smart-select-option-v13 ${option.selected?'selected':''}" role="option" aria-selected="${option.selected?'true':'false'}" data-value="${String(option.value).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}" ${option.disabled?'disabled':''}><span>${String(option.textContent||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>${check}</button>`).join('');
+  else panel.innerHTML=options.map(option=>`<button type="button" class="smart-select-option-v13 ${option.selected?'selected':''}" role="option" aria-selected="${option.selected?'true':'false'}" data-value="${String(option.value).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}" ${option.disabled?'disabled':''}><span>${String(option.textContent||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span></button>`).join('');
   document.body.appendChild(panel);
   active={select,wrap,trigger,panel,index:Math.max(0,options.findIndex(option=>option.selected))};
   wrap.classList.add('open');
