@@ -37,15 +37,31 @@ select.select:hover{border-color:#b9cef0!important}
 .upload-method-pop button,.personal-bulk-menu button,.personal-file-menu .menu-item{border-radius:9px!important;background:#fff!important;color:#52667c!important;transition:background .13s,color .13s,border-color .13s!important}
 .upload-method-pop button:hover,.personal-bulk-menu button:hover,.personal-file-menu .menu-item:hover{background:#edf5ff!important;color:#1769ff!important}
 .upload-method-pop button+button,.personal-bulk-menu button+button{margin-top:2px}
-.upload-method-pop button>.icon-stack{width:34px!important;height:34px!important;border-radius:9px!important;background:#f4f8ff!important;border:1px solid #dbe8ff!important;color:#1769ff!important}
-.upload-method-pop button:nth-child(2)>.icon-stack{background:#fff8ef!important;border-color:#ffe0b5!important;color:#d97706!important}
-.upload-method-pop button:hover>.icon-stack{background:#fff!important;border-color:#b8d0f8!important;color:#1769ff!important}
-.upload-method-pop button:nth-child(2):hover>.icon-stack{background:#fff!important;border-color:#ffc978!important;color:#c96a00!important}
-.personal-bulk-menu button>.icon-stack,.personal-file-menu .menu-item>.icon-stack{background:#f6f9fd!important;color:#52708f!important;border:1px solid #e3eaf2!important}
-.personal-bulk-menu button:hover>.icon-stack,.personal-file-menu .menu-item:hover>.icon-stack{background:#fff!important;color:#1769ff!important;border-color:#bfd3f8!important}
+
+/* Menu icons: clean line icons, no boxed backgrounds */
+.upload-method-pop button{display:grid!important;grid-template-columns:26px minmax(0,1fr)!important;align-items:center!important;gap:11px!important;padding:10px 12px!important;text-align:left!important}
+.upload-method-pop button>.icon-stack{width:24px!important;height:24px!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;color:#1769ff!important}
+.upload-method-pop button:nth-child(2)>.icon-stack{color:#d98608!important}
+.upload-method-pop button:hover>.icon-stack{border:0!important;background:transparent!important;color:#1769ff!important;transform:translateY(-1px)}
+.upload-method-pop button:nth-child(2):hover>.icon-stack{border:0!important;background:transparent!important;color:#c97800!important}
+.upload-method-pop button>.icon-stack>.online-icon,.upload-method-pop button>.icon-stack>.icon-fallback{width:100%!important;height:100%!important}
+
+.personal-bulk-menu button,.personal-file-menu .menu-item{display:grid!important;grid-template-columns:18px minmax(0,1fr)!important;align-items:center!important;gap:10px!important;padding-left:10px!important;padding-right:10px!important;text-align:left!important}
+.personal-bulk-menu button>.icon-stack,.personal-file-menu .menu-item>.icon-stack{width:18px!important;height:18px!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;color:#627b95!important}
+.personal-bulk-menu button:hover>.icon-stack,.personal-file-menu .menu-item:hover>.icon-stack{border:0!important;background:transparent!important;color:#1769ff!important}
+.personal-file-menu .menu-item.transfer-item>.icon-stack,.personal-bulk-menu .ownership-action>.icon-stack{color:#8a5bd7!important}
+.personal-file-menu .menu-item.transfer-item:hover>.icon-stack,.personal-bulk-menu .ownership-action:hover>.icon-stack{color:#7546ca!important}
 .personal-bulk-menu button.danger:hover,.personal-file-menu .menu-item.danger:hover{background:#fff3f4!important;color:#d94b58!important}
-.personal-bulk-menu button.danger>.icon-stack,.personal-file-menu .menu-item.danger>.icon-stack{background:#fff7f7!important;border-color:#ffd9dd!important;color:#d94b58!important}
+.personal-bulk-menu button.danger>.icon-stack,.personal-file-menu .menu-item.danger>.icon-stack{border:0!important;background:transparent!important;color:#d94b58!important}
 .personal-bulk-menu .menu-sep,.personal-file-menu .menu-sep{height:1px!important;margin:6px 4px!important;background:#edf1f6!important}
+
+/* Folder visuals: restore the same white frame, border and depth used by file icons */
+.file-symbol.folder,.file-symbol-folder-v11{width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;border-radius:12px!important;background:linear-gradient(180deg,#fff 0%,#fffdf8 100%)!important;border:1px solid #ecd59d!important;box-shadow:0 4px 12px rgba(182,124,28,.12),0 1px 3px rgba(35,68,106,.06),inset 0 1px #fff!important;display:grid!important;place-items:center!important;overflow:hidden!important;transition:border-color .16s,box-shadow .16s,transform .16s!important}
+.file-symbol.folder:hover,.file-card:hover .file-symbol.folder,.personal-file-table tbody tr:hover .file-symbol.folder{border-color:#e4bd67!important;box-shadow:0 6px 16px rgba(182,124,28,.16),0 2px 5px rgba(35,68,106,.07),inset 0 1px #fff!important}
+.file-symbol-folder-v11 svg{width:25px!important;height:25px!important;display:block!important}
+.file-symbol.folder>.online-file-icon{width:25px!important;height:25px!important}
+.file-symbol.folder>.file-fallback{display:none!important}
+.detail-preview .file-symbol.folder,.transfer-v12-summary .file-symbol.folder,.share-v10-file .file-symbol.folder,.transfer-v10-file .file-symbol.folder{width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;border-radius:13px!important}
 
 @media(max-width:760px){.smart-select-panel-v13{max-width:calc(100vw - 20px)}}
 `;
