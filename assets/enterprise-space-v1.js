@@ -1,14 +1,18 @@
 /* Enterprise space integrated into the unified web prototype. */
 (function(){
-  if(window.__enterpriseSpaceV2)return;
-  window.__enterpriseSpaceV2=true;
+  if(window.__enterpriseSpaceV3)return;
+  window.__enterpriseSpaceV3=true;
   if(typeof state==='undefined'||typeof render!=='function'||typeof sidebar!=='function'||typeof enterprise!=='function')return;
+
+  FILE_ICONIFY.zip='material-symbols:folder-zip-rounded';
 
   state.enterpriseNavExpanded=state.enterpriseNavExpanded!==false;
   state.enterpriseOrgExpanded=state.enterpriseOrgExpanded!==false;
   state.enterpriseView=state.enterpriseView||'list';
   state.enterpriseFilter=state.enterpriseFilter||'all';
   state.enterpriseFilterOpen=false;
+  state.enterprisePage=state.enterprisePage||1;
+  state.enterprisePageSize=state.enterprisePageSize||8;
 
   const baseRender=render;
   render=function(){
@@ -18,11 +22,17 @@
 
   window.toggleEnterpriseNav=function(){state.enterpriseNavExpanded=!state.enterpriseNavExpanded;render()};
   window.toggleEnterpriseOrg=function(){state.enterpriseOrgExpanded=!state.enterpriseOrgExpanded;render()};
-  window.setEnterpriseView=function(view){state.enterpriseView=view;state.detail=null;render()};
-  window.toggleEnterpriseFilter=function(){state.enterpriseFilterOpen=!state.enterpriseFilterOpen;render()};
-  window.applyEnterpriseFilter=function(){state.enterpriseFilter=document.getElementById('enterpriseFilterType')?.value||'all';state.enterpriseFilterOpen=false;state.selected=[];state.detail=null;render()};
-  window.clearEnterpriseFilter=function(){state.enterpriseFilter='all';state.enterpriseFilterOpen=false;state.selected=[];state.detail=null;render()};
-  window.goEnterpriseFolder=function(level){state.folder=level<0?[]:state.folder.slice(0,level+1);state.selected=[];state.detail=null;state.menu=null;render()};
+  window.setEnterpriseView=function(view){state.enterpriseView=view;state.enterprisePage=1;state.detail=null;render()};
+  window.applyEnterpriseFilter=function(){state.enterpriseFilter=document.getElementById('enterpriseFilterType')?.value||'all';state.enterpriseFilterOpen=false;state.enterprisePage=1;state.selected=[];state.detail=null;render()};
+  window.clearEnterpriseFilter=function(){state.enterpriseFilter='all';state.enterpriseFilterOpen=false;state.enterprisePage=1;state.selected=[];state.detail=null;render()};
+  window.goEnterpriseFolder=function(level){state.folder=level<0?[]:state.folder.slice(0,level+1);state.enterprisePage=1;state.selected=[];state.detail=null;state.menu=null;render()};
+  window.changeEnterprisePage=function(page){
+    const total=currentFiles('enterprise').length;
+    const pages=Math.max(1,Math.ceil(total/state.enterprisePageSize));
+    state.enterprisePage=Math.min(Math.max(1,page),pages);
+    state.selected=[];state.detail=null;render();
+  };
+  window.changeEnterprisePageSize=function(size){state.enterprisePageSize=Number(size)||8;state.enterprisePage=1;state.selected=[];state.detail=null;render()};
 
   sidebar=function(){
     const groups=nav.map(group=>{
@@ -61,7 +71,7 @@
     });
   };
 
-  changeDept=function(dept){state.dept=dept;state.folder=[];state.query='';state.enterpriseFilter='all';state.enterpriseFilterOpen=false;state.selected=[];state.detail=null;state.menu=null;render()};
+  changeDept=function(dept){state.dept=dept;state.folder=[];state.query='';state.enterpriseFilter='all';state.enterpriseFilterOpen=false;state.enterprisePage=1;state.selected=[];state.detail=null;state.menu=null;render()};
 
   const baseOpenFile=openFile;
   openFile=function(id,space){
@@ -69,7 +79,7 @@
     const file=findFile(id,'enterprise');
     if(!file)return;
     if(file.type==='folder'){
-      state.folder.push(file.name);state.selected=[];state.detail=null;state.menu=null;render();
+      state.folder.push(file.name);state.enterprisePage=1;state.selected=[];state.detail=null;state.menu=null;render();
     }else openModal('preview',{file});
   };
 
@@ -93,14 +103,27 @@
     render();
   };
 
+  window.enterpriseTag=function(file){
+    const tag=file?.tag||'';
+    if(!tag)return '<span class="tag-empty">未设置</span>';
+    const tone=typeof tagTone==='function'?tagTone(tag):'slate';
+    return `<span class="personal-tag enterprise-tag-static tag-${tone}">${icon('tag')}<span>${safe(tag)}</span></span>`;
+  };
+
+  window.enterpriseBulkControl=function(){
+    const count=state.selected.length;
+    const one=count===1;
+    return `<div class="personal-bulk-wrap"><button class="btn personal-bulk-trigger" ${count?'':'disabled'} onclick="togglePersonalBulkMenu(event)">${icon('bulk')}<span class="personal-bulk-label">${count?`已选 ${count} 项`:'批量操作'}</span>${icon('down')}</button><div class="personal-bulk-menu" onclick="event.stopPropagation()"><button onclick="closePersonalBulkMenu();toast('已加入 '+state.selected.length+' 个下载任务')">${icon('download')}<span>下载</span></button><button onclick="closePersonalBulkMenu();openModal('destination',{space:'enterprise',mode:'move'})">${icon('move')}<span>移动到</span></button><button onclick="closePersonalBulkMenu();openModal('destination',{space:'enterprise',mode:'copy'})">${icon('copy')}<span>复制到</span></button><div class="menu-sep"></div><button ${one?'':'disabled'} onclick="closePersonalBulkMenu();showSelectedDetail()">${icon('info')}<span>属性详情</span></button><div class="menu-sep"></div><button class="danger" onclick="closePersonalBulkMenu();openModal('delete',{space:'enterprise'})">${icon('trash')}<span>删除</span></button></div></div>`;
+  };
+
   window.enterpriseTable=function(files){
-    const rows=files.map(file=>`<tr data-file-id="${file.id}" class="${state.selected.includes(file.id)?'selected':''}" onclick="enterpriseRowClick(event,'${file.id}')" ondblclick="openFile('${file.id}','enterprise')" oncontextmenu="openMenu(event,'${file.id}','enterprise')"><td class="check-col"><input class="check" type="checkbox" ${state.selected.includes(file.id)?'checked':''} onclick="event.stopPropagation();toggleOne('${file.id}',this.checked)"></td><td><div class="file-name">${fileVisual(file)}<div class="file-name-copy"><button class="file-entry-link" onclick="event.stopPropagation();openFile('${file.id}','enterprise')">${safe(file.name)}</button><div class="file-name-meta"><span>${personalFileType(file)}</span>${file.tag?`<span class="badge blue">${safe(file.tag)}</span>`:''}</div></div></div></td><td>${file.type==='folder'?'—':safe(file.size||'—')}</td><td>${safe(file.owner||'张明远')}</td><td>${safe(file.modified)}</td><td class="status-cell"><span class="status-dot ${file.status==='正常'?'green':file.status==='受控'?'orange':'red'}"></span>${safe(file.status||'正常')}</td><td class="op-col"><button class="more-btn" aria-label="更多操作" onclick="event.stopPropagation();openMenu(event,'${file.id}','enterprise')">${icon('more')}</button></td></tr>`).join('');
+    const rows=files.map(file=>`<tr data-file-id="${file.id}" class="${state.selected.includes(file.id)?'selected':''}" onclick="enterpriseRowClick(event,'${file.id}')" ondblclick="openFile('${file.id}','enterprise')" oncontextmenu="openMenu(event,'${file.id}','enterprise')"><td class="check-col"><input class="check" type="checkbox" ${state.selected.includes(file.id)?'checked':''} onclick="event.stopPropagation();toggleOne('${file.id}',this.checked)"></td><td><div class="file-name">${fileVisual(file)}<div class="file-name-copy"><button class="file-entry-link" onclick="event.stopPropagation();openFile('${file.id}','enterprise')">${safe(file.name)}</button><div class="file-name-meta"><span>${personalFileType(file)}</span></div></div></div></td><td><div class="activity-cell">${icon('user')}<span>${safe(file.owner||'张明远')}</span></div></td><td>${enterpriseTag(file)}</td><td>${file.type==='folder'?'—':safe(file.size||'—')}</td><td>${safe(file.modified)}</td><td class="status-cell"><span class="status-dot ${file.status==='正常'?'green':file.status==='受控'?'orange':'red'}"></span>${safe(file.status||'正常')}</td><td class="op-col"><button class="more-btn" aria-label="更多操作" onclick="event.stopPropagation();openMenu(event,'${file.id}','enterprise')">${icon('more')}</button></td></tr>`).join('');
     const ids=JSON.stringify(files.map(item=>item.id)).replace(/"/g,'&quot;');
-    return `<table class="file-table personal-file-table enterprise-file-table"><colgroup><col class="enterprise-check-col"><col class="enterprise-name-col"><col class="enterprise-size-col"><col class="enterprise-owner-col"><col class="enterprise-time-col"><col class="enterprise-status-col"><col class="enterprise-op-col"></colgroup><thead><tr><th class="check-col"><input class="check" type="checkbox" ${files.length&&state.selected.length===files.length?'checked':''} onchange="toggleAll(this.checked,${ids})"></th><th><span class="sort-head" onclick="sortBy('name')">名称${sortMark('name')}</span></th><th><span class="sort-head" onclick="sortBy('size')">大小${sortMark('size')}</span></th><th>创建人</th><th><span class="sort-head" onclick="sortBy('modified')">修改时间${sortMark('modified')}</span></th><th>状态</th><th class="op-col"></th></tr></thead><tbody>${rows||`<tr><td colspan="7"><div class="empty"><div class="empty-icon">${icon('search')}</div><strong>当前目录暂无内容</strong><p>可以上传文件或新建文件夹开始整理</p></div></td></tr>`}</tbody></table>`;
+    return `<table class="file-table personal-file-table enterprise-file-table"><colgroup><col class="personal-check-col"><col class="personal-name-col"><col class="personal-activity-col"><col class="personal-tag-col"><col class="personal-size-col"><col class="personal-time-col"><col class="personal-status-col"><col class="personal-op-col"></colgroup><thead><tr><th class="check-col"><input class="check" type="checkbox" ${files.length&&state.selected.length===files.length?'checked':''} onchange="toggleAll(this.checked,${ids})"></th><th><span class="sort-head" onclick="sortBy('name')">名称${sortMark('name')}</span></th><th>创建人</th><th>标签</th><th><span class="sort-head" onclick="sortBy('size')">大小${sortMark('size')}</span></th><th><span class="sort-head" onclick="sortBy('modified')">修改时间${sortMark('modified')}</span></th><th>状态</th><th class="op-col"></th></tr></thead><tbody>${rows||`<tr><td colspan="8"><div class="empty"><div class="empty-icon">${icon('search')}</div><strong>当前目录暂无内容</strong><p>可以上传文件或新建文件夹开始整理</p></div></td></tr>`}</tbody></table>`;
   };
 
   window.enterpriseGrid=function(files){
-    return `<div class="grid-zone"><div class="file-grid">${files.map(file=>`<div data-file-id="${file.id}" class="file-card ${state.selected.includes(file.id)?'selected':''}" onclick="enterpriseRowClick(event,'${file.id}')" ondblclick="openFile('${file.id}','enterprise')" oncontextmenu="openMenu(event,'${file.id}','enterprise')"><input class="check" type="checkbox" ${state.selected.includes(file.id)?'checked':''} onclick="event.stopPropagation();toggleOne('${file.id}',this.checked)"><button class="more-btn" onclick="event.stopPropagation();openMenu(event,'${file.id}','enterprise')">${icon('more')}</button>${fileVisual(file)}<button class="file-card-name file-entry-link" onclick="event.stopPropagation();openFile('${file.id}','enterprise')">${safe(file.name)}</button><div class="file-card-meta"><span>${file.type==='folder'?'文件夹':safe(file.size||'—')}</span><span>${safe((file.modified||'').slice(5,10))}</span></div><div class="file-card-access"><span class="badge ${file.status==='正常'?'green':'orange'}">${safe(file.status||'正常')}</span></div></div>`).join('')}</div></div>`;
+    return `<div class="grid-zone"><div class="file-grid">${files.map(file=>`<div data-file-id="${file.id}" class="file-card ${state.selected.includes(file.id)?'selected':''}" onclick="enterpriseRowClick(event,'${file.id}')" ondblclick="openFile('${file.id}','enterprise')" oncontextmenu="openMenu(event,'${file.id}','enterprise')"><input class="check" type="checkbox" ${state.selected.includes(file.id)?'checked':''} onclick="event.stopPropagation();toggleOne('${file.id}',this.checked)"><button class="more-btn" onclick="event.stopPropagation();openMenu(event,'${file.id}','enterprise')">${icon('more')}</button>${fileVisual(file)}<button class="file-card-name file-entry-link" onclick="event.stopPropagation();openFile('${file.id}','enterprise')">${safe(file.name)}</button><div class="file-card-meta"><span>${file.type==='folder'?'文件夹':safe(file.size||'—')}</span><span>${safe((file.modified||'').slice(5,10))}</span></div><div class="file-card-tags">${enterpriseTag(file)}</div><div class="file-card-access"><span class="badge ${file.status==='正常'?'green':'orange'}">${safe(file.status||'正常')}</span></div></div>`).join('')}</div></div>`;
   };
 
   window.enterpriseFilterPop=function(){
@@ -111,11 +134,28 @@
     return `<div class="pathbar personal-pathbar enterprise-pathbar">${state.folder.length?`<button class="path-back" onclick="goEnterpriseFolder(${state.folder.length-2})">${icon('arrowLeft')}返回上一级</button><span class="path-divider"></span>`:''}<button onclick="goEnterpriseFolder(-1)">${icon('building')}企业空间</button><span class="path-sep">/</span><button class="current" onclick="goEnterpriseFolder(-1)">${safe(state.dept)}</button>${state.folder.map((name,index)=>`<span class="path-sep">/</span><button class="${index===state.folder.length-1?'current':''}" onclick="goEnterpriseFolder(${index})">${safe(name)}</button>`).join('')}<span class="path-context">${state.folder.length?'当前文件夹':'部门资料库'}</span><span class="count">${total} 项</span></div>`;
   };
 
+  window.enterprisePageFiles=function(files){
+    const pages=Math.max(1,Math.ceil(files.length/state.enterprisePageSize));
+    state.enterprisePage=Math.min(Math.max(1,state.enterprisePage),pages);
+    const start=(state.enterprisePage-1)*state.enterprisePageSize;
+    return files.slice(start,start+state.enterprisePageSize);
+  };
+
+  window.enterprisePagination=function(total){
+    const pages=Math.max(1,Math.ceil(total/state.enterprisePageSize));
+    const start=total?(state.enterprisePage-1)*state.enterprisePageSize+1:0;
+    const end=Math.min(total,state.enterprisePage*state.enterprisePageSize);
+    const nums=[];
+    for(let i=1;i<=pages;i++)nums.push(`<button class="page-number ${state.enterprisePage===i?'active':''}" onclick="changeEnterprisePage(${i})">${i}</button>`);
+    return `<footer class="personal-pagination"><div class="page-summary">共 ${total} 项 · 当前显示 ${start}-${end}</div><div class="page-size"><span>每页</span><select onchange="changeEnterprisePageSize(this.value)"><option value="8" ${state.enterprisePageSize===8?'selected':''}>8 条</option><option value="16" ${state.enterprisePageSize===16?'selected':''}>16 条</option><option value="32" ${state.enterprisePageSize===32?'selected':''}>32 条</option></select></div><div class="page-controls"><button class="page-arrow" ${state.enterprisePage<=1?'disabled':''} onclick="changeEnterprisePage(${state.enterprisePage-1})">${icon('arrowLeft')}</button>${nums.join('')}<button class="page-arrow" ${state.enterprisePage>=pages?'disabled':''} onclick="changeEnterprisePage(${state.enterprisePage+1})">${icon('chevron')}</button></div></footer>`;
+  };
+
   enterprise=function(){
-    const files=currentFiles('enterprise');
+    const allFiles=currentFiles('enterprise');
+    const files=enterprisePageFiles(allFiles);
     const filterActive=state.enterpriseFilter!=='all';
     const content=state.enterpriseView==='grid'?enterpriseGrid(files):enterpriseTable(files);
-    return `${pageHead('企业空间','组织级文件资产按部门资料库统一治理','',`<span class="badge blue">${icon('shield')}当前权限：操作者</span>`)}<div class="panel personal-panel enterprise-panel"><div class="personal-toolbar"><button class="btn primary" onclick="startUpload('enterprise')">${icon('upload')}上传文件</button><button class="btn" onclick="openModal('newFolder',{space:'enterprise'})">${icon('folderPlus')}新建文件夹</button><div class="search-box personal-search">${icon('search')}<input value="${safe(state.query)}" placeholder="搜索当前资料库" onkeydown="if(event.key==='Enter'){state.query=this.value;state.selected=[];state.detail=null;render()}"><button class="btn ghost icon-only" style="width:26px;height:26px" onclick="state.enterpriseFilterOpen=!state.enterpriseFilterOpen;render()" title="筛选条件">${icon('filter')}</button></div><div class="spacer"></div><div class="view-toggle"><button class="${state.enterpriseView==='list'?'active':''}" onclick="setEnterpriseView('list')" title="列表视图">${icon('list')}</button><button class="${state.enterpriseView==='grid'?'active':''}" onclick="setEnterpriseView('grid')" title="网格视图">${icon('grid')}</button></div></div>${state.enterpriseFilterOpen?enterpriseFilterPop():''}${filterActive?`<div class="filter-summary">当前筛选：<span class="filter-chip">${state.enterpriseFilter==='folder'?'文件夹':state.enterpriseFilter==='document'?'文档':state.enterpriseFilter==='img'?'图片':'压缩包'} <b onclick="clearEnterpriseFilter()">×</b></span><button class="btn text" style="margin-left:auto" onclick="clearEnterpriseFilter()">清除筛选</button></div>`:''}${enterprisePathbar(files.length)}${selectionBar('enterprise')}<div class="file-content personal-file-content enterprise-file-content">${state.enterpriseView==='list'?`<div class="table-zone">${content}</div>`:content}${detailPane()}</div></div>`;
+    return `${pageHead('企业空间','组织级文件资产按部门资料库统一治理','',`<span class="badge blue">${icon('shield')}当前权限：操作者</span>`)}<div class="panel personal-panel enterprise-panel"><div class="personal-toolbar"><button class="btn primary" onclick="startUpload('enterprise')">${icon('upload')}上传文件</button><button class="btn" onclick="openModal('newFolder',{space:'enterprise'})">${icon('folderPlus')}新建文件夹</button>${enterpriseBulkControl()}<div class="search-box personal-search">${icon('search')}<input value="${safe(state.query)}" placeholder="搜索当前资料库" onkeydown="if(event.key==='Enter'){state.query=this.value;state.enterprisePage=1;state.selected=[];state.detail=null;render()}"><button class="btn ghost icon-only" style="width:26px;height:26px" onclick="state.enterpriseFilterOpen=!state.enterpriseFilterOpen;render()" title="筛选条件">${icon('filter')}</button></div><div class="spacer"></div><div class="view-toggle"><button class="${state.enterpriseView==='list'?'active':''}" onclick="setEnterpriseView('list')" title="列表视图">${icon('list')}</button><button class="${state.enterpriseView==='grid'?'active':''}" onclick="setEnterpriseView('grid')" title="网格视图">${icon('grid')}</button></div></div>${state.enterpriseFilterOpen?enterpriseFilterPop():''}${filterActive?`<div class="filter-summary">当前筛选：<span class="filter-chip">${state.enterpriseFilter==='folder'?'文件夹':state.enterpriseFilter==='document'?'文档':state.enterpriseFilter==='img'?'图片':'压缩包'} <b onclick="clearEnterpriseFilter()">×</b></span><button class="btn text" style="margin-left:auto" onclick="clearEnterpriseFilter()">清除筛选</button></div>`:''}${enterprisePathbar(allFiles.length)}<div class="file-content personal-file-content enterprise-file-content">${state.enterpriseView==='list'?`<div class="table-zone">${content}</div>`:content}${detailPane()}</div>${enterprisePagination(allFiles.length)}</div>`;
   };
 
   render();
