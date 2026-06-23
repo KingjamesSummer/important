@@ -47,6 +47,29 @@
     });
   }
 
+  function enhanceRecentTable(){
+    const panel=[...document.querySelectorAll('.list-panel')].find(item=>
+      (item.querySelector('.panel-title')?.textContent||'').trim()==='最近访问'
+    );
+    if(!panel||panel.dataset.workbenchRecent==='true')return;
+
+    const table=panel.querySelector('.file-table');
+    if(!table)return;
+
+    const sourceHead=table.querySelector('th.owner-col');
+    if(sourceHead)sourceHead.textContent='来源';
+
+    table.querySelectorAll('tbody tr').forEach((row,index)=>{
+      const sourceCell=row.querySelector('td.owner-col');
+      if(!sourceCell)return;
+      const fileName=(row.querySelector('.file-name-title')?.textContent||'').trim();
+      const enterprise=/智能知识库总体架构方案|架构方案/.test(fileName)||index>=3;
+      sourceCell.innerHTML=`<span class="wb-source-pill ${enterprise?'enterprise':''}">${enterprise?'企业空间':'个人空间'}</span>`;
+    });
+
+    panel.dataset.workbenchRecent='true';
+  }
+
   function syncWorkbench(){
     const title=(document.querySelector('.page-title')?.textContent||'').trim();
     const active=title==='工作台';
@@ -54,6 +77,7 @@
     if(!active)return;
 
     document.querySelector('.page-head .page-actions')?.remove();
+    enhanceRecentTable();
 
     document.querySelectorAll('.stats-grid .stat-card').forEach((card,index)=>{
       const label=(card.querySelector('.stat-top span')?.textContent||'').trim();
