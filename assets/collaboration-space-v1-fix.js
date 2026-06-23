@@ -45,4 +45,18 @@
       row.hidden=Boolean(query)&&!row.dataset.memberKey.toLowerCase().includes(query);
     });
   };
+
+  if(!document.querySelector('link[data-collaboration-v2]')){
+    const link=document.createElement('link');
+    link.rel='stylesheet';
+    link.href='assets/collaboration-space-v2.css?v=1';
+    link.dataset.collaborationV2='true';
+    document.head.appendChild(link);
+  }
+  if(!document.querySelector('script[data-collaboration-v2]')){
+    const script=document.createElement('script');
+    script.src='assets/collaboration-space-v2.js?v=1';
+    script.dataset.collaborationV2='true';
+    document.body.appendChild(script);
+  }
 })();
