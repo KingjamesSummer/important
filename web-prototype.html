@@ -8,8 +8,18 @@
 <style>
 html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;background:#f6f9ff;color:#526178;font-family:Inter,"PingFang SC","Microsoft YaHei",sans-serif}
 .loader{min-width:320px;padding:25px 29px;border:1px solid #dbe7f7;border-radius:16px;background:#fff;box-shadow:0 20px 58px rgba(37,99,235,.11)}
-.loader-brand{display:flex;align-items:center;gap:13px;margin-bottom:14px}.loader-logo{width:46px;height:46px;position:relative;display:grid;place-items:center;border:1px solid #dce8f7;border-radius:14px;background:linear-gradient(145deg,#fff,#f5f9ff);box-shadow:0 9px 24px rgba(37,99,235,.11);overflow:hidden}.loader-logo:after{content:"";position:absolute;inset:-60% -35%;background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.88) 50%,transparent 58%);transform:translateX(-70%) rotate(8deg);animation:loaderGlint 4.8s ease-in-out infinite}.loader-logo svg{width:38px;height:38px;filter:drop-shadow(0 4px 7px rgba(18,78,163,.12));animation:loaderFloat 4.2s ease-in-out infinite}.loader-copy strong{display:block;color:#17263a;font-size:16px;letter-spacing:.02em}.loader-copy span{display:block;margin-top:4px;color:#8493a7;font-size:10px;letter-spacing:.08em}.loader>small{color:#7c8da3;line-height:1.6}.loader-line{height:3px;margin-top:17px;border-radius:99px;background:#e8f0fb;overflow:hidden}.loader-line:after{content:"";display:block;width:42%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#1769ff,#5ca4ff);animation:load 1.15s ease-in-out infinite alternate}
-@keyframes load{to{transform:translateX(138%)}}@keyframes loaderFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-1.5px) scale(1.015)}}@keyframes loaderGlint{0%,62%{transform:translateX(-78%) rotate(8deg);opacity:0}72%{opacity:.75}88%,100%{transform:translateX(78%) rotate(8deg);opacity:0}}
+.loader-brand{display:flex;align-items:center;gap:13px;margin-bottom:14px}
+.loader-logo{width:46px;height:46px;position:relative;display:grid;place-items:center;border:1px solid #dce8f7;border-radius:14px;background:linear-gradient(145deg,#fff,#f5f9ff);box-shadow:0 9px 24px rgba(37,99,235,.11);overflow:hidden}
+.loader-logo:after{content:"";position:absolute;inset:-60% -35%;background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.88) 50%,transparent 58%);transform:translateX(-70%) rotate(8deg);animation:loaderGlint 4.8s ease-in-out infinite}
+.loader-logo svg{width:38px;height:38px;filter:drop-shadow(0 4px 7px rgba(18,78,163,.12));animation:loaderFloat 4.2s ease-in-out infinite}
+.loader-copy strong{display:block;color:#17263a;font-size:16px;letter-spacing:.02em}
+.loader-copy span{display:block;margin-top:4px;color:#8493a7;font-size:10px;letter-spacing:.08em}
+.loader>small{color:#7c8da3;line-height:1.6}
+.loader-line{height:3px;margin-top:17px;border-radius:99px;background:#e8f0fb;overflow:hidden}
+.loader-line:after{content:"";display:block;width:42%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#1769ff,#5ca4ff);animation:load 1.15s ease-in-out infinite alternate}
+@keyframes load{to{transform:translateX(138%)}}
+@keyframes loaderFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-1.5px) scale(1.015)}}
+@keyframes loaderGlint{0%,62%{transform:translateX(-78%) rotate(8deg);opacity:0}72%{opacity:.75}88%,100%{transform:translateX(78%) rotate(8deg);opacity:0}}
 @media(prefers-reduced-motion:reduce){.loader-logo:after,.loader-logo svg,.loader-line:after{animation:none!important}}
 </style>
 </head>
@@ -18,7 +28,10 @@ html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;backgr
   <div class="loader-brand">
     <div class="loader-logo" aria-hidden="true">
       <svg viewBox="0 0 96 96" role="img">
-        <defs><linearGradient id="loaderBlue" x1="10" y1="14" x2="82" y2="83"><stop stop-color="#0b7cc7"/><stop offset=".55" stop-color="#1648a7"/><stop offset="1" stop-color="#153c91"/></linearGradient><linearGradient id="loaderGreen" x1="42" y1="34" x2="89" y2="73"><stop stop-color="#0aa842"/><stop offset=".58" stop-color="#55bf1d"/><stop offset="1" stop-color="#b8df00"/></linearGradient></defs>
+        <defs>
+          <linearGradient id="loaderBlue" x1="10" y1="14" x2="82" y2="83"><stop stop-color="#0b7cc7"/><stop offset=".55" stop-color="#1648a7"/><stop offset="1" stop-color="#153c91"/></linearGradient>
+          <linearGradient id="loaderGreen" x1="42" y1="34" x2="89" y2="73"><stop stop-color="#0aa842"/><stop offset=".58" stop-color="#55bf1d"/><stop offset="1" stop-color="#b8df00"/></linearGradient>
+        </defs>
         <path fill="url(#loaderBlue)" d="M82.5 25.8C69.4 12.2 49.8 7.1 32.7 13.1 15.7 19.1 6.2 34.5 7.9 51.9c1.2 12.4 7.9 23.5 18.2 30.3-6.8-13.4-5.1-28.3 3.8-39.5 11.4-14.2 31.4-20.6 52.6-16.9Z"/>
         <path fill="url(#loaderBlue)" d="M12.2 65.4c12.9 8.1 25.3 10 39.7 6.5 13.9-3.4 25.3 1.3 36.2 12.7-16.3-5.8-27.7-4.1-39.3-.5-15.8 4.8-29.1-2.5-36.6-18.7Z"/>
         <path fill="url(#loaderGreen)" d="M40.9 48.7c10.7-15.5 26.6-22.7 47.9-20.2-15 5.7-27.6 14.2-36.4 28.8-5.2 8.6-9.5 6-11.5-8.6Z"/>
@@ -27,7 +40,7 @@ html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;backgr
     </div>
     <div class="loader-copy"><strong>GDG知识库</strong><span>INTELLIGENT KNOWLEDGE HUB</span></div>
   </div>
-  <small>正在加载系统公共模块与交互组件</small>
+  <small>正在恢复稳定版本，请稍候</small>
   <div class="loader-line"></div>
 </div>
 <script>
@@ -44,79 +57,13 @@ html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;backgr
       if(response.ok){source=await response.text();break}
     }catch(error){}
   }
-  if(!source)throw new Error('原型基础版本加载失败');
-
-  const gdgBrandStyles=`<style id="gdg-public-brand-v1">
-.brand{height:96px!important;padding:0 18px!important;gap:0!important;overflow:visible!important;background:linear-gradient(180deg,rgba(255,255,255,.99),rgba(250,252,255,.97))!important;border-bottom-color:#e8eef7!important}
-.gdg-brand-button{all:unset;box-sizing:border-box;width:100%;display:flex;align-items:center;gap:12px;cursor:pointer;border-radius:14px;padding:7px 8px;position:relative;transition:background .22s ease,transform .22s cubic-bezier(.2,.8,.2,1)}
-.gdg-brand-button:hover{background:#f6f9fe;transform:translateY(-1px)}
-.gdg-logo-stage{width:48px;height:48px;flex:none;display:grid;place-items:center;position:relative;border:1px solid #dce7f5;border-radius:14px;background:linear-gradient(145deg,#fff,#f4f8ff);box-shadow:0 9px 24px rgba(32,91,170,.11),inset 0 1px rgba(255,255,255,.96);overflow:hidden;isolation:isolate}
-.gdg-logo-stage:before{content:"";position:absolute;inset:4px;border:1px solid rgba(23,105,255,.10);border-radius:11px;pointer-events:none}
-.gdg-logo-stage:after{content:"";position:absolute;z-index:4;inset:-55% -36%;background:linear-gradient(106deg,transparent 42%,rgba(255,255,255,.92) 49.5%,transparent 57%);transform:translateX(-76%) rotate(8deg);animation:gdgLogoGlint 7.2s ease-in-out infinite;pointer-events:none}
-.gdg-company-logo{width:42px;height:42px;position:relative;z-index:2;overflow:visible;filter:drop-shadow(0 4px 7px rgba(18,72,150,.14));animation:gdgLogoBreathe 6.8s ease-in-out infinite;transform-origin:50% 54%}
-.gdg-company-logo .gdg-blue-main{transform-origin:46% 52%;animation:gdgBlueDrift 7.4s ease-in-out infinite}
-.gdg-company-logo .gdg-green-main{transform-origin:66% 52%;animation:gdgGreenDrift 6.6s ease-in-out infinite}
-.gdg-logo-orbit{position:absolute;z-index:1;inset:3px;width:42px;height:42px;fill:none;stroke:#1769ff;stroke-width:1.15;stroke-linecap:round;stroke-dasharray:13 24;opacity:.18;animation:gdgOrbit 15s linear infinite;pointer-events:none}
-.gdg-brand-copy{min-width:0;display:flex;flex-direction:column;justify-content:center}.gdg-brand-copy strong{display:block;color:#152944;font-size:17px;line-height:1.2;font-weight:760;letter-spacing:.015em;white-space:nowrap}.gdg-brand-copy span{display:block;margin-top:5px;color:#8696aa;font-size:9px;line-height:1.2;font-weight:600;letter-spacing:.075em;white-space:nowrap}
-.gdg-brand-button:hover .gdg-logo-stage{border-color:#c9dcf5;box-shadow:0 13px 30px rgba(32,91,170,.15),inset 0 1px rgba(255,255,255,.98)}
-.gdg-brand-button.is-replaying .gdg-logo-stage{animation:gdgReplayStage .9s cubic-bezier(.16,1,.3,1)}.gdg-brand-button.is-replaying .gdg-company-logo{animation:gdgReplayLogo .9s cubic-bezier(.16,1,.3,1)}
-@keyframes gdgLogoBreathe{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(0,-.8px,0) scale(1.012)}}
-@keyframes gdgBlueDrift{0%,100%{transform:translate3d(0,0,0) rotate(0)}50%{transform:translate3d(-.45px,.25px,0) rotate(-.35deg)}}
-@keyframes gdgGreenDrift{0%,100%{transform:translate3d(0,0,0) rotate(0)}50%{transform:translate3d(.7px,-.35px,0) rotate(.55deg)}}
-@keyframes gdgOrbit{to{transform:rotate(360deg)}}
-@keyframes gdgLogoGlint{0%,68%{transform:translateX(-76%) rotate(8deg);opacity:0}75%{opacity:.7}88%,100%{transform:translateX(76%) rotate(8deg);opacity:0}}
-@keyframes gdgReplayStage{0%{transform:scale(1)}35%{transform:scale(.94) rotate(-2deg)}72%{transform:scale(1.045) rotate(1deg)}100%{transform:scale(1)}}
-@keyframes gdgReplayLogo{0%{transform:scale(1)}38%{transform:scale(.88) translateY(1px)}76%{transform:scale(1.08) translateY(-1px)}100%{transform:scale(1)}}
-@media(max-width:1180px){.brand{padding:0 14px!important}.gdg-brand-button{gap:10px;padding-left:6px;padding-right:6px}.gdg-logo-stage{width:45px;height:45px}.gdg-company-logo{width:39px;height:39px}.gdg-logo-orbit{width:39px;height:39px}.gdg-brand-copy strong{font-size:16px}.gdg-brand-copy span{font-size:8.5px;letter-spacing:.055em}}
-@media(prefers-reduced-motion:reduce){.gdg-logo-stage:after,.gdg-company-logo,.gdg-company-logo .gdg-blue-main,.gdg-company-logo .gdg-green-main,.gdg-logo-orbit,.gdg-brand-button.is-replaying .gdg-logo-stage,.gdg-brand-button.is-replaying .gdg-company-logo{animation:none!important}}
-</style>`;
-
-  const gdgBrandRuntime=`<script id="gdg-public-brand-runtime-v1">
-(function(){
-  const logoMarkup='<svg class="gdg-company-logo" viewBox="0 0 96 96" aria-hidden="true"><defs><linearGradient id="gdgBlueGradient" x1="10" y1="14" x2="82" y2="83"><stop stop-color="#0b7cc7"/><stop offset=".55" stop-color="#1648a7"/><stop offset="1" stop-color="#153c91"/></linearGradient><linearGradient id="gdgGreenGradient" x1="42" y1="34" x2="89" y2="73"><stop stop-color="#0aa842"/><stop offset=".58" stop-color="#55bf1d"/><stop offset="1" stop-color="#b8df00"/></linearGradient></defs><g class="gdg-blue-main"><path fill="url(#gdgBlueGradient)" d="M82.5 25.8C69.4 12.2 49.8 7.1 32.7 13.1 15.7 19.1 6.2 34.5 7.9 51.9c1.2 12.4 7.9 23.5 18.2 30.3-6.8-13.4-5.1-28.3 3.8-39.5 11.4-14.2 31.4-20.6 52.6-16.9Z"/><path fill="url(#gdgBlueGradient)" d="M12.2 65.4c12.9 8.1 25.3 10 39.7 6.5 13.9-3.4 25.3 1.3 36.2 12.7-16.3-5.8-27.7-4.1-39.3-.5-15.8 4.8-29.1-2.5-36.6-18.7Z"/></g><g class="gdg-green-main"><path fill="url(#gdgGreenGradient)" d="M40.9 48.7c10.7-15.5 26.6-22.7 47.9-20.2-15 5.7-27.6 14.2-36.4 28.8-5.2 8.6-9.5 6-11.5-8.6Z"/><path fill="url(#gdgGreenGradient)" opacity=".95" d="M56 58.3c8.9-13.9 19.4-23 33.7-29.2-9.8 12.7-14.5 25.6-10.7 39.7-9.7-1.5-17.3-5-23-10.5Z"/></g></svg>';
-  function mountBrand(){
-    document.title='GDG知识库｜智能知识库管理平台高保真交互原型';
-    const brand=document.querySelector('.brand');
-    if(!brand||brand.dataset.gdgBrand==='v1')return;
-    brand.dataset.gdgBrand='v1';
-    brand.innerHTML='<button type="button" class="gdg-brand-button" aria-label="GDG知识库，点击重播品牌动画"><span class="gdg-logo-stage"><svg class="gdg-logo-orbit" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21"/></svg>'+logoMarkup+'</span><span class="gdg-brand-copy"><strong>GDG知识库</strong><span>智能知识库管理平台 · PRO</span></span></button>';
-    const button=brand.querySelector('.gdg-brand-button');
-    button.addEventListener('click',function(){
-      button.classList.remove('is-replaying');
-      void button.offsetWidth;
-      button.classList.add('is-replaying');
-      window.setTimeout(function(){button.classList.remove('is-replaying')},960);
-    });
-  }
-  mountBrand();
-  const root=document.getElementById('app')||document.body;
-  let queued=false;
-  new MutationObserver(function(){
-    if(queued)return;
-    queued=true;
-    requestAnimationFrame(function(){queued=false;mountBrand()});
-  }).observe(root,{childList:true,subtree:true});
-  window.addEventListener('hashchange',mountBrand);
-})();
-<\/script>`;
-
-  const safeJson=value=>JSON.stringify(value).replace(/<\/script/gi,'<\\/script');
-  const patchCode=[
-    "  source=source.replaceAll('智汇云知','GDG知识库');",
-    "  source=source.replace('</head>',"+safeJson(gdgBrandStyles)+"+'</head>');",
-    "  source=source.replace('</body>',"+safeJson(gdgBrandRuntime)+"+'</body>');"
-  ].join('\n');
-
-  const writePattern=/(\n\s*)document\.open\(\);\s*\n\s*document\.write\(source\);/;
-  if(!writePattern.test(source))throw new Error('原型写入结构不兼容');
-  source=source.replace(writePattern,(match,indent)=>'\n'+patchCode+indent+'document.open();'+indent+'document.write(source);');
-  source=source.replaceAll('智汇云知','GDG知识库');
+  if(!source)throw new Error('稳定版本加载失败，请检查网络连接');
 
   document.open();
   document.write(source);
   document.close();
 })().catch(error=>{
-  document.body.innerHTML='<div class="loader"><div class="loader-brand"><div class="loader-copy"><strong>GDG知识库载入失败</strong><span>PUBLIC SHELL ERROR</span></div></div><small>'+String(error.message||error)+'</small></div>';
+  document.body.innerHTML='<div class="loader"><div class="loader-copy"><strong>原型载入失败</strong><span>STABLE SHELL ERROR</span></div><small>'+String(error.message||error)+'</small></div>';
 });
 </script>
 </body>
