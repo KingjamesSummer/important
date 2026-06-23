@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>智汇云知｜企业空间优化版</title>
+<meta name="theme-color" content="#f8fafc">
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f8fafc}
+#prototypeFrame{display:block;width:100%;height:100%;border:0;background:#f8fafc}
+.patch-error{position:fixed;inset:0;z-index:20;display:none;place-items:center;background:#f8fafc;font-family:Inter,"PingFang SC","Microsoft YaHei",sans-serif;color:#334155}
+.patch-error.show{display:grid}.patch-error div{max-width:540px;padding:28px;border:1px solid #e2e8f0;border-radius:16px;background:#fff;box-shadow:0 18px 48px rgba(15,23,42,.08)}
+.patch-error strong{display:block;margin-bottom:8px;color:#0f172a;font-size:18px}.patch-error p{margin:0;color:#64748b;line-height:1.7}
+</style>
+<style id="enterpriseStyles" type="text/css">
+.enterprise-mode{--enterprise-accent:#416b8b;--enterprise-accent-strong:#2e5675;--enterprise-soft:#edf4f8;--enterprise-soft-2:#f6f9fb;--enterprise-line:#e2e9ef;--enterprise-ink:#172538;--enterprise-text:#53677d;--enterprise-muted:#8797a9}
+.enterprise-mode .nav-item.active{background:var(--enterprise-soft);color:var(--enterprise-accent-strong)}
+.enterprise-mode .nav-item.active:before{background:var(--enterprise-accent)}
+.enterprise-mode .main{padding-top:20px}
+.enterprise-nav-group{margin:3px 0 5px;padding:2px 0 5px;border-radius:10px;background:#fbfcfd}
+.enterprise-nav-head{height:30px;display:flex;align-items:center;padding:0 10px 0 40px;color:#94a2b1;font-size:10px;letter-spacing:.04em}
+.enterprise-nav-head button{margin-left:auto;width:25px;height:25px;display:grid;place-items:center;border:0;border-radius:7px;background:transparent;color:#9aa8b6}.enterprise-nav-head button:hover{background:#edf2f6;color:#546b80}
+.enterprise-nav-head button .icon{width:14px;height:14px;transition:transform .18s}.enterprise-nav-head button.collapsed .icon{transform:rotate(-90deg)}
+.enterprise-dept-list{padding:0 5px 3px}.enterprise-dept-list.collapsed{display:none}
+.enterprise-dept-nav{width:100%;height:34px;display:flex;align-items:center;gap:8px;padding:0 9px 0 35px;border:0;border-radius:8px;background:transparent;color:#66798c;font-size:12px;text-align:left;transition:.15s}
+.enterprise-dept-nav:hover{background:#f0f4f7;color:#304b63}.enterprise-dept-nav.active{background:#e7f0f6;color:#2e5675;font-weight:680}.enterprise-dept-nav .icon{width:15px;height:15px}.enterprise-dept-nav small{margin-left:auto;color:#a5b0bc;font-size:9px;font-weight:500}
+.enterprise-page{--ep-accent:#416b8b;--ep-accent-strong:#2e5675;--ep-soft:#edf4f8;--ep-line:#e2e9ef;--ep-ink:#172538;--ep-text:#53677d;--ep-muted:#8797a9}
+.enterprise-page .page-head{margin-bottom:14px}.enterprise-page .page-title{font-size:24px;letter-spacing:-.35px}.enterprise-page .page-subtitle{margin-top:5px;color:#8291a3}.enterprise-page .page-actions{align-self:center}
+.enterprise-permission{height:28px;display:inline-flex;align-items:center;gap:6px;padding:0 10px;border:1px solid #d7e4ec;border-radius:999px;background:#f4f8fa;color:#496a82;font-size:11px}
+.enterprise-shell{height:calc(100vh - 158px);min-height:580px;overflow:hidden;border-color:var(--ep-line);border-radius:14px;box-shadow:0 5px 20px rgba(31,52,72,.045)}
+.enterprise-library-bar{min-height:64px;display:flex;align-items:center;gap:12px;padding:10px 15px;border-bottom:1px solid #e9eef2;background:linear-gradient(100deg,#fff 0,#fbfdfe 72%,#f3f7f9 100%)}
+.enterprise-library-icon{width:38px;height:38px;display:grid;place-items:center;border:1px solid #d7e4ec;border-radius:11px;background:#eef5f8;color:var(--ep-accent)}.enterprise-library-icon .icon{width:18px;height:18px}
+.enterprise-library-copy{min-width:0}.enterprise-library-copy strong{display:block;color:var(--ep-ink);font-size:14px;font-weight:700}.enterprise-library-copy span{display:block;margin-top:3px;color:var(--ep-muted);font-size:10px}
+.enterprise-library-meta{display:flex;align-items:center;gap:7px;margin-left:7px}.enterprise-library-meta span{height:24px;display:inline-flex;align-items:center;padding:0 8px;border-radius:7px;background:#f1f5f7;color:#667b8e;font-size:10px}.enterprise-library-meta span:first-child{background:#e9f2f7;color:#365f7d}
+.enterprise-library-actions{margin-left:auto;display:flex;gap:5px}.enterprise-icon-btn{width:34px;height:34px;display:grid;place-items:center;border:1px solid transparent;border-radius:9px;background:transparent;color:#718397}.enterprise-icon-btn:hover{border-color:#dce5eb;background:#fff;color:var(--ep-accent-strong)}.enterprise-icon-btn .icon{width:16px;height:16px}
+.enterprise-toolbar{min-height:58px;display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid #edf1f4;background:#fff;position:relative}
+.enterprise-btn{height:36px;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:0 12px;border:1px solid #d9e3e9;border-radius:9px;background:#fff;color:#435b70;font-size:12px;font-weight:620;transition:.15s}.enterprise-btn:hover{border-color:#c2d2dd;background:#f9fbfc;color:#2e5675}.enterprise-btn.primary{border-color:#bfd3df;background:#dceaf2;color:#244f6b;box-shadow:0 5px 13px rgba(62,104,133,.10)}.enterprise-btn.primary:hover{background:#cfe1eb;transform:translateY(-1px)}.enterprise-btn .icon{width:16px;height:16px}
+.enterprise-spacer{flex:1}.enterprise-search{width:min(380px,34vw);height:36px;display:flex;align-items:center;gap:8px;padding:0 10px;border:1px solid #dbe4ea;border-radius:9px;background:#fbfcfd;color:#8b99a8}.enterprise-search:focus-within{border-color:#9eb9cb;box-shadow:0 0 0 3px rgba(65,107,139,.09);background:#fff}.enterprise-search input{width:100%;border:0;outline:0;background:transparent;color:#435b70;font-size:12px}.enterprise-search .icon{width:16px;height:16px}
+.enterprise-filter-trigger{position:relative}.enterprise-filter-trigger.active{border-color:#b7ccd9;background:#eef5f8;color:#315d7b}.enterprise-filter-pop{position:absolute;right:92px;top:50px;z-index:12;width:178px;padding:6px;border:1px solid #dce5eb;border-radius:11px;background:#fff;box-shadow:0 16px 38px rgba(31,52,72,.14)}.enterprise-filter-pop button{width:100%;height:34px;display:flex;align-items:center;gap:8px;padding:0 10px;border:0;border-radius:8px;background:transparent;color:#52677b;font-size:11px;text-align:left}.enterprise-filter-pop button:hover{background:#f2f6f8}.enterprise-filter-pop button.active{background:#eaf2f7;color:#2e5675;font-weight:680}.enterprise-filter-pop button .icon{width:14px;height:14px}
+.enterprise-view-toggle{height:36px;display:flex;padding:3px;border:1px solid #dbe4ea;border-radius:9px;background:#fff}.enterprise-view-toggle button{width:29px;display:grid;place-items:center;border:0;border-radius:6px;background:transparent;color:#94a1ae}.enterprise-view-toggle button:hover{color:#536b80}.enterprise-view-toggle button.active{background:#eaf2f7;color:#2e5675}.enterprise-view-toggle .icon{width:15px;height:15px}
+.enterprise-pathbar{height:42px;display:flex;align-items:center;padding:0 15px;border-bottom:1px solid #edf1f4;background:#fcfdfe;color:#8796a5;font-size:11px}.enterprise-pathbar button{height:28px;display:inline-flex;align-items:center;gap:6px;padding:0 7px;border:0;border-radius:7px;background:transparent;color:#60758a;font-size:11px}.enterprise-pathbar button:hover{background:#eef3f6;color:#2e5675}.enterprise-pathbar .icon{width:14px;height:14px}.enterprise-pathbar .sep{padding:0 2px;color:#bdc6cf}.enterprise-pathbar .path-count{margin-left:auto;color:#9aa6b2}
+.enterprise-body{height:calc(100% - 164px);display:flex;min-height:0}.enterprise-table-zone{flex:1;min-width:0;overflow:auto;background:#fff}.enterprise-page .selection-bar{border-radius:0;border-left:0;border-right:0;background:#f3f7f9}.enterprise-page .selection-bar + .enterprise-body{height:calc(100% - 206px)}.enterprise-page .selection-bar .btn{height:30px;border-radius:8px;font-size:11px}
+.enterprise-table{width:100%;border-collapse:collapse;table-layout:fixed}.enterprise-table th{height:39px;padding:0 11px;border-bottom:1px solid #e9eef2;background:#f7f9fb;color:#8997a5;font-size:10px;font-weight:600;text-align:left}.enterprise-table td{height:58px;padding:0 11px;border-bottom:1px solid #eef2f5;color:#61758a;font-size:11px}.enterprise-table tbody tr{transition:.13s}.enterprise-table tbody tr:hover{background:#fbfdfe}.enterprise-table tbody tr.selected{background:#f0f6fa}.enterprise-table .check-col{width:42px;text-align:center}.enterprise-table .name-col{width:auto}.enterprise-table .size-col{width:105px}.enterprise-table .owner-col{width:118px}.enterprise-table .time-col{width:150px}.enterprise-table .status-col{width:92px}.enterprise-table .op-col{width:54px;text-align:center}.enterprise-table .file-name-title{color:#2e445b;font-size:12px;font-weight:650}.enterprise-table .file-name-meta{margin-top:3px}.enterprise-table .badge{height:19px;padding:0 6px;border-radius:6px;font-size:9px;background:#eff4f7;color:#698095}.enterprise-table .more-btn{opacity:.28}.enterprise-table tr:hover .more-btn,.enterprise-table tr.selected .more-btn{opacity:1}.enterprise-table .sort-head{display:inline-flex;align-items:center;gap:4px;cursor:pointer}.enterprise-table .sort-mark .icon{width:12px;height:12px}
+.enterprise-grid{display:grid;grid-template-columns:repeat(4,minmax(190px,1fr));gap:11px;padding:14px}.enterprise-card{min-height:150px;padding:14px;display:flex;flex-direction:column;border:1px solid #e1e8ed;border-radius:13px;background:#fff;text-align:left;transition:.17s;position:relative}.enterprise-card:hover{transform:translateY(-2px);border-color:#c6d5df;box-shadow:0 11px 24px rgba(31,52,72,.08)}.enterprise-card.selected{border-color:#abc4d4;background:#f4f8fa;box-shadow:0 0 0 2px rgba(65,107,139,.08)}.enterprise-card-top{display:flex;align-items:flex-start;gap:11px}.enterprise-card .file-symbol{width:38px;height:41px;border-radius:10px}.enterprise-card .file-symbol iconify-icon{font-size:29px}.enterprise-card-title{min-width:0;flex:1;padding-top:3px;color:#2d4359;font-size:12px;font-weight:680;line-height:1.45;word-break:break-all}.enterprise-card .more-btn{width:28px;height:28px;opacity:.45}.enterprise-card:hover .more-btn{opacity:1}.enterprise-card-meta{margin-top:auto;padding-top:15px;display:flex;align-items:center;justify-content:space-between;gap:8px;color:#8b98a5;font-size:10px}.enterprise-card-tag{height:21px;display:inline-flex;align-items:center;padding:0 7px;border-radius:6px;background:#eff4f7;color:#657c90}.enterprise-card-owner{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.enterprise-empty{min-height:330px;display:grid;place-items:center;padding:35px;text-align:center}.enterprise-empty-icon{width:62px;height:62px;margin:0 auto 13px;display:grid;place-items:center;border:1px solid #dce5eb;border-radius:20px;background:#f7fafb;color:#7890a3}.enterprise-empty-icon .icon{width:27px;height:27px}.enterprise-empty strong{display:block;color:#344c62;font-size:14px}.enterprise-empty p{margin:7px 0 16px;color:#91a0af;font-size:11px;line-height:1.65}.enterprise-empty-actions{display:flex;justify-content:center;gap:8px}
+.enterprise-page .detail-pane{width:330px;border-left-color:#e4eaef}.enterprise-page .detail-head{height:49px;color:#334b61}.enterprise-page .detail-preview{background:#f7fafb;border-radius:11px}.enterprise-page .detail-actions{grid-template-columns:1fr}.enterprise-page .detail-actions .btn{height:34px;border-radius:8px;font-size:11px}
+@media(max-width:1360px){.enterprise-grid{grid-template-columns:repeat(3,minmax(180px,1fr))}.enterprise-library-meta span:last-child{display:none}}
+@media(max-width:1100px){.enterprise-grid{grid-template-columns:repeat(2,minmax(180px,1fr))}.enterprise-table .owner-col{display:none}.enterprise-search{width:280px}.enterprise-library-meta{display:none}}
+@media(max-width:820px){.enterprise-toolbar{flex-wrap:wrap}.enterprise-spacer{display:none}.enterprise-search{order:3;width:100%}.enterprise-shell{height:auto;min-height:640px}.enterprise-grid{grid-template-columns:1fr}.enterprise-table .size-col,.enterprise-table .time-col,.enterprise-table .status-col{display:none}}
+</style>
+</head>
+<body>
+<iframe id="prototypeFrame" src="web-prototype.html" title="智汇云知 Web 端交互原型"></iframe>
+<div class="patch-error" id="patchError"><div><strong>企业空间增强样式未能加载</strong><p>请通过同一站点地址访问此页面。原始 Web 端原型仍可直接打开。</p></div></div>
+<script id="enterprisePatch" type="text/plain">
+state.enterpriseNavExpanded=true;
+state.enterpriseView='list';
+state.enterpriseFilter='all';
+state.enterpriseFilterOpen=false;
+
+const enterpriseBaseRender=render;
+render=function(){
+  enterpriseBaseRender();
+  document.body.classList.toggle('enterprise-mode',state.page==='enterprise');
+};
+
+window.toggleEnterpriseNav=function(){state.enterpriseNavExpanded=!state.enterpriseNavExpanded;render()};
+window.setEnterpriseView=function(view){state.enterpriseView=view;state.detail=null;render()};
+window.toggleEnterpriseFilter=function(){state.enterpriseFilterOpen=!state.enterpriseFilterOpen;render()};
+window.setEnterpriseFilter=function(type){state.enterpriseFilter=type;state.enterpriseFilterOpen=false;state.selected=[];state.detail=null;render()};
+window.refreshEnterprise=function(){state.enterpriseFilterOpen=false;toast('资料库内容已刷新');render()};
+window.goEnterpriseFolder=function(level){state.folder=level<0?[]:state.folder.slice(0,level+1);state.selected=[];state.detail=null;state.menu=null;render()};
+
+sidebar=function(){
+  const groups=nav.map(group=>{
+    const items=group.items.map(([page,iconName,title])=>{
+      const base=`<button class="nav-item ${state.page===page?'active':''}" onclick="navigate('${page}')">${icon(iconName)}<span>${title}</span>${page==='related'?'<span class="trail badge blue">3</span>':''}</button>`;
+      if(page!=='enterprise'||state.page!=='enterprise')return base;
+      const deptRows=depts.map((dept,index)=>`<button class="enterprise-dept-nav ${state.dept===dept?'active':''}" onclick="changeDept('${dept}')" title="进入${safe(dept)}资料库">${icon(index===0?'building':'folder')}<span>${safe(dept)}</span><small>${enterpriseFiles[dept]?.filter(item=>(item.parent||'')==='').length||0}</small></button>`).join('');
+      return `${base}<div class="enterprise-nav-group"><div class="enterprise-nav-head"><span>部门资料库</span><button class="${state.enterpriseNavExpanded?'':'collapsed'}" onclick="toggleEnterpriseNav()" title="${state.enterpriseNavExpanded?'收起':'展开'}部门资料库">${icon('down')}</button></div><div class="enterprise-dept-list ${state.enterpriseNavExpanded?'':'collapsed'}">${deptRows}</div></div>`;
+    }).join('');
+    return `<div class="nav-title">${group.section}</div>${items}`;
+  }).join('');
+  return `<aside class="sidebar"><div class="brand"><div class="brand-mark"><iconify-icon icon="solar:cloud-file-bold-duotone" aria-hidden="true" onload="this.parentElement.classList.add('is-loaded')"></iconify-icon><span class="brand-fallback">知</span></div><div class="brand-copy"><strong>智汇云知</strong><span>智能知识库管理平台 · PRO</span></div></div><div class="nav-scroll">${groups}</div><div class="capacity-card"><div class="capacity-head"><strong>个人空间用量</strong><span>31%</span></div><div class="capacity-bar"><i></i></div><div class="capacity-foot">已使用 31.4 GB / 100 GB</div></div></aside>`;
+};
+
+const enterpriseBaseCurrentFiles=currentFiles;
+currentFiles=function(space='enterprise'){
+  if(space!=='enterprise')return enterpriseBaseCurrentFiles(space);
+  const currentPath=state.folder.join('/');
+  let files=(enterpriseFiles[state.dept]||[]).filter(item=>(item.parent||'')===currentPath);
+  if(state.query)files=files.filter(item=>item.name.toLowerCase().includes(state.query.toLowerCase()));
+  if(state.enterpriseFilter!=='all')files=files.filter(item=>state.enterpriseFilter==='folder'?item.type==='folder':state.enterpriseFilter==='document'?['doc','pdf','xls','ppt','md'].includes(item.type):item.type===state.enterpriseFilter);
+  files=files.slice().sort((a,b)=>{
+    const av=a[state.sort.key]||'';
+    const bv=b[state.sort.key]||'';
+    return state.sort.dir==='asc'?String(av).localeCompare(String(bv),'zh-CN'):String(bv).localeCompare(String(av),'zh-CN');
+  });
+  return files;
+};
+
+changeDept=function(dept){state.dept=dept;state.folder=[];state.query='';state.enterpriseFilter='all';state.enterpriseFilterOpen=false;state.selected=[];state.detail=null;state.menu=null;render()};
+
+const enterpriseBaseOpenFile=openFile;
+openFile=function(id,space){
+  if(space!=='enterprise')return enterpriseBaseOpenFile(id,space);
+  const file=findFile(id,'enterprise');
+  if(!file)return;
+  if(file.type==='folder'){
+    state.folder.push(file.name);
+    state.selected=[];
+    state.detail=null;
+    state.menu=null;
+    render();
+  }else openModal('preview',{file});
+};
+
+const enterpriseBaseCreateFolder=createFolder;
+createFolder=function(space){
+  if(space!=='enterprise')return enterpriseBaseCreateFolder(space);
+  const name=document.getElementById('folderName')?.value.trim();
+  if(!name)return toast('请输入文件夹名称','warning');
+  if(/[\\/:*?"<>|]/.test(name))return toast('文件夹名称包含不支持的字符','warning');
+  const parent=state.folder.join('/');
+  const duplicated=(enterpriseFiles[state.dept]||[]).some(item=>(item.parent||'')===parent&&item.name===name);
+  if(duplicated)return toast('当前目录已存在同名内容','warning');
+  enterpriseFiles[state.dept].unshift({id:'enterprise-folder-'+Date.now(),type:'folder',name,parent,modified:'2026-06-23 14:30',owner:'张明远',status:'正常',tag:'文件夹'});
+  closeModal();toast('文件夹创建成功');render();
+};
+
+window.enterpriseRowClick=function(event,id){
+  if(event.target.closest('button,input'))return;
+  if(event.ctrlKey||event.metaKey){
+    state.selected=state.selected.includes(id)?state.selected.filter(item=>item!==id):[...state.selected,id];
+    state.detail=state.selected.length===1?{id:state.selected[0],space:'enterprise'}:null;
+  }else{
+    state.selected=[id];
+    state.detail={id,space:'enterprise'};
+  }
+  render();
+};
+
+window.enterpriseTable=function(files){
+  const rows=files.map(file=>`<tr class="${state.selected.includes(file.id)?'selected':''}" onclick="enterpriseRowClick(event,'${file.id}')" ondblclick="openFile('${file.id}','enterprise')"><td class="check-col"><input class="check" type="checkbox" ${state.selected.includes(file.id)?'checked':''} onclick="event.stopPropagation();toggleOne('${file.id}',this.checked)"></td><td class="name-col"><div class="file-name">${fileVisual(file)}<div class="file-name-copy"><div class="file-name-title">${safe(file.name)}</div><div class="file-name-meta">${file.tag?`<span class="badge">${safe(file.tag)}</span>`:''}</div></div></div></td><td class="size-col">${file.type==='folder'?'—':safe(file.size||'—')}</td><td class="owner-col">${safe(file.owner||'张明远')}</td><td class="time-col">${safe(file.modified)}</td><td class="status-col"><span class="status-dot ${file.status==='正常'?'green':file.status==='受控'?'orange':'red'}"></span>${safe(file.status||'正常')}</td><td class="op-col"><button class="more-btn" onclick="event.stopPropagation();openMenu(event,'${file.id}','enterprise')" title="更多操作">${icon('more')}</button></td></tr>`).join('');
+  return `<table class="enterprise-table"><thead><tr><th class="check-col"><input class="check" type="checkbox" ${files.length&&state.selected.length===files.length?'checked':''} onchange="toggleAll(this.checked,${JSON.stringify(files.map(item=>item.id)).replace(/"/g,'&quot;')})"></th><th class="name-col"><span class="sort-head" onclick="sortBy('name')">名称${sortMark('name')}</span></th><th class="size-col"><span class="sort-head" onclick="sortBy('size')">大小${sortMark('size')}</span></th><th class="owner-col">创建人</th><th class="time-col"><span class="sort-head" onclick="sortBy('modified')">修改时间${sortMark('modified')}</span></th><th class="status-col">状态</th><th class="op-col"></th></tr></thead><tbody>${rows}</tbody></table>`;
+};
+
+window.enterpriseGrid=function(files){
+  return `<div class="enterprise-grid">${files.map(file=>`<article class="enterprise-card ${state.selected.includes(file.id)?'selected':''}" onclick="enterpriseRowClick(event,'${file.id}')" ondblclick="openFile('${file.id}','enterprise')"><div class="enterprise-card-top">${fileVisual(file)}<div class="enterprise-card-title">${safe(file.name)}</div><button class="more-btn" onclick="event.stopPropagation();openMenu(event,'${file.id}','enterprise')">${icon('more')}</button></div><div class="enterprise-card-meta"><span class="enterprise-card-tag">${safe(file.tag||personalFileType(file))}</span><span class="enterprise-card-owner">${safe(file.owner||'张明远')} · ${safe(file.modified.slice(5))}</span></div></article>`).join('')}</div>`;
+};
+
+window.enterpriseEmpty=function(){
+  const inFolder=state.folder.length>0;
+  const filtered=state.query||state.enterpriseFilter!=='all';
+  const title=filtered?'没有符合条件的内容':inFolder?'这个文件夹还是空的':'当前资料库暂无内容';
+  const desc=filtered?'可清除关键词或切换文件类型后重试。':inFolder?'上传文件或新建文件夹，开始整理当前目录。':'拥有上传权限后，可在这里沉淀部门文件资产。';
+  return `<div class="enterprise-empty"><div><div class="enterprise-empty-icon">${icon(filtered?'search':'folder')}</div><strong>${title}</strong><p>${desc}</p><div class="enterprise-empty-actions">${filtered?`<button class="enterprise-btn" onclick="state.query='';state.enterpriseFilter='all';render()">清除筛选</button>`:`<button class="enterprise-btn" onclick="openModal('newFolder',{space:'enterprise'})">${icon('folderPlus')}新建文件夹</button><button class="enterprise-btn primary" onclick="startUpload('enterprise')">${icon('upload')}上传文件</button>`}</div></div></div>`;
+};
+
+enterprise=function(){
+  const files=currentFiles('enterprise');
+  const pathButtons=state.folder.map((name,index)=>`<span class="sep">/</span><button onclick="goEnterpriseFolder(${index})">${safe(name)}</button>`).join('');
+  const activeFilter=state.enterpriseFilter!=='all';
+  const filterOptions=[['all','全部类型','filter'],['folder','文件夹','folder'],['document','文档','edit'],['img','图片','eye'],['zip','压缩包','archive']];
+  const filterPop=state.enterpriseFilterOpen?`<div class="enterprise-filter-pop">${filterOptions.map(([value,label,iconName])=>`<button class="${state.enterpriseFilter===value?'active':''}" onclick="setEnterpriseFilter('${value}')">${icon(iconName)}<span>${label}</span></button>`).join('')}</div>`:'';
+  const content=files.length?(state.enterpriseView==='grid'?enterpriseGrid(files):enterpriseTable(files)):enterpriseEmpty();
+  return `<section class="enterprise-page">${pageHead('企业空间','组织级文件资产按部门资料库统一治理',`<span class="enterprise-permission">${icon('shield')}当前权限：操作者</span>`)}<div class="panel enterprise-shell"><div class="enterprise-library-bar"><div class="enterprise-library-icon">${icon('building')}</div><div class="enterprise-library-copy"><strong>${safe(state.dept)}</strong><span>企业空间中的部门资料库 · 文件归组织所有</span></div><div class="enterprise-library-meta"><span>部门资料库</span><span>${(enterpriseFiles[state.dept]||[]).length} 项内容</span></div><div class="enterprise-library-actions"><button class="enterprise-icon-btn" onclick="toast('已收藏当前资料库')" title="收藏资料库">${icon('star')}</button><button class="enterprise-icon-btn" onclick="refreshEnterprise()" title="刷新">${icon('restore')}</button></div></div><div class="enterprise-toolbar"><button class="enterprise-btn primary" onclick="startUpload('enterprise')">${icon('upload')}上传</button><button class="enterprise-btn" onclick="openModal('newFolder',{space:'enterprise'})">${icon('folderPlus')}新建文件夹</button><div class="enterprise-spacer"></div><label class="enterprise-search">${icon('search')}<input value="${safe(state.query)}" placeholder="搜索当前资料库，按 Enter 确认" onkeydown="if(event.key==='Enter'){state.query=this.value;state.selected=[];state.detail=null;render()}"></label><button class="enterprise-btn enterprise-filter-trigger ${activeFilter?'active':''}" onclick="toggleEnterpriseFilter()">${icon('filter')}${activeFilter?'已筛选':'筛选'}</button>${filterPop}<div class="enterprise-view-toggle"><button class="${state.enterpriseView==='list'?'active':''}" onclick="setEnterpriseView('list')" title="列表视图">${icon('list')}</button><button class="${state.enterpriseView==='grid'?'active':''}" onclick="setEnterpriseView('grid')" title="网格视图">${icon('grid')}</button></div></div><div class="enterprise-pathbar">${state.folder.length?`<button onclick="goEnterpriseFolder(${state.folder.length-2})">${icon('arrowLeft')}返回</button><span class="sep">|</span>`:''}<button onclick="goEnterpriseFolder(-1)">${icon('building')}企业空间</button><span class="sep">/</span><button onclick="goEnterpriseFolder(-1)">${safe(state.dept)}</button>${pathButtons}<span class="path-count">${files.length} 项</span></div>${selectionBar('enterprise')}<div class="enterprise-body"><div class="enterprise-table-zone">${content}</div>${detailPane()}</div></div></section>`;
+};
+</script>
+<script>
+(function(){
+  const frame=document.getElementById('prototypeFrame');
+  const error=document.getElementById('patchError');
+  frame.addEventListener('load',function(){
+    try{
+      const win=frame.contentWindow;
+      const doc=frame.contentDocument;
+      const style=doc.createElement('style');
+      style.id='enterprise-v1-styles';
+      style.textContent=document.getElementById('enterpriseStyles').textContent;
+      doc.head.appendChild(style);
+      win.eval(document.getElementById('enterprisePatch').textContent);
+      win.eval("navigate('enterprise');document.querySelector('.main')?.scrollTo(0,0)");
+      document.title='智汇云知｜企业空间';
+    }catch(err){
+      console.error('Enterprise enhancement failed:',err);
+      error.classList.add('show');
+    }
+  });
+})();
+</script>
+</body>
+</html>
