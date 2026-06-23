@@ -156,3 +156,11 @@ const previousModalContent=modalContent;
 modalContent=function(){if(state.modal?.type==='transfer')return transferDialog(state.modal.payload||{});return previousModalContent()};
 render();
 })();
+
+(()=>{
+  if(document.querySelector('script[data-personal-dropdown-v13]'))return;
+  const script=document.createElement('script');
+  script.src='assets/personal-space-v13.js?v=1';
+  script.dataset.personalDropdownV13='1';
+  document.head.appendChild(script);
+})();
