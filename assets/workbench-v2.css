@@ -1,0 +1,81 @@
+/* Workbench-only visual refinement. Scoped by body.workbench-v2. */
+body.workbench-v2{
+  --wb-page:#edf3f6;
+  --wb-surface:#f9fbfc;
+  --wb-surface-strong:#ffffff;
+  --wb-line:#dbe5eb;
+  --wb-ink:#203247;
+  --wb-text:#5f7386;
+  --wb-muted:#8a9aa9;
+  --wb-blue:#5f839d;
+  --wb-green:#5d8a73;
+  --wb-amber:#aa7a3c;
+}
+body.workbench-v2 .main{
+  background:
+    radial-gradient(circle at 9% 0,rgba(108,146,171,.16),transparent 29%),
+    linear-gradient(180deg,#edf3f6 0%,#f4f7f9 58%,#edf2f5 100%);
+}
+body.workbench-v2 .page{max-width:1580px}
+body.workbench-v2 .page-head{margin-bottom:16px;padding:2px 2px 0}
+body.workbench-v2 .page-title{font-size:24px;color:var(--wb-ink);letter-spacing:-.35px}
+body.workbench-v2 .page-subtitle{color:#7f8f9e}
+body.workbench-v2 .page-actions{display:none!important}
+body.workbench-v2 .stats-grid{gap:14px;margin-bottom:16px}
+body.workbench-v2 .stat-card{
+  min-height:112px;
+  border-color:var(--wb-line);
+  border-radius:14px;
+  box-shadow:0 8px 22px rgba(31,52,72,.055);
+  cursor:pointer;
+  transition:transform .18s,border-color .18s,box-shadow .18s;
+}
+body.workbench-v2 .stat-card:nth-child(1){background:linear-gradient(145deg,#f9fbfd,#e8f0f5);border-top:3px solid #7596ad}
+body.workbench-v2 .stat-card:nth-child(2){background:linear-gradient(145deg,#fbfdfc,#e8f2ed);border-top:3px solid #72a087}
+body.workbench-v2 .stat-card:nth-child(3){background:linear-gradient(145deg,#fffdf9,#f9efdf);border-top:3px solid #c08b49}
+body.workbench-v2 .stat-card:nth-child(4){background:linear-gradient(145deg,#fbfcfd,#ebf0f4);border-top:3px solid #8598aa}
+body.workbench-v2 .stat-card:hover{transform:translateY(-2px);border-color:#c2d2dc;box-shadow:0 14px 30px rgba(31,52,72,.09)}
+body.workbench-v2 .stat-card:focus-visible{outline:3px solid rgba(95,131,157,.18);outline-offset:2px}
+body.workbench-v2 .stat-icon{background:rgba(255,255,255,.64);border:1px solid rgba(255,255,255,.82);box-shadow:inset 0 1px rgba(255,255,255,.8)}
+body.workbench-v2 .stat-number{color:var(--wb-ink)}
+body.workbench-v2 .dashboard-grid{grid-template-columns:minmax(0,1.48fr) minmax(330px,.72fr);gap:16px}
+body.workbench-v2 .dashboard-grid .panel{
+  border-color:var(--wb-line);
+  border-radius:14px;
+  background:rgba(249,251,252,.96);
+  box-shadow:0 8px 24px rgba(31,52,72,.05);
+  overflow:hidden;
+}
+body.workbench-v2 .card-head{
+  background:linear-gradient(180deg,#f8fbfc,#f2f6f8);
+  border-bottom-color:#e4ebf0;
+}
+body.workbench-v2 .panel-title{color:var(--wb-ink);font-weight:650}
+body.workbench-v2 .panel-subtitle{color:var(--wb-muted)}
+body.workbench-v2 .quick-actions{gap:11px}
+body.workbench-v2 .quick{
+  min-height:104px;
+  border-color:#dbe5eb;
+  border-radius:12px;
+  box-shadow:inset 0 1px rgba(255,255,255,.82);
+}
+body.workbench-v2 .quick:nth-child(1){background:linear-gradient(145deg,#f7fafc,#e8f0f5)}
+body.workbench-v2 .quick:nth-child(2){background:linear-gradient(145deg,#fbfcfd,#edf2f5)}
+body.workbench-v2 .quick:nth-child(3){background:linear-gradient(145deg,#f8fcfa,#e8f2ed)}
+body.workbench-v2 .quick:nth-child(4){background:linear-gradient(145deg,#fffdf8,#f9efdf)}
+body.workbench-v2 .quick:hover{background:#fff;border-color:#c4d4de;box-shadow:0 10px 24px rgba(31,52,72,.08)}
+body.workbench-v2 .quick-icon{background:#dfeaf1;color:#496f8a}
+body.workbench-v2 .quick:nth-child(3) .quick-icon{background:#e2efe7;color:#4f7c68}
+body.workbench-v2 .quick:nth-child(4) .quick-icon{background:#f5e9d5;color:#98703b}
+body.workbench-v2 .list-panel{background:rgba(250,252,253,.97)}
+body.workbench-v2 .file-table thead{background:#edf3f6}
+body.workbench-v2 .file-table tbody tr{background:rgba(255,255,255,.7)}
+body.workbench-v2 .file-table tbody tr:hover{background:#f0f5f8}
+body.workbench-v2 .space-summary{gap:4px;padding:3px;border-radius:999px;background:#e3ebf0}
+body.workbench-v2 .space-summary .space-segment{height:8px}
+body.workbench-v2 .activity{padding:12px 0}
+body.workbench-v2 .activity-avatar{background:#e3ebf0;color:#5b7488}
+@media(max-width:1180px){
+  body.workbench-v2 .dashboard-grid{grid-template-columns:1fr}
+  body.workbench-v2 .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
