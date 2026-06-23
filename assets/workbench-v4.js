@@ -35,15 +35,15 @@
     document.body.appendChild(script);
   }
 
-  function ensureAdminDeptV9(attempt=0){
-    if(window.__adminDeptConsoleV9||document.getElementById('admin-dept-console-v9-script'))return;
+  function ensureAdminDeptV10(attempt=0){
+    if(window.__adminDeptConsoleV10||document.getElementById('admin-dept-console-v10-script'))return;
     if(!window.__adminDeptConsoleV3){
-      if(attempt<180)window.setTimeout(()=>ensureAdminDeptV9(attempt+1),50);
+      if(attempt<180)window.setTimeout(()=>ensureAdminDeptV10(attempt+1),50);
       return;
     }
     const script=document.createElement('script');
-    script.id='admin-dept-console-v9-script';
-    script.src='assets/admin-dept-console-v9.js?v=1';
+    script.id='admin-dept-console-v10-script';
+    script.src='assets/admin-dept-console-v10.js?v=1';
     script.async=false;
     document.body.appendChild(script);
   }
@@ -135,6 +135,6 @@
   const root=document.getElementById('app');
   if(root)new MutationObserver(syncWorkbench).observe(root,{childList:true,subtree:true});
   ensureAdminDeptV3();
-  ensureAdminDeptV9();
+  ensureAdminDeptV10();
   syncWorkbench();
 })();
