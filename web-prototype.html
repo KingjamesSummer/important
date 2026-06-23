@@ -40,7 +40,7 @@ html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;backgr
     </div>
     <div class="loader-copy"><strong>GDG知识库</strong><span>INTELLIGENT KNOWLEDGE HUB</span></div>
   </div>
-  <small>正在恢复稳定版本，请稍候</small>
+  <small>正在加载增强版部门管理与成员权限详情</small>
   <div class="loader-line"></div>
 </div>
 <script>
@@ -58,6 +58,17 @@ html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;backgr
     }catch(error){}
   }
   if(!source)throw new Error('稳定版本加载失败，请检查网络连接');
+
+  const runtimeMarker="  document.open();\n  document.write(source);\n  document.close();";
+  const finalAppInjection="  source=source.replace('</body>','<scr'+'ipt src=\"assets/admin-dept-console-v3.js?v=3\"></scr'+'ipt></body>');\n";
+  const nestedRuntimePatch=[
+    "  const adminV3Marker="+JSON.stringify(runtimeMarker)+";",
+    "  const adminV3Injection="+JSON.stringify(finalAppInjection)+";",
+    "  if(!source.includes(adminV3Marker))throw new Error('部门管理增强补丁结构不兼容');",
+    "  source=source.replace(adminV3Marker,adminV3Injection+adminV3Marker);"
+  ].join('\n')+'\n';
+  if(!source.includes(runtimeMarker))throw new Error('稳定版本运行结构不兼容');
+  source=source.replace(runtimeMarker,nestedRuntimePatch+runtimeMarker);
 
   document.open();
   document.write(source);
