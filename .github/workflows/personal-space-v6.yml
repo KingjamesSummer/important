@@ -2,9 +2,6 @@ name: Personal space v6 information layout
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - .github/workflows/personal-space-v6.yml
 
 permissions:
   contents: write
