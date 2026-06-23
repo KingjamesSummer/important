@@ -142,9 +142,82 @@ html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;backgr
     }
   </style>`;
 
+  const workbenchSunnyCards=`<style id="workbench-sunny-cards-v10">
+    body.workbench-v4 .main{
+      background:
+        radial-gradient(circle at 18% -10%,rgba(115,181,255,.16),transparent 34%),
+        linear-gradient(180deg,#f8fbff 0%,#f2f8ff 50%,#eef5fd 100%)!important;
+    }
+    body.workbench-v4 .stat-card{
+      --sun-a:#2f80ed;
+      --sun-b:#4a9cff;
+      --sun-c:#78bcff;
+      --sun-shadow:rgba(47,128,237,.22);
+      background:
+        radial-gradient(circle at 84% 15%,rgba(255,255,255,.34) 0%,rgba(255,255,255,.13) 24%,transparent 46%),
+        linear-gradient(138deg,var(--sun-a) 0%,var(--sun-b) 56%,var(--sun-c) 100%)!important;
+      background-size:165% 165%!important;
+      border-color:rgba(255,255,255,.34)!important;
+      box-shadow:0 13px 28px var(--sun-shadow),inset 0 1px rgba(255,255,255,.34)!important;
+      animation:wbSunnySky 14s ease-in-out infinite!important;
+    }
+    body.workbench-v4 .stat-card:nth-child(1){--sun-a:#2f80ed;--sun-b:#4a9cff;--sun-c:#79bcff;--sun-shadow:rgba(47,128,237,.24);animation-delay:0s!important}
+    body.workbench-v4 .stat-card:nth-child(2){--sun-a:#119bd5;--sun-b:#35b2eb;--sun-c:#79d2f6;--sun-shadow:rgba(17,155,213,.23);animation-delay:-3.5s!important}
+    body.workbench-v4 .stat-card:nth-child(3){--sun-a:#596ee9;--sun-b:#798bf6;--sun-c:#a7b4ff;--sun-shadow:rgba(89,110,233,.23);animation-delay:-7s!important}
+    body.workbench-v4 .stat-card:nth-child(4){--sun-a:#3285d3;--sun-b:#55a2e7;--sun-c:#8ac5f4;--sun-shadow:rgba(50,133,211,.22);animation-delay:-10.5s!important}
+    body.workbench-v4 .stat-card::before{
+      background:
+        linear-gradient(112deg,rgba(255,255,255,.12) 0%,transparent 40%,rgba(255,255,255,.18) 100%)!important;
+      background-size:200% 100%!important;
+      animation:wbSunnyLight 10s ease-in-out infinite!important;
+    }
+    body.workbench-v4 .stat-card::after{
+      width:138px!important;
+      height:138px!important;
+      right:-52px!important;
+      top:-58px!important;
+      border-color:rgba(255,255,255,.20)!important;
+      background:radial-gradient(circle at 36% 34%,rgba(255,255,255,.20),rgba(255,255,255,.07) 46%,transparent 70%)!important;
+      animation:wbSunnyOrb 9.5s ease-in-out infinite!important;
+    }
+    body.workbench-v4 .stat-card:hover{
+      filter:saturate(1.08) brightness(1.045);
+      border-color:rgba(255,255,255,.52)!important;
+      box-shadow:0 19px 38px var(--sun-shadow),0 7px 16px rgba(31,76,137,.11),inset 0 1px rgba(255,255,255,.42)!important;
+    }
+    body.workbench-v4 .stat-top{color:rgba(255,255,255,.88)!important}
+    body.workbench-v4 .stat-note{color:rgba(255,255,255,.76)!important}
+    body.workbench-v4 .stat-number{color:#fff!important;text-shadow:0 2px 10px rgba(18,54,110,.22)}
+    body.workbench-v4 .stat-icon,
+    body.workbench-v4 .stat-card.blue .stat-icon,
+    body.workbench-v4 .stat-card.green .stat-icon,
+    body.workbench-v4 .stat-card.orange .stat-icon{
+      background:rgba(255,255,255,.19)!important;
+      border-color:rgba(255,255,255,.36)!important;
+      box-shadow:0 8px 18px rgba(17,66,132,.13),inset 0 1px rgba(255,255,255,.46)!important;
+    }
+    @keyframes wbSunnySky{
+      0%,100%{background-position:0% 46%}
+      50%{background-position:100% 54%}
+    }
+    @keyframes wbSunnyLight{
+      0%,100%{background-position:0% 50%;opacity:.72}
+      50%{background-position:100% 50%;opacity:1}
+    }
+    @keyframes wbSunnyOrb{
+      0%,100%{transform:translate3d(0,0,0) scale(1);opacity:.78}
+      50%{transform:translate3d(-7px,8px,0) scale(1.055);opacity:1}
+    }
+    @media(prefers-reduced-motion:reduce){
+      body.workbench-v4 .stat-card,
+      body.workbench-v4 .stat-card::before,
+      body.workbench-v4 .stat-card::after{animation:none!important}
+    }
+  </style>`;
+
   html=html.replace(
     '</head>',
-    '<link rel="stylesheet" href="assets/personal-space-v8.css?v=2"><link rel="stylesheet" href="assets/personal-space-v9.css?v=1"><link rel="stylesheet" href="assets/enterprise-space-v1.css?v=4"><link rel="stylesheet" href="assets/workbench-v4.css?v=3">'+workbenchCardFill+'<link rel="stylesheet" href="assets/workbench-v4-avatars.css?v=1"><link rel="stylesheet" href="assets/collaboration-space-v1.css?v=1"><style>.destination-v9-check{width:18px!important;height:18px!important;border-radius:0!important;background:transparent!important;color:#3f759d!important}.destination-v9-check .icon-stack{width:14px!important;height:14px!important}.transfer-person-check{width:18px!important;height:18px!important;border-radius:0!important;background:transparent!important;color:#3f759d!important}.enterprise-nav-count-v4,.enterprise-dept-group-head-v4 small,.enterprise-default-v4,.enterprise-dept-nav-v4>span{display:none!important}.enterprise-library-root-v4{grid-template-columns:18px minmax(0,1fr)!important}.enterprise-dept-group-head-v4{grid-template-columns:22px minmax(0,1fr)!important}.enterprise-dept-nav-v4{grid-template-columns:17px minmax(0,1fr)!important}</style></head>'
+    '<link rel="stylesheet" href="assets/personal-space-v8.css?v=2"><link rel="stylesheet" href="assets/personal-space-v9.css?v=1"><link rel="stylesheet" href="assets/enterprise-space-v1.css?v=4"><link rel="stylesheet" href="assets/workbench-v4.css?v=3">'+workbenchCardFill+workbenchSunnyCards+'<link rel="stylesheet" href="assets/workbench-v4-avatars.css?v=1"><link rel="stylesheet" href="assets/collaboration-space-v1.css?v=1"><style>.destination-v9-check{width:18px!important;height:18px!important;border-radius:0!important;background:transparent!important;color:#3f759d!important}.destination-v9-check .icon-stack{width:14px!important;height:14px!important}.transfer-person-check{width:18px!important;height:18px!important;border-radius:0!important;background:transparent!important;color:#3f759d!important}.enterprise-nav-count-v4,.enterprise-dept-group-head-v4 small,.enterprise-default-v4,.enterprise-dept-nav-v4>span{display:none!important}.enterprise-library-root-v4{grid-template-columns:18px minmax(0,1fr)!important}.enterprise-dept-group-head-v4{grid-template-columns:22px minmax(0,1fr)!important}.enterprise-dept-nav-v4{grid-template-columns:17px minmax(0,1fr)!important}</style></head>'
   );
 
   html=html.replace(
