@@ -1,0 +1,64 @@
+name: Refine personal space prototype
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/refine-personal-space.yml
+
+permissions:
+  contents: write
+
+jobs:
+  refine:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Correct patch matcher
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('scripts/refine_personal_space.py')
+          text = path.read_text(encoding='utf-8')
+          text = text.replace(r"\([^\\n]*?(?=\nfunction", r"\([\s\S]*?(?=\nfunction")
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Apply personal-space refinement
+        run: python scripts/refine_personal_space.py
+
+      - name: Validate embedded JavaScript
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path('web-prototype.html').read_text(encoding='utf-8')
+          blocks = re.findall(r'<script(?:\s[^>]*)?>([\s\S]*?)</script>', html, re.I)
+          inline = [block for block in blocks if block.strip()]
+          if not inline:
+              raise SystemExit('No inline JavaScript found')
+          Path('/tmp/web-prototype.js').write_text(inline[-1], encoding='utf-8')
+          assert 'personal-space-refinement-v4' in html
+          assert 'function personalFileTable' in html
+          assert 'function profileMenu' in html
+          PY
+          node --check /tmp/web-prototype.js
+
+      - name: Commit refined prototype
+        run: |
+          if git diff --quiet; then
+            echo 'No changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add web-prototype.html scripts/refine_personal_space.py
+          git commit -m 'feat: refine personal space frontend'
+          git push
