@@ -44,6 +44,52 @@ body.admin-console-v2 .search-box:focus-within,body.admin-console-v2 .global-sea
 body.admin-console-v2 .page-title,body.admin-console-v2 .admin-head h3{color:#0d2f5e!important}
 </style>`;
 
+  const enterpriseSidebarNameFix=`<style id="enterprise-sidebar-name-fix-v12">
+.sidebar .enterprise-org-v7,.sidebar .enterprise-org-tree-v4{width:auto!important;min-width:0!important;max-width:none!important;margin-right:8px!important;overflow:visible!important;box-sizing:border-box!important}
+.sidebar .enterprise-dept-list-v7,.sidebar .enterprise-dept-children-v4{width:auto!important;min-width:0!important;max-width:none!important;padding-left:10px!important;overflow:visible!important;box-sizing:border-box!important}
+.sidebar .enterprise-dept-node-v7,.sidebar .enterprise-dept-nav-v4{display:flex!important;align-items:center!important;gap:8px!important;width:auto!important;min-width:0!important;max-width:none!important;margin-right:0!important;padding:0 8px!important;overflow:visible!important;box-sizing:border-box!important}
+.sidebar .enterprise-dept-node-v7>span,.sidebar .enterprise-dept-nav-v4>strong{display:block!important;flex:1 1 auto!important;width:auto!important;min-width:0!important;max-width:none!important;overflow:visible!important;text-overflow:clip!important;white-space:nowrap!important;word-break:keep-all!important}
+.sidebar .enterprise-dept-node-v7 iconify-icon,.sidebar .enterprise-dept-nav-v4 .icon-stack,.sidebar .enterprise-dept-nav-v4>.icon{width:16px!important;min-width:16px!important;flex:0 0 16px!important}
+</style><script>(function(){
+  var frame=0;
+  function cleanTitle(value){return String(value||'').replace(/（.*$/,'').replace(/\s*公共资料库\s*$/,'').trim()}
+  function fix(){
+    cancelAnimationFrame(frame);
+    frame=requestAnimationFrame(function(){
+      var sidebar=document.querySelector('.sidebar');
+      if(!sidebar)return;
+      var right=sidebar.getBoundingClientRect().right;
+      document.querySelectorAll('.enterprise-dept-node-v7,.enterprise-dept-nav-v4').forEach(function(node){
+        var label=node.querySelector(':scope>span')||node.querySelector(':scope>strong')||node.querySelector('span,strong');
+        if(!label)return;
+        var full=cleanTitle(node.getAttribute('title')||node.getAttribute('aria-label'));
+        var shown=cleanTitle(label.textContent);
+        if(full&&(!shown||shown.length<=2||shown.indexOf('…')>-1||shown.indexOf('...')>-1)){label.textContent=full}
+        var left=node.getBoundingClientRect().left;
+        var width=Math.max(116,Math.floor(right-left-10));
+        node.style.setProperty('display','flex','important');
+        node.style.setProperty('width',width+'px','important');
+        node.style.setProperty('min-width',width+'px','important');
+        node.style.setProperty('max-width',width+'px','important');
+        node.style.setProperty('overflow','visible','important');
+        label.style.setProperty('display','block','important');
+        label.style.setProperty('flex','1 1 auto','important');
+        label.style.setProperty('width','auto','important');
+        label.style.setProperty('min-width','0','important');
+        label.style.setProperty('max-width','none','important');
+        label.style.setProperty('overflow','visible','important');
+        label.style.setProperty('text-overflow','clip','important');
+        label.style.setProperty('white-space','nowrap','important');
+      });
+    });
+  }
+  var root=document.getElementById('app')||document.body;
+  new MutationObserver(fix).observe(root,{childList:true,subtree:true});
+  window.addEventListener('resize',fix);
+  document.addEventListener('DOMContentLoaded',fix,{once:true});
+  setTimeout(fix,0);setTimeout(fix,120);setTimeout(fix,500);
+})();<\/script>`;
+
   const styleNeedle="  const memberStyles=memberPatch.slice(0,splitAt);";
   const styleReplacement="  const memberStyles=memberPatch.slice(0,splitAt)+"+JSON.stringify(systemBlueTheme)+";";
   if(!source.includes(styleNeedle))throw new Error('管理中心样式补丁结构不兼容');
@@ -56,6 +102,7 @@ body.admin-console-v2 .page-title,body.admin-console-v2 .admin-head h3{color:#0d
   source=source.replace(/assets\/workbench-v4\.js\?v=3/g,'assets/workbench-v4.js?v=8');
   source=source.replace(/assets\/enterprise-space-v1\.css\?v=\d+/g,'assets/enterprise-space-v1.css?v=7');
   source=source.replace(/assets\/enterprise-space-v2\.js\?v=\d+/g,'assets/enterprise-space-v2.js?v=2');
+  source=source.replace('</body>',enterpriseSidebarNameFix+'</body>');
 
   document.open();
   document.write(source);
