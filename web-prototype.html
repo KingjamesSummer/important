@@ -106,6 +106,8 @@ body.admin-console-v2 .profile-menu button:hover,body.admin-console-v2 .profile-
   if(!source.includes(oldOrder))throw new Error('部门管理脚本顺序补丁结构不兼容');
   source=source.replace(oldOrder,newOrder);
   source=source.replace(/assets\/workbench-v4\.js\?v=3/g,'assets/workbench-v4.js?v=7');
+  source=source.replace(/assets\/enterprise-space-v1\.css\?v=\d+/g,'assets/enterprise-space-v1.css?v=7');
+  source=source.replace(/assets\/enterprise-space-v2\.js\?v=\d+/g,'assets/enterprise-space-v2.js?v=2');
 
   document.open();
   document.write(source);
