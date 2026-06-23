@@ -58,7 +58,7 @@
     const existing=document.querySelector(`script[data-${key}]`);
     if(existing){
       if(onload){
-        const ready=(key==='collaboration-v2'&&window.__collaborationSpaceV2Loaded)||(key==='collaboration-v3'&&window.__collaborationSpaceV3Loaded)||(key==='collaboration-v4'&&window.__collaborationSpaceV4Loaded);
+        const ready=(key==='collaboration-v2'&&window.__collaborationSpaceV2Loaded)||(key==='collaboration-v3'&&window.__collaborationSpaceV3Loaded)||(key==='collaboration-v4'&&window.__collaborationSpaceV4Loaded)||(key==='collaboration-v5'&&window.__collaborationSpaceV5Loaded);
         if(ready)onload();
         else existing.addEventListener('load',onload,{once:true});
       }
@@ -76,7 +76,9 @@
   appendStyle('collaboration-v3','assets/collaboration-space-v3.css?v=1');
   appendStyle('collaboration-v3-polish','assets/collaboration-space-v3-polish.css?v=1');
   appendStyle('collaboration-v4','assets/collaboration-space-v4.css?v=1');
-  const loadV4=()=>appendScript('collaboration-v4','assets/collaboration-space-v4.js?v=1');
+  appendStyle('collaboration-v5','assets/collaboration-space-v5.css?v=1');
+  const loadV5=()=>appendScript('collaboration-v5','assets/collaboration-space-v5.js?v=1');
+  const loadV4=()=>appendScript('collaboration-v4','assets/collaboration-space-v4.js?v=1',loadV5);
   const loadV3=()=>appendScript('collaboration-v3','assets/collaboration-space-v3.js?v=1',loadV4);
   appendScript('collaboration-v2','assets/collaboration-space-v2.js?v=1',loadV3);
 })();
