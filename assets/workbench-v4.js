@@ -3,6 +3,15 @@
   const routes={最近访问:'personal',协作空间:'collaboration',待我处理:'related',有效外链:'links'};
   const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  function ensurePremiumMotionStyles(){
+    if(document.getElementById('workbench-v4-premium-motion'))return;
+    const link=document.createElement('link');
+    link.id='workbench-v4-premium-motion';
+    link.rel='stylesheet';
+    link.href='assets/workbench-v4-premium-motion.css?v=1';
+    document.head.appendChild(link);
+  }
+
   function animateNumber(node){
     if(!node||node.dataset.counted==='true'||reduceMotion)return;
     const target=Number((node.textContent||'').replace(/[^0-9.]/g,''));
@@ -30,8 +39,8 @@
         const rect=card.getBoundingClientRect();
         const x=(event.clientX-rect.left)/rect.width;
         const y=(event.clientY-rect.top)/rect.height;
-        const rotateY=(x-.5)*2.2;
-        const rotateX=(.5-y)*1.8;
+        const rotateY=(x-.5)*3.2;
+        const rotateX=(.5-y)*2.6;
         card.style.setProperty('--mx',(x*100).toFixed(1)+'%');
         card.style.setProperty('--my',(y*100).toFixed(1)+'%');
         card.style.setProperty('--rx',rotateX.toFixed(2)+'deg');
@@ -76,6 +85,7 @@
     document.body.classList.toggle('workbench-v4',active);
     if(!active)return;
 
+    ensurePremiumMotionStyles();
     document.querySelector('.page-head .page-actions')?.remove();
     enhanceRecentTable();
 
