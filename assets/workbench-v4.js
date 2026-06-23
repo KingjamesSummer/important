@@ -37,28 +37,15 @@
     document.body.appendChild(script);
   }
 
-  function ensureAdminDeptV4(attempt=0){
-    if(window.__adminDeptConsoleV4||document.getElementById('admin-dept-console-v4-script'))return;
+  function ensureAdminDeptV6(attempt=0){
+    if(window.__adminDeptConsoleV6||document.getElementById('admin-dept-console-v6-script'))return;
     if(!window.__adminDeptConsoleV3){
-      if(attempt<180)window.setTimeout(()=>ensureAdminDeptV4(attempt+1),50);
+      if(attempt<180)window.setTimeout(()=>ensureAdminDeptV6(attempt+1),50);
       return;
     }
     const script=document.createElement('script');
-    script.id='admin-dept-console-v4-script';
-    script.src='assets/admin-dept-console-v4.js?v=1';
-    script.async=false;
-    document.body.appendChild(script);
-  }
-
-  function ensureAdminDeptV5(attempt=0){
-    if(window.__adminDeptConsoleV5||document.getElementById('admin-dept-console-v5-script'))return;
-    if(!window.__adminDeptConsoleV4){
-      if(attempt<200)window.setTimeout(()=>ensureAdminDeptV5(attempt+1),50);
-      return;
-    }
-    const script=document.createElement('script');
-    script.id='admin-dept-console-v5-script';
-    script.src='assets/admin-dept-console-v5.js?v=1';
+    script.id='admin-dept-console-v6-script';
+    script.src='assets/admin-dept-console-v6.js?v=1';
     script.async=false;
     document.body.appendChild(script);
   }
@@ -171,7 +158,6 @@
   const root=document.getElementById('app');
   if(root)new MutationObserver(syncWorkbench).observe(root,{childList:true,subtree:true});
   ensureAdminDeptV3();
-  ensureAdminDeptV4();
-  ensureAdminDeptV5();
+  ensureAdminDeptV6();
   syncWorkbench();
 })();
