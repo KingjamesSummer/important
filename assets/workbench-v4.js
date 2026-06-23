@@ -24,15 +24,6 @@
     }
   }
 
-  function ensureAdminConsole(){
-    if(document.getElementById('admin-dept-console-v1-script'))return;
-    const script=document.createElement('script');
-    script.id='admin-dept-console-v1-script';
-    script.src='assets/admin-dept-console-v1.js?v=1';
-    script.async=false;
-    document.body.appendChild(script);
-  }
-
   function animateNumber(node){
     if(!node||node.dataset.counted==='true'||reduceMotion)return;
     const target=Number((node.textContent||'').replace(/[^0-9.]/g,''));
@@ -140,6 +131,5 @@
 
   const root=document.getElementById('app');
   if(root)new MutationObserver(syncWorkbench).observe(root,{childList:true,subtree:true});
-  ensureAdminConsole();
   syncWorkbench();
 })();
