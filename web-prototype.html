@@ -30,9 +30,53 @@ html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;backgr
     "pageHead('工作台','集中查看常用文件、协作动态和待处理事项')"
   );
 
+  const workbenchCardFill=`<style id="workbench-card-fill-v5">
+    body.workbench-v4 .stat-card{
+      --card-fill-a:#dfeaff;
+      --card-fill-b:#f1f6ff;
+      --card-border:#bfd3f7;
+      --card-shadow:rgba(70,127,228,.12);
+      padding-top:18px;
+      background:linear-gradient(135deg,var(--card-fill-a) 0%,var(--card-fill-b) 100%)!important;
+      border-color:var(--card-border)!important;
+      box-shadow:0 10px 24px var(--card-shadow),inset 0 1px rgba(255,255,255,.90)!important;
+    }
+    body.workbench-v4 .stat-card:nth-child(1){--card-fill-a:#dce8ff;--card-fill-b:#f2f6ff;--card-border:#bfd3fa;--card-shadow:rgba(70,127,228,.13)}
+    body.workbench-v4 .stat-card:nth-child(2){--card-fill-a:#d9eefb;--card-fill-b:#eff9ff;--card-border:#bedff3;--card-shadow:rgba(54,142,212,.12)}
+    body.workbench-v4 .stat-card:nth-child(3){--card-fill-a:#e3e5ff;--card-fill-b:#f4f4ff;--card-border:#cbcffa;--card-shadow:rgba(103,120,215,.12)}
+    body.workbench-v4 .stat-card:nth-child(4){--card-fill-a:#dfe8f2;--card-fill-b:#f2f6fa;--card-border:#c7d5e6;--card-shadow:rgba(86,124,174,.12)}
+    body.workbench-v4 .stat-card::before{
+      inset:0!important;
+      width:auto!important;
+      height:auto!important;
+      border-radius:inherit!important;
+      background:linear-gradient(118deg,rgba(255,255,255,.34) 0%,rgba(255,255,255,.08) 44%,rgba(255,255,255,.20) 100%)!important;
+      background-size:180% 100%!important;
+      box-shadow:none!important;
+      pointer-events:none;
+      animation:wbCardWash 7.4s ease-in-out infinite!important;
+    }
+    body.workbench-v4 .stat-card::after{
+      background:linear-gradient(145deg,rgba(var(--card-accent-rgb),.12),rgba(255,255,255,.12))!important;
+    }
+    body.workbench-v4 .stat-card:hover{
+      background:linear-gradient(135deg,var(--card-fill-a) 0%,var(--card-fill-b) 100%)!important;
+      border-color:rgba(var(--card-accent-rgb),.38)!important;
+      box-shadow:0 16px 34px rgba(var(--card-accent-rgb),.16),0 5px 12px rgba(47,88,145,.05),inset 0 1px #fff!important;
+    }
+    body.workbench-v4 .stat-icon,
+    body.workbench-v4 .stat-card.blue .stat-icon,
+    body.workbench-v4 .stat-card.green .stat-icon,
+    body.workbench-v4 .stat-card.orange .stat-icon{
+      background:rgba(255,255,255,.66)!important;
+    }
+    @keyframes wbCardWash{0%,100%{background-position:0 50%}50%{background-position:100% 50%}}
+    @media(prefers-reduced-motion:reduce){body.workbench-v4 .stat-card::before{animation:none!important}}
+  </style>`;
+
   html=html.replace(
     '</head>',
-    '<link rel="stylesheet" href="assets/personal-space-v8.css?v=2"><link rel="stylesheet" href="assets/personal-space-v9.css?v=1"><link rel="stylesheet" href="assets/enterprise-space-v1.css?v=4"><link rel="stylesheet" href="assets/workbench-v4.css?v=3"><link rel="stylesheet" href="assets/workbench-v4-topband.css?v=2"><link rel="stylesheet" href="assets/collaboration-space-v1.css?v=1"><style>.destination-v9-check{width:18px!important;height:18px!important;border-radius:0!important;background:transparent!important;color:#3f759d!important}.destination-v9-check .icon-stack{width:14px!important;height:14px!important}.transfer-person-check{width:18px!important;height:18px!important;border-radius:0!important;background:transparent!important;color:#3f759d!important}</style></head>'
+    '<link rel="stylesheet" href="assets/personal-space-v8.css?v=2"><link rel="stylesheet" href="assets/personal-space-v9.css?v=1"><link rel="stylesheet" href="assets/enterprise-space-v1.css?v=4"><link rel="stylesheet" href="assets/workbench-v4.css?v=3">'+workbenchCardFill+'<link rel="stylesheet" href="assets/collaboration-space-v1.css?v=1"><style>.destination-v9-check{width:18px!important;height:18px!important;border-radius:0!important;background:transparent!important;color:#3f759d!important}.destination-v9-check .icon-stack{width:14px!important;height:14px!important}.transfer-person-check{width:18px!important;height:18px!important;border-radius:0!important;background:transparent!important;color:#3f759d!important}</style></head>'
   );
 
   html=html.replace(
