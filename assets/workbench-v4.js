@@ -37,6 +37,19 @@
     document.body.appendChild(script);
   }
 
+  function ensureAdminDeptV4(attempt=0){
+    if(window.__adminDeptConsoleV4||document.getElementById('admin-dept-console-v4-script'))return;
+    if(!window.__adminDeptConsoleV3){
+      if(attempt<180)window.setTimeout(()=>ensureAdminDeptV4(attempt+1),50);
+      return;
+    }
+    const script=document.createElement('script');
+    script.id='admin-dept-console-v4-script';
+    script.src='assets/admin-dept-console-v4.js?v=1';
+    script.async=false;
+    document.body.appendChild(script);
+  }
+
   function animateNumber(node){
     if(!node||node.dataset.counted==='true'||reduceMotion)return;
     const target=Number((node.textContent||'').replace(/[^0-9.]/g,''));
@@ -145,5 +158,6 @@
   const root=document.getElementById('app');
   if(root)new MutationObserver(syncWorkbench).observe(root,{childList:true,subtree:true});
   ensureAdminDeptV3();
+  ensureAdminDeptV4();
   syncWorkbench();
 })();
