@@ -50,6 +50,19 @@
     document.body.appendChild(script);
   }
 
+  function ensureAdminDeptV5(attempt=0){
+    if(window.__adminDeptConsoleV5||document.getElementById('admin-dept-console-v5-script'))return;
+    if(!window.__adminDeptConsoleV4){
+      if(attempt<200)window.setTimeout(()=>ensureAdminDeptV5(attempt+1),50);
+      return;
+    }
+    const script=document.createElement('script');
+    script.id='admin-dept-console-v5-script';
+    script.src='assets/admin-dept-console-v5.js?v=1';
+    script.async=false;
+    document.body.appendChild(script);
+  }
+
   function animateNumber(node){
     if(!node||node.dataset.counted==='true'||reduceMotion)return;
     const target=Number((node.textContent||'').replace(/[^0-9.]/g,''));
@@ -159,5 +172,6 @@
   if(root)new MutationObserver(syncWorkbench).observe(root,{childList:true,subtree:true});
   ensureAdminDeptV3();
   ensureAdminDeptV4();
+  ensureAdminDeptV5();
   syncWorkbench();
 })();
