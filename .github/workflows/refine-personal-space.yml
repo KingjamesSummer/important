@@ -34,6 +34,48 @@ jobs:
       - name: Apply personal-space refinement
         run: python scripts/refine_personal_space.py
 
+      - name: Apply final interaction polish
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('web-prototype.html')
+          html = path.read_text(encoding='utf-8')
+
+          html = html.replace(
+              '.profile-item:hover{background:#f1f6fd;color:#1769ff}.profile-item>span:last-child{',
+              '.profile-item:hover{background:#f1f6fd;color:#1769ff}.profile-item.admin-entry>span:last-child{'
+          )
+          if '.personal-panel>.filter-pop{' not in html:
+              html = html.replace(
+                  '.personal-search{width:min(520px,42vw);margin-left:12px}',
+                  '.personal-search{width:min(520px,42vw);margin-left:12px}.personal-panel>.filter-pop{top:72px;right:88px}'
+              )
+
+          selection = r'''function selectionBar(space){if(!state.selected.length)return'';return `<div class="selection-bar"><strong>已选择 ${state.selected.length} 项</strong><button class="btn compact" onclick="toast('已加入 '+state.selected.length+' 个下载任务')">${icon('download')}下载</button><button class="btn compact" onclick="openModal('move',{space})">${icon('move')}移动</button><button class="btn compact" onclick="copySelected('${space}')">${icon('copy')}复制</button>${space==='personal'?`<button class="btn compact" onclick="toggleFavoriteSelected()">${icon('star')}收藏</button><button class="btn compact" onclick="openModal('tag')">${icon('tag')}标签</button>`:''}<button class="btn compact" onclick="openModal('delete',{space})">${icon('trash')}删除</button><button class="btn compact" onclick="showSelectedDetail()">${icon('info')}详情</button><div class="spacer"></div><button class="btn ghost icon-only compact" onclick="clearSelection()">${icon('x')}</button></div>`}'''
+          html, count = re.subn(
+              r'function selectionBar\(space\)\{[\s\S]*?(?=\nfunction fileTable\()',
+              selection,
+              html,
+              count=1
+          )
+          if count != 1:
+              raise SystemExit('Could not refine selectionBar')
+
+          helper = r'''function copySelected(space){const ids=[...state.selected];let source=space==='enterprise'?(enterpriseFiles[state.dept]||[]):space==='collab'?collabFiles:personalFiles;const copies=source.filter(f=>ids.includes(f.id)).map((f,i)=>({...f,id:'copy'+Date.now()+i,name:f.name.replace(/(\.[^.]+)?$/,m=>` - 副本${m||''}`),modified:'2026-06-23 11:42',favorite:space==='personal'?false:f.favorite}));if(space==='enterprise')enterpriseFiles[state.dept].unshift(...copies);else if(space==='collab')collabFiles.unshift(...copies);else personalFiles.unshift(...copies);state.selected=[];toast(`已复制 ${copies.length} 项`);render()}
+'''
+          if 'function copySelected(space)' not in html:
+              html = html.replace('function startFolderUpload(){', helper + 'function startFolderUpload(){', 1)
+
+          old_keydown = "document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openModal('globalSearch')}if(e.key==='Escape'){state.modal=null;state.menu=null;renderOverlays()}});"
+          new_keydown = "document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openModal('globalSearch')}if(e.key==='Escape'){state.modal=null;state.menu=null;state.profileOpen=false;state.personalUploadOpen=false;render()}});"
+          if old_keydown in html:
+              html = html.replace(old_keydown, new_keydown, 1)
+
+          path.write_text(html, encoding='utf-8')
+          PY
+
       - name: Validate embedded JavaScript
         run: |
           python - <<'PY'
@@ -48,6 +90,7 @@ jobs:
           assert 'personal-space-refinement-v4' in html
           assert 'function personalFileTable' in html
           assert 'function profileMenu' in html
+          assert 'function copySelected' in html
           PY
           node --check /tmp/web-prototype.js
 
@@ -60,5 +103,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add web-prototype.html scripts/refine_personal_space.py
-          git commit -m 'feat: refine personal space frontend'
+          git commit -m 'fix: polish personal space interactions'
           git push
