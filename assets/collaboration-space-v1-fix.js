@@ -78,9 +78,11 @@
   appendStyle('collaboration-v4','assets/collaboration-space-v4.css?v=1');
   appendStyle('collaboration-v5','assets/collaboration-space-v5.css?v=1');
   appendStyle('collaboration-v6','assets/collaboration-space-v6.css?v=1');
+  appendStyle('admin-member-polish-v2','assets/admin-member-polish-v2.css?v=6');
   const loadV6=()=>appendScript('collaboration-v6','assets/collaboration-space-v6.js?v=1');
   const loadV5=()=>appendScript('collaboration-v5','assets/collaboration-space-v5.js?v=1',loadV6);
   const loadV4=()=>appendScript('collaboration-v4','assets/collaboration-space-v4.js?v=1',loadV5);
   const loadV3=()=>appendScript('collaboration-v3','assets/collaboration-space-v3.js?v=1',loadV4);
   appendScript('collaboration-v2','assets/collaboration-space-v2.js?v=1',loadV3);
+  appendScript('admin-member-polish-v3','assets/admin-member-polish-v3.js?v=6');
 })();
