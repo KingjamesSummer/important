@@ -9,7 +9,7 @@ html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;backgr
 </style>
 </head>
 <body>
-<div class="loader"><strong>正在载入 GDG知识库原型…</strong><small>正在加载部门管理界面与完整交互</small></div>
+<div class="loader"><strong>正在载入 GDG知识库原型…</strong><small>正在加载精简蓝白品牌栏、顶部导航与完整交互</small></div>
 <script>
 (async()=>{
   const revision='1ac99de78e4af6875f73cf446f8659b074b0f68d';
@@ -44,13 +44,70 @@ body.admin-console-v2 .search-box:focus-within,body.admin-console-v2 .global-sea
 body.admin-console-v2 .page-title,body.admin-console-v2 .admin-head h3{color:#0d2f5e!important}
 </style>`;
 
+  const refinedHeaderStyles=`<style id="gdg-refined-header-v3">
+body.admin-console-v2{--gdg-blue:#0b6cff;--gdg-navy:#082f70;--gdg-soft:#edf6ff;--gdg-line:#d9eaff}
+body.admin-console-v2 .sidebar.admin-shell-sidebar{background:#fff!important;border-right:1px solid var(--gdg-line)!important;box-shadow:4px 0 18px rgba(23,105,255,.03)!important}
+body.admin-console-v2 .admin-shell-brand{height:72px!important;padding:9px 12px!important;background:#fff!important;border-bottom:1px solid #e5f0ff!important;overflow:visible!important}
+body.admin-console-v2 .admin-shell-brand .gdg-brand-v4{height:54px!important;width:100%!important;box-sizing:border-box!important;padding:5px 7px!important;gap:10px!important;position:relative!important;overflow:hidden!important;border:0!important;border-radius:14px!important;background:linear-gradient(135deg,#fff 0%,#f4f9ff 100%)!important;box-shadow:inset 0 0 0 1px #d8eaff!important;transform:none!important}
+body.admin-console-v2 .admin-shell-brand .gdg-brand-v4:before{content:"";position:absolute;left:-34px;bottom:-42px;width:130px;height:70px;border:8px solid rgba(80,166,255,.11);border-radius:50%;transform:rotate(9deg);pointer-events:none}
+body.admin-console-v2 .admin-shell-brand .gdg-brand-v4:after{content:"";position:absolute;inset:-80% -20%;background:linear-gradient(108deg,transparent 44%,rgba(255,255,255,.82) 49%,transparent 55%);transform:translateX(-72%) rotate(8deg);animation:gdgHeaderSweep 10s ease-in-out infinite;pointer-events:none}
+body.admin-console-v2 .admin-shell-brand .gdg-logo-v4{width:42px!important;height:42px!important;flex:0 0 42px!important;border:1px solid #cfe4ff!important;border-radius:12px!important;background:linear-gradient(145deg,#fff,#edf6ff)!important;box-shadow:0 7px 16px rgba(19,92,191,.13),inset 0 1px 0 #fff!important;z-index:2!important;animation:gdgLogoFloat 7s ease-in-out infinite!important}
+body.admin-console-v2 .admin-shell-brand .gdg-logo-v4 svg{width:35px!important;height:35px!important;filter:drop-shadow(0 3px 5px rgba(12,75,168,.14))!important}
+body.admin-console-v2 .admin-brand-copy{position:relative!important;z-index:2!important;min-width:0!important}
+body.admin-console-v2 .admin-brand-title{gap:6px!important;align-items:center!important}
+body.admin-console-v2 .admin-brand-title strong{font-size:15.5px!important;line-height:1.1!important;font-weight:800!important;color:var(--gdg-navy)!important;text-shadow:none!important}
+body.admin-console-v2 .admin-brand-badge{height:19px!important;padding:0 6px!important;border:1px solid #6eb4ff!important;border-radius:6px!important;background:linear-gradient(135deg,#46a7ff,#0b6cff)!important;color:#fff!important;font-size:8px!important;font-weight:760!important;box-shadow:0 4px 10px rgba(11,108,255,.18)!important}
+body.admin-console-v2 .admin-brand-copy>span{margin-top:4px!important;color:#5f86b5!important;font-size:8.5px!important;font-weight:560!important}
+body.admin-console-v2 .admin-shell-nav{padding-top:10px!important}
+
+body.admin-console-v2 .topbar.admin-shell-topbar{height:64px!important;margin:0!important;padding:0 20px!important;gap:12px!important;position:relative!important;overflow:visible!important;border:0!important;border-bottom:1px solid var(--gdg-line)!important;border-radius:0!important;background:linear-gradient(90deg,#fff 0%,#fbfdff 58%,#f5faff 100%)!important;box-shadow:0 4px 16px rgba(23,105,255,.04)!important}
+body.admin-console-v2 .topbar.admin-shell-topbar:before,body.admin-console-v2 .topbar.admin-shell-topbar:after{content:none!important;display:none!important}
+body.admin-console-v2 .admin-console-breadcrumb{gap:8px!important;color:#4f7faf!important;font-size:11px!important;font-weight:600!important}
+body.admin-console-v2 .admin-console-breadcrumb .sep{color:#a3c3e7!important}
+body.admin-console-v2 .admin-console-breadcrumb strong{color:var(--gdg-navy)!important;font-size:11.5px!important;font-weight:800!important}
+body.admin-console-v2 .admin-console-breadcrumb .admin-mode{height:25px!important;padding:0 9px!important;border:1px solid #7fbaff!important;border-radius:8px!important;background:linear-gradient(135deg,#2b93ff,#0b6cff)!important;color:#fff!important;font-size:9px!important;font-weight:760!important;box-shadow:0 5px 12px rgba(11,108,255,.18)!important}
+body.admin-console-v2 .admin-shell-topbar .gdg-search{width:min(430px,31vw)!important;height:40px!important;border:1px solid #c6dfff!important;border-radius:12px!important;background:#fff!important;box-shadow:0 5px 14px rgba(23,105,255,.05)!important;transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease!important}
+body.admin-console-v2 .admin-shell-topbar .gdg-search:hover,body.admin-console-v2 .admin-shell-topbar .gdg-search:focus-within{border-color:#73b5ff!important;box-shadow:0 0 0 3px rgba(11,108,255,.07),0 8px 18px rgba(23,105,255,.08)!important;transform:translateY(-1px)!important}
+body.admin-console-v2 .admin-shell-topbar .gdg-search .icon-stack{color:var(--gdg-blue)!important}
+body.admin-console-v2 .admin-shell-topbar .gdg-search input{color:#164d88!important;font-size:11px!important}
+body.admin-console-v2 .admin-shell-topbar .gdg-search input::placeholder{color:#79a0cd!important}
+body.admin-console-v2 .admin-shell-topbar .gdg-search .kbd{border:0!important;border-radius:7px!important;background:#edf5ff!important;color:#5c83b3!important;box-shadow:inset 0 0 0 1px #d8e9fb!important}
+body.admin-console-v2 .admin-top-tools{gap:5px!important;margin-left:0!important}
+body.admin-console-v2 .admin-top-tool{width:36px!important;height:36px!important;border:1px solid transparent!important;border-radius:10px!important;background:transparent!important;color:#1769ff!important;box-shadow:none!important}
+body.admin-console-v2 .admin-top-tool:hover{border-color:#cbe1fb!important;background:var(--gdg-soft)!important;color:#0756d6!important;box-shadow:0 6px 14px rgba(23,105,255,.08)!important;transform:translateY(-1px)!important}
+body.admin-console-v2 .admin-top-tool .icon-stack{width:17px!important;height:17px!important}
+body.admin-console-v2 .admin-top-badge{right:-1px!important;top:-2px!important;min-width:16px!important;height:16px!important;line-height:12px!important;border:2px solid #fff!important;background:var(--gdg-blue)!important;box-shadow:0 3px 8px rgba(11,108,255,.24)!important}
+body.admin-console-v2 .admin-profile-wrap{margin-left:6px!important;padding-left:12px!important}
+body.admin-console-v2 .admin-profile-wrap:before{top:10px!important;bottom:10px!important;background:#dbe8f7!important}
+body.admin-console-v2 .admin-shell-topbar .gdg-profile{height:42px!important;padding:3px 5px!important;gap:8px!important;border-radius:11px!important;background:transparent!important}
+body.admin-console-v2 .admin-shell-topbar .gdg-profile:hover{background:var(--gdg-soft)!important;box-shadow:none!important;transform:translateY(-1px)!important}
+body.admin-console-v2 .admin-shell-topbar .gdg-avatar-v4{width:35px!important;height:35px!important;border-radius:50%!important;background:linear-gradient(145deg,#2a9bff,#0b63ec)!important;border:1px solid #72b9ff!important;color:#fff!important;font-size:12px!important;box-shadow:0 6px 14px rgba(11,108,255,.16),inset 0 1px rgba(255,255,255,.32)!important}
+body.admin-console-v2 .admin-shell-topbar .gdg-avatar-v4:before{background:linear-gradient(180deg,rgba(255,255,255,.20),rgba(255,255,255,0))!important}
+body.admin-console-v2 .admin-shell-topbar .gdg-profile-copy strong{color:var(--gdg-navy)!important;font-size:11.5px!important;font-weight:800!important}
+body.admin-console-v2 .admin-shell-topbar .gdg-profile-copy span{color:#6d91bc!important;font-size:8.5px!important;font-weight:540!important}
+body.admin-console-v2 .admin-shell-topbar .gdg-profile-status{background:#22c875!important;box-shadow:0 0 0 2px #fff,0 0 0 4px rgba(34,200,117,.10)!important}
+body.admin-console-v2 .profile-menu,body.admin-console-v2 .profile-dropdown,body.admin-console-v2 .user-menu{border:1px solid #d5e7fb!important;border-radius:14px!important;background:#fff!important;box-shadow:0 16px 36px rgba(20,75,150,.14)!important;backdrop-filter:none!important}
+body.admin-console-v2 .profile-menu button,body.admin-console-v2 .profile-dropdown button,body.admin-console-v2 .user-menu button{border-radius:8px!important;color:#315f95!important}
+body.admin-console-v2 .profile-menu button:hover,body.admin-console-v2 .profile-dropdown button:hover,body.admin-console-v2 .user-menu button:hover{background:var(--gdg-soft)!important;color:#075fe9!important}
+body.admin-console-v2 .main{padding:18px 22px 24px!important;background:linear-gradient(180deg,#f8fcff 0%,#f2f8ff 100%)!important}
+body.admin-console-v2 .page-head{min-height:auto!important;margin:0 0 12px!important;padding:0!important;background:none!important;box-shadow:none!important;border:0!important;overflow:visible!important}
+body.admin-console-v2 .page-head:before,body.admin-console-v2 .page-head:after{content:none!important;display:none!important}
+body.admin-console-v2 .page-title{font-size:22px!important;color:#0d2f5e!important}
+body.admin-console-v2 .page-subtitle{color:#6a8fb9!important}
+body.admin-console-v2 .ad-toolbar{border-color:#cfe3fb!important;background:#fff!important;box-shadow:0 6px 18px rgba(23,105,255,.05)!important}
+@keyframes gdgHeaderSweep{0%,74%{transform:translateX(-72%) rotate(8deg);opacity:0}80%{opacity:.6}90%,100%{transform:translateX(72%) rotate(8deg);opacity:0}}
+@keyframes gdgLogoFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-1px) scale(1.01)}}
+@media(max-width:1280px){body.admin-console-v2 .admin-shell-brand{height:68px!important;padding:8px 10px!important}body.admin-console-v2 .admin-shell-brand .gdg-brand-v4{height:52px!important;padding:5px 6px!important}body.admin-console-v2 .admin-shell-brand .gdg-logo-v4{width:39px!important;height:39px!important;flex-basis:39px!important}body.admin-console-v2 .admin-brand-title strong{font-size:14px!important}body.admin-console-v2 .admin-brand-copy>span{display:none!important}body.admin-console-v2 .admin-shell-topbar .gdg-search{width:340px!important}.admin-profile-wrap{padding-left:8px!important}.gdg-profile-copy{display:none!important}}
+@media(prefers-reduced-motion:reduce){body.admin-console-v2 .admin-shell-brand .gdg-brand-v4:after,body.admin-console-v2 .admin-shell-brand .gdg-logo-v4{animation:none!important}}
+</style>`;
+
   const styleNeedle="  const memberStyles=memberPatch.slice(0,splitAt);";
   const styleReplacement="  const memberStyles=memberPatch.slice(0,splitAt)+"+JSON.stringify(systemBlueTheme)+";";
   if(!source.includes(styleNeedle))throw new Error('管理中心样式补丁结构不兼容');
   source=source.replace(styleNeedle,styleReplacement);
 
   const oldOrder="    \"  html=html.replace('</body>','<scr'+'ipt src=\\\"assets/admin-dept-console-v1.js?v=1\\\"></scr'+'ipt>'+memberAdminScript+'</body>');\\n\";";
-  const newOrder="    \"  html=html.replace('</body>',memberAdminScript+'<scr'+'ipt src=\\\"assets/admin-dept-console-v2.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/public-shell-v1.js?v=3\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/public-shell-hotfix-v1.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-grant-polish-v2.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-shell-hotfix-v1.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-sunny-theme-v1.js?v=1\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-brand-header-v1.js?v=1\\\"></scr'+'ipt></body>');\\n\";";
+  const newOrder="    \"  html=html.replace('</body>',memberAdminScript+'<scr'+'ipt src=\\\"assets/admin-dept-console-v2.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/public-shell-v1.js?v=3\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/public-shell-hotfix-v1.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-grant-polish-v2.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-shell-hotfix-v1.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-sunny-theme-v1.js?v=1\\\"></scr'+'ipt>'+"+JSON.stringify(refinedHeaderStyles)+"+'</body>');\\n\";";
   if(!source.includes(oldOrder))throw new Error('部门管理脚本顺序补丁结构不兼容');
   source=source.replace(oldOrder,newOrder);
   source=source.replace(/assets\/workbench-v4\.js\?v=3/g,'assets/workbench-v4.js?v=8');
