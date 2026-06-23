@@ -1,23 +1,23 @@
 /* Enterprise space semantic correction: departments own their public libraries. */
 (function(){
-  if(window.__enterpriseSpaceV8)return;
-  window.__enterpriseSpaceV8=true;
+  if(window.__enterpriseSpaceV9)return;
+  window.__enterpriseSpaceV9=true;
   if(typeof state==='undefined'||typeof render!=='function'||typeof sidebar!=='function'||typeof enterprise!=='function')return;
 
   const style=document.createElement('style');
-  style.id='enterprise-space-v8-style';
+  style.id='enterprise-space-v9-style';
   style.textContent=`
-    .enterprise-org-v7{margin:5px 8px 14px 24px;padding:2px 0 4px 11px;border-left:1px solid #dfe7f1}
+    .enterprise-org-v7{width:calc(100% - 32px);min-width:0;max-width:none;margin:5px 0 14px 24px;padding:2px 0 4px 11px;border-left:1px solid #dfe7f1;box-sizing:border-box;overflow:visible}
     .enterprise-org-v7.collapsed{display:none}
-    .enterprise-org-root-v7,.enterprise-dept-node-v7{width:100%;min-width:0;height:38px;display:grid;grid-template-columns:16px minmax(0,1fr);align-items:center;gap:8px;padding:0 9px;border:0;border-radius:9px;background:transparent;color:#60738a;text-align:left;box-sizing:border-box;transition:.15s ease}
+    .enterprise-org-root-v7,.enterprise-dept-node-v7{width:100%;min-width:0;max-width:none;min-height:38px;display:flex;align-items:center;gap:8px;padding:0 9px;border:0;border-radius:9px;background:transparent;color:#60738a;text-align:left;box-sizing:border-box;transition:.15s ease;overflow:visible}
     .enterprise-org-root-v7:hover,.enterprise-dept-node-v7:hover{background:#f5f8fc;color:#315f8d}
     .enterprise-org-root-v7.active,.enterprise-dept-node-v7.active{background:var(--primary-soft);color:var(--primary);font-weight:600}
-    .enterprise-org-root-v7 .icon-stack{width:15px;height:15px;flex:none}
-    .enterprise-dept-node-v7 iconify-icon{font-size:16px;display:inline-flex;align-items:center;justify-content:center;color:#5d8fe8}
-    .enterprise-org-root-v7 span,.enterprise-dept-node-v7 span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
-    .enterprise-dept-list-v7{display:grid;gap:2px;margin-top:3px;padding-left:18px}
-    .enterprise-dept-list-v7 .enterprise-dept-list-v7{padding-left:10px}
-    .enterprise-dept-node-v7{position:relative}
+    .enterprise-org-root-v7 .icon-stack{width:15px;height:15px;min-width:15px;flex:0 0 15px}
+    .enterprise-dept-node-v7 iconify-icon{width:16px;min-width:16px;flex:0 0 16px;font-size:16px;display:inline-flex;align-items:center;justify-content:center;color:#5d8fe8}
+    .enterprise-org-root-v7 span,.enterprise-dept-node-v7 span{display:block;flex:1 1 auto;width:auto;min-width:88px;max-width:none;overflow:visible;text-overflow:clip;white-space:nowrap;font-size:12px;line-height:1.4}
+    .enterprise-dept-list-v7{display:block;width:100%;min-width:0;max-width:none;margin-top:3px;padding-left:12px;box-sizing:border-box;overflow:visible}
+    .enterprise-dept-list-v7 .enterprise-dept-list-v7{width:100%;margin-left:0;padding-left:10px}
+    .enterprise-dept-node-v7{position:relative;margin:2px 0}
     .enterprise-dept-node-v7:before{content:"";position:absolute;left:-10px;top:50%;width:8px;border-top:1px solid #dfe7f1}
     .enterprise-dept-node-v7.disabled{opacity:.5;cursor:not-allowed}
     .enterprise-library-context-v7{min-height:60px;display:flex;align-items:center;gap:11px;padding:10px 16px;border-bottom:1px solid #e8eef6;background:#fff}
@@ -48,6 +48,58 @@
   function departmentNames(){return (depts||[]).filter(dept=>dept!=='集团资料库')}
   function explicitPermission(file){return file?.permissionRole||file?.permission||file?.role||''}
   function permissionSource(file){return file?.permissionSource||file?.sourceType||''}
+
+  let sidebarLayoutFrame=0;
+  function normalizeEnterpriseSidebar(){
+    cancelAnimationFrame(sidebarLayoutFrame);
+    sidebarLayoutFrame=requestAnimationFrame(()=>{
+      const sidebarEl=document.querySelector('.sidebar');
+      if(!sidebarEl)return;
+      const sidebarRect=sidebarEl.getBoundingClientRect();
+      document.querySelectorAll('.enterprise-org-v7').forEach(org=>{
+        const orgRect=org.getBoundingClientRect();
+        const width=Math.max(128,sidebarRect.right-orgRect.left-8);
+        org.style.setProperty('width',`${width}px`,'important');
+        org.style.setProperty('max-width',`${width}px`,'important');
+        org.style.setProperty('overflow','visible','important');
+        const list=org.querySelector('.enterprise-dept-list-v7');
+        if(list){
+          list.style.setProperty('width','100%','important');
+          list.style.setProperty('max-width','none','important');
+          list.style.setProperty('overflow','visible','important');
+        }
+      });
+      document.querySelectorAll('.enterprise-dept-node-v7').forEach(node=>{
+        const rect=node.getBoundingClientRect();
+        const width=Math.max(112,sidebarRect.right-rect.left-10);
+        node.style.setProperty('width',`${width}px`,'important');
+        node.style.setProperty('min-width',`${width}px`,'important');
+        node.style.setProperty('max-width',`${width}px`,'important');
+        node.style.setProperty('display','flex','important');
+        node.style.setProperty('overflow','visible','important');
+        const label=node.querySelector('span');
+        if(label){
+          label.style.setProperty('display','block','important');
+          label.style.setProperty('flex','1 1 auto','important');
+          label.style.setProperty('width',`${Math.max(84,width-32)}px`,'important');
+          label.style.setProperty('min-width','84px','important');
+          label.style.setProperty('max-width','none','important');
+          label.style.setProperty('overflow','visible','important');
+          label.style.setProperty('text-overflow','clip','important');
+          label.style.setProperty('white-space','nowrap','important');
+        }
+      });
+    });
+  }
+
+  const previousRenderV9=render;
+  render=function(){
+    previousRenderV9();
+    normalizeEnterpriseSidebar();
+  };
+  window.addEventListener('resize',normalizeEnterpriseSidebar);
+  const appRoot=document.getElementById('app');
+  if(appRoot)new MutationObserver(normalizeEnterpriseSidebar).observe(appRoot,{childList:true,subtree:true});
 
   window.enterpriseFileVisual=function(file){
     const map={doc:'vscode-icons:file-type-word',pdf:'vscode-icons:file-type-pdf2',xls:'vscode-icons:file-type-excel',ppt:'vscode-icons:file-type-powerpoint',md:'vscode-icons:file-type-markdown',zip:'material-symbols:folder-zip-rounded',img:'solar:gallery-bold-duotone'};
