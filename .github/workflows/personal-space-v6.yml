@@ -1,0 +1,74 @@
+name: Personal space v6 information layout
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/personal-space-v6.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Apply personal-space v6
+        run: python scripts/personal_space_v6.py
+
+      - name: Apply v6.1 icon hotfix
+        run: python scripts/personal_space_v6_1.py
+
+      - name: Validate generated prototype
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          html = Path('web-prototype.html').read_text(encoding='utf-8')
+          required = [
+              'personal-space-v6-information-layout',
+              'personal-space-v6-1-icon-hotfix',
+              'function personalPagination',
+              'function personalPathbar',
+              'function personalBulkControl',
+              'function personalFolderCount',
+              '最近活动',
+              '访问状态',
+              'vscode-icons:default-folder',
+              "openModal('destination',{space:'personal',mode:'copy'})",
+          ]
+          for item in required:
+              assert item in html, item
+
+          assert "${selectionBar('personal')}" not in html
+          assert 'oncontextmenu="openMenu' in html
+          assert 'personal-pagination' in html
+          assert 'personal-bulk-menu' in html
+
+          blocks = re.findall(r'<script(?:\s[^>]*)?>([\s\S]*?)</script>', html, re.I)
+          inline = [block for block in blocks if block.strip()]
+          assert inline
+          Path('/tmp/web-prototype.js').write_text(inline[-1], encoding='utf-8')
+          PY
+          node --check /tmp/web-prototype.js
+
+      - name: Commit validated prototype
+        run: |
+          if git diff --quiet; then
+            echo 'No changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add web-prototype.html scripts/personal_space_v6.py scripts/personal_space_v6_1.py
+          git commit -m 'feat: improve personal space information layout'
+          git push
