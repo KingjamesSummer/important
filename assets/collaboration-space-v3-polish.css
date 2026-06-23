@@ -1,0 +1,9 @@
+/* Collaboration space v3 final visual corrections */
+.collab-v3-timeline article{background:#fff!important;color:#617486!important}
+.collab-v3-timeline article.tone-sky{--timeline:#75a9e4}.collab-v3-timeline article.tone-cyan{--timeline:#72b6c8}.collab-v3-timeline article.tone-orange{--timeline:#e7a15a}.collab-v3-timeline article.tone-violet{--timeline:#998be0}
+.collab-v3-timeline article.tone-sky>span{background:#edf5ff;color:#3974ad}.collab-v3-timeline article.tone-cyan>span{background:#edf9fb;color:#3c7d8e}.collab-v3-timeline article.tone-orange>span{background:#fff5e9;color:#b56e22}.collab-v3-timeline article.tone-violet>span{background:#f3f0ff;color:#6b5db5}
+.collab-v3-role-grid button.tone-sky.selected{background:#edf5ff!important;border-color:#d4e5f6!important;color:#3974ad!important}.collab-v3-role-grid button.tone-orange.selected{background:#fff5e9!important;border-color:#f2dfc5!important;color:#b56e22!important}.collab-v3-role-grid button.tone-violet.selected{background:#f3f0ff!important;border-color:#ded8f8!important;color:#6b5db5!important}
+.collab-v3-file-link,.collab-v3-sort-head{font:inherit!important;border:0!important;box-shadow:none!important;-webkit-appearance:none!important;appearance:none!important}
+.collab-v3-file-link{background:transparent!important;color:inherit!important;padding:0!important;margin:0!important;justify-content:flex-start!important}
+.collab-v3-sort-head{background:transparent!important;padding:0!important;margin:0!important}
+.collab-v3-file-table tbody tr:hover .collab-v3-file-link,.collab-v3-file-table tbody tr.selected .collab-v3-file-link{background:transparent!important}

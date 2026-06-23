@@ -46,17 +46,34 @@
     });
   };
 
-  if(!document.querySelector('link[data-collaboration-v2]')){
+  const appendStyle=(key,href)=>{
+    if(document.querySelector(`link[data-${key}]`))return;
     const link=document.createElement('link');
     link.rel='stylesheet';
-    link.href='assets/collaboration-space-v2.css?v=1';
-    link.dataset.collaborationV2='true';
+    link.href=href;
+    link.setAttribute(`data-${key}`,'true');
     document.head.appendChild(link);
-  }
-  if(!document.querySelector('script[data-collaboration-v2]')){
+  };
+  const appendScript=(key,src,onload)=>{
+    const existing=document.querySelector(`script[data-${key}]`);
+    if(existing){
+      if(onload){
+        if(key==='collaboration-v2'&&window.__collaborationSpaceV2Loaded)onload();
+        else existing.addEventListener('load',onload,{once:true});
+      }
+      return existing;
+    }
     const script=document.createElement('script');
-    script.src='assets/collaboration-space-v2.js?v=1';
-    script.dataset.collaborationV2='true';
+    script.src=src;
+    script.setAttribute(`data-${key}`,'true');
+    if(onload)script.addEventListener('load',onload,{once:true});
     document.body.appendChild(script);
-  }
+    return script;
+  };
+
+  appendStyle('collaboration-v2','assets/collaboration-space-v2.css?v=1');
+  appendStyle('collaboration-v3','assets/collaboration-space-v3.css?v=1');
+  appendStyle('collaboration-v3-polish','assets/collaboration-space-v3-polish.css?v=1');
+  const loadV3=()=>appendScript('collaboration-v3','assets/collaboration-space-v3.js?v=1');
+  appendScript('collaboration-v2','assets/collaboration-space-v2.js?v=1',loadV3);
 })();
