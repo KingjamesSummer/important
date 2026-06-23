@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="智汇云知 · 协作空间交互原型" />
+  <title>协作空间 · 智汇云知</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <svg width="0" height="0" aria-hidden="true" style="position:absolute">
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21h16"/><path d="M6 21V4h8v17"/><path d="M14 9h4v12"/><path d="M9 8h2M9 12h2M9 16h2M16 13h1M16 17h1"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21a6 6 0 0 0-12 0"/><circle cx="10" cy="8" r="4"/><path d="M18 11a3 3 0 1 0-1.6-5.5M19.5 21a5.2 5.2 0 0 0-4-5"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-4M8.6 13.5l6.8 4"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l2-2a5 5 0 0 0-7-7l-1.2 1.2"/><path d="M14 11a5 5 0 0 0-7.5-.5l-2 2a5 5 0 0 0 7 7l1.2-1.2"/></symbol>
+    <symbol id="i-archive" viewBox="0 0 24 24"><path d="M4 7h16v14H4z"/><path d="M3 3h18v4H3zM9 11h6"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15M10 10v7M14 10v7"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.7 3.1 8.3 7.5 9.5 4.4-1.2 7.5-4.8 7.5-9.5V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
+    <symbol id="i-switch" viewBox="0 0 24 24"><path d="M7 7h11l-3-3M17 17H6l3 3"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="m4 20 4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10z"/><path d="m14 7 3 3"/></symbol>
+    <symbol id="i-open" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m6 12 4 4 8-8"/></symbol>
+  </svg>
+
+  <div class="app">
+    <aside class="sidebar" aria-label="主导航">
+      <div class="brand"><div class="brand-mark">知</div><div class="brand-copy"><div class="brand-name">智汇云知</div><div class="brand-meta">智能知识库管理平台 · PRO</div></div></div>
+      <div class="sidebar-scroll">
+        <section class="nav-section"><div class="nav-label">工作空间</div>
+          <button class="nav-item"><svg class="icon"><use href="#i-home"/></svg><span>工作台</span></button>
+          <button class="nav-item"><svg class="icon"><use href="#i-building"/></svg><span>企业空间</span></button>
+          <button class="nav-item"><svg class="icon"><use href="#i-user"/></svg><span>个人空间</span></button>
+          <button class="nav-item active" aria-current="page"><svg class="icon"><use href="#i-users"/></svg><span>协作空间</span></button>
+        </section>
+        <section class="nav-section"><div class="nav-label">协作与分享</div>
+          <button class="nav-item"><svg class="icon"><use href="#i-share"/></svg><span>与我相关</span><span class="badge">3</span></button>
+          <button class="nav-item"><svg class="icon"><use href="#i-link"/></svg><span>安全外链</span></button>
+          <button class="nav-item"><svg class="icon"><use href="#i-archive"/></svg><span>文件收集</span></button>
+        </section>
+        <section class="nav-section"><div class="nav-label">安全与恢复</div>
+          <button class="nav-item"><svg class="icon"><use href="#i-trash"/></svg><span>误删恢复</span></button>
+          <button class="nav-item"><svg class="icon"><use href="#i-shield"/></svg><span>可疑文件</span></button>
+        </section>
+      </div>
+      <div class="storage"><div class="storage-head"><span>个人空间用量</span><span>31%</span></div><div class="storage-track"><div class="storage-fill"></div></div><div class="storage-meta">已使用 31.4 GB / 100 GB</div></div>
+    </aside>
+
+    <div class="main-shell">
+      <header class="topbar">
+        <div class="breadcrumb"><span>智能知识库</span><span>/</span><strong>协作空间</strong></div>
+        <button class="global-search" id="globalSearch" aria-label="打开全局搜索"><svg class="icon icon-sm"><use href="#i-search"/></svg><span>搜索文件、成员或知识内容</span><span class="kbd">Ctrl K</span></button>
+        <div class="top-actions"><button class="icon-btn" aria-label="切换空间"><svg class="icon"><use href="#i-switch"/></svg></button><button class="icon-btn" aria-label="通知"><svg class="icon"><use href="#i-bell"/></svg><span class="dot"></span></button><button class="icon-btn" aria-label="帮助"><svg class="icon"><use href="#i-info"/></svg></button><button class="avatar-main" aria-label="用户菜单">张</button></div>
+      </header>
+
+      <main class="content"><div class="page">
+        <div class="page-head"><div><h1 class="page-title">协作空间</h1><p class="page-desc">面向项目和跨部门团队的群组协作文件空间</p></div><button class="primary-btn" id="createSpaceBtn"><svg class="icon icon-sm"><use href="#i-plus"/></svg>新建协作空间</button></div>
+        <div class="toolbar">
+          <div class="tabs" role="tablist" aria-label="协作空间筛选"><button class="tab active" role="tab" aria-selected="true" data-filter="all">全部</button><button class="tab" role="tab" aria-selected="false" data-filter="created">我创建的</button><button class="tab" role="tab" aria-selected="false" data-filter="joined">我加入的</button><button class="tab" role="tab" aria-selected="false" data-filter="archived">已归档</button></div>
+          <div class="toolbar-right"><label class="local-search"><svg class="icon icon-sm"><use href="#i-search"/></svg><input id="localSearchInput" type="search" placeholder="搜索协作空间" autocomplete="off" /></label><div class="view-toggle" aria-label="视图切换"><button class="view-btn active" data-view="grid" aria-label="卡片视图"><svg class="icon icon-sm"><use href="#i-grid"/></svg></button><button class="view-btn" data-view="list" aria-label="列表视图"><svg class="icon icon-sm"><use href="#i-list"/></svg></button></div></div>
+        </div>
+        <section class="workspace-region" aria-live="polite"><div class="grid" id="workspaceGrid"></div><div class="empty-state" id="emptyState"><div><div class="empty-illustration"><svg class="icon" style="width:32px;height:32px"><use href="#i-users"/></svg></div><h3 id="emptyTitle">没有找到协作空间</h3><p id="emptyDesc">换个关键词试试，或新建一个协作空间。</p><button class="secondary-btn" id="emptyCreateBtn"><svg class="icon icon-sm"><use href="#i-plus"/></svg>新建协作空间</button></div></div></section>
+      </div></main>
+    </div>
+  </div>
+
+  <div class="menu" id="cardMenu" role="menu"><button class="menu-item" data-action="open"><svg class="icon icon-sm"><use href="#i-open"/></svg>进入空间</button><button class="menu-item" data-action="rename"><svg class="icon icon-sm"><use href="#i-edit"/></svg>重命名</button><button class="menu-item" data-action="archive"><svg class="icon icon-sm"><use href="#i-archive"/></svg><span>归档空间</span></button><div class="menu-separator"></div><button class="menu-item danger" data-action="leave"><svg class="icon icon-sm"><use href="#i-close"/></svg>退出空间</button></div>
+  <div class="backdrop" id="backdrop"></div>
+  <section class="modal" id="createModal" role="dialog" aria-modal="true" aria-labelledby="createModalTitle"><div class="modal-head"><div><h2 id="createModalTitle">新建协作空间</h2><p>创建后可继续邀请成员并配置空间权限。</p></div><button class="modal-close" id="closeModalBtn" aria-label="关闭"><svg class="icon icon-sm"><use href="#i-close"/></svg></button></div><form id="createForm"><div class="modal-body"><div class="field"><label for="spaceName">空间名称 <span>*</span></label><input class="input" id="spaceName" maxlength="30" required placeholder="例如：2026 年度数字化专项" /><div class="field-hint"><span>名称应便于团队成员识别</span><span id="nameCount">0 / 30</span></div></div><div class="field"><label for="spaceDescription">空间说明</label><textarea class="textarea" id="spaceDescription" maxlength="120" placeholder="说明空间的用途、协作范围或资料类型"></textarea><div class="field-hint"><span>可稍后补充</span><span id="descCount">0 / 120</span></div></div><div class="field"><label for="inviteInput">邀请成员</label><div class="invite-box" id="inviteBox"><span class="invite-chip">张蕾 <button type="button" aria-label="移除张蕾" style="border:0;background:transparent;padding:0;color:inherit;cursor:pointer">×</button></span><input id="inviteInput" placeholder="输入姓名或邮箱，按回车添加" /></div><div class="field-hint"><span>成员可在创建后继续添加</span></div></div></div><div class="modal-foot"><button type="button" class="secondary-btn" id="cancelCreateBtn">取消</button><button type="submit" class="primary-btn">创建空间</button></div></form></section>
+
+  <aside class="drawer" id="detailDrawer" aria-label="协作空间详情"><div class="drawer-head"><div class="space-icon"><svg class="icon"><use href="#i-users"/></svg></div><div class="drawer-title"><h2 id="drawerName">空间名称</h2><p id="drawerDesc">空间说明</p></div><button class="modal-close" id="closeDrawerBtn" aria-label="关闭详情"><svg class="icon icon-sm"><use href="#i-close"/></svg></button></div><div class="drawer-body"><section class="drawer-section"><h3>空间信息</h3><div class="info-list"><div class="info-row"><span>我的角色</span><strong id="drawerRole">群主</strong></div><div class="info-row"><span>成员</span><strong id="drawerMemberCount">8 人</strong></div><div class="info-row"><span>最近更新</span><strong id="drawerTime">今天 09:42</strong></div></div></section><section class="drawer-section"><h3>成员预览</h3><div class="member-list" id="drawerMembers"></div></section></div><div class="drawer-foot"><button class="secondary-btn" id="drawerManageBtn">成员管理</button><button class="primary-btn" id="drawerOpenBtn">进入空间</button></div></aside>
+
+  <section class="search-panel" id="searchPanel" role="dialog" aria-modal="true" aria-label="全局搜索"><div class="search-panel-head"><svg class="icon"><use href="#i-search"/></svg><input id="globalSearchInput" placeholder="搜索文件、成员或知识内容" /><span class="kbd">Esc</span></div><div class="search-results" id="globalSearchResults"></div><div class="search-help">输入关键词查找协作空间；按 Esc 关闭</div></section>
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
