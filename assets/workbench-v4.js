@@ -11,7 +11,6 @@
       link.href='assets/workbench-v4-premium-motion.css?v=1';
       document.head.appendChild(link);
     }
-
     let avatars=document.getElementById('workbench-v4-avatars-v2');
     if(!avatars){
       avatars=document.createElement('link');
@@ -43,7 +42,7 @@
     }
     const script=document.createElement('script');
     script.id='admin-dept-console-v11-script';
-    script.src='assets/admin-dept-console-v11.js?v=1';
+    script.src='assets/admin-dept-console-v11.js?v=3';
     script.async=false;
     document.body.appendChild(script);
   }
