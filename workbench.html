@@ -10,7 +10,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#edf3f7}#wo
 </style>
 </head>
 <body>
-<iframe id="workspace" src="workbench-main.html" title="智汇云知智能知识库管理平台"></iframe>
+<iframe id="workspace" src="workbench-main.html?v=202606231528" title="智汇云知智能知识库管理平台"></iframe>
 <div class="patch-error" id="patchError"><div><strong>工作台导航增强未能加载</strong><p>请通过同一站点地址访问本页面；你仍可直接打开 enterprise.html 查看企业空间。</p></div></div>
 <script>
 (function(){
@@ -23,7 +23,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#edf3f7}#wo
    const links=[...doc.querySelectorAll('a')];
    links.forEach(link=>{
     const text=(link.textContent||'').replace(/\s+/g,'').trim();
-    if(text.includes('企业空间')||text.includes('进入企业空间'))link.setAttribute('href','enterprise.html');
+    if(text.includes('企业空间')||text.includes('进入企业空间'))link.setAttribute('href','enterprise.html?v=202606231528');
    });
    if((frame.contentWindow.location.pathname||'').endsWith('/enterprise.html'))document.title='智汇云知｜企业空间';
    else document.title='智汇云知｜工作台';
