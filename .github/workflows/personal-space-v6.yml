@@ -9,6 +9,7 @@ on:
 permissions:
   contents: write
 
+# One-time validated application; the workflow is returned to manual-only after success.
 jobs:
   patch-and-validate:
     runs-on: ubuntu-latest
