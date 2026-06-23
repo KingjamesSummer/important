@@ -23,7 +23,7 @@
 .enterprise-dept-nav.active{background:var(--primary-soft);color:var(--primary);font-weight:600}
 .enterprise-dept-nav small{margin-left:auto}
 
-/* Deep tree fix: nested containers no longer consume width level by level. */
+/* Legacy deep tree fix. */
 .enterprise-org-tree-v4{
   min-width:0!important;
   overflow:visible!important;
@@ -61,6 +61,82 @@
 }
 .enterprise-dept-nav-v4 .icon-stack{
   flex:0 0 15px!important;
+}
+
+/* Current organization tree: reserve real width for department names. */
+.enterprise-mode .enterprise-org-v7{
+  width:calc(100% - 32px)!important;
+  min-width:0!important;
+  max-width:none!important;
+  margin:5px 0 14px 24px!important;
+  padding:2px 0 4px 11px!important;
+  box-sizing:border-box!important;
+  overflow:visible!important;
+}
+.enterprise-mode .enterprise-dept-list-v7{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  margin:3px 0 0!important;
+  padding-left:12px!important;
+  box-sizing:border-box!important;
+  overflow:visible!important;
+}
+.enterprise-mode .enterprise-dept-list-v7 .enterprise-dept-list-v7{
+  width:100%!important;
+  margin-left:0!important;
+  padding-left:10px!important;
+}
+.enterprise-mode .enterprise-dept-node-v7{
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  min-height:38px!important;
+  height:auto!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  margin:2px 0!important;
+  padding:0 9px!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+.enterprise-mode .enterprise-dept-node-v7 iconify-icon,
+.enterprise-mode .enterprise-dept-node-v7>.icon-stack,
+.enterprise-mode .enterprise-dept-node-v7>.icon{
+  width:16px!important;
+  min-width:16px!important;
+  flex:0 0 16px!important;
+}
+.enterprise-mode .enterprise-dept-node-v7>span{
+  display:block!important;
+  flex:1 1 auto!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  padding:10px 0!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  white-space:normal!important;
+  word-break:break-all!important;
+  line-height:1.35!important;
+}
+.enterprise-mode .enterprise-org-root-v7{
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  box-sizing:border-box!important;
+}
+.enterprise-mode .enterprise-org-root-v7>span{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  white-space:normal!important;
 }
 
 .enterprise-page .page-head{margin-bottom:18px}
