@@ -2,9 +2,6 @@ name: Fix personal space v5
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - .github/workflows/fix-personal-space-v5.yml
 
 permissions:
   contents: write
