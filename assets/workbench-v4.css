@@ -1,0 +1,150 @@
+/* Workbench v4 — strict white + powder-blue system theme. */
+body.workbench-v4{
+  --wb-primary:var(--primary,#2563eb);
+  --wb-primary-hover:var(--primary-hover,#1d4ed8);
+  --wb-primary-soft:#eef5ff;
+  --wb-primary-soft-2:#f6f9ff;
+  --wb-primary-line:#d9e6f7;
+  --wb-primary-line-strong:#c5d9f3;
+  --wb-ink:#17263a;
+  --wb-text:#53677d;
+  --wb-muted:#8798aa;
+}
+body.workbench-v4 .main{
+  padding:26px 28px 34px;
+  background:
+    radial-gradient(circle at 18% -8%,rgba(37,99,235,.10),transparent 34%),
+    linear-gradient(180deg,#f4f8ff 0%,#f8fbff 46%,#f3f7fc 100%);
+}
+body.workbench-v4 .page{max-width:1580px}
+body.workbench-v4 .page-head{margin-bottom:18px;padding:2px 2px 0}
+body.workbench-v4 .page-title{font-size:24px;color:var(--wb-ink);letter-spacing:-.35px}
+body.workbench-v4 .page-subtitle{color:#7890aa}
+body.workbench-v4 .page-actions{display:none!important}
+
+body.workbench-v4 .stats-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;
+  margin-bottom:16px;
+  align-items:stretch;
+}
+body.workbench-v4 .stat-card{
+  min-height:118px;
+  height:100%;
+  padding:18px 18px 16px;
+  border:1px solid var(--wb-primary-line);
+  border-top:3px solid #82aef0;
+  border-radius:14px;
+  background:linear-gradient(145deg,#ffffff 0%,#f3f7ff 100%);
+  box-shadow:0 8px 22px rgba(47,88,145,.065);
+  cursor:pointer;
+  transition:transform .18s,border-color .18s,box-shadow .18s,background .18s;
+}
+body.workbench-v4 .stat-card:nth-child(2){border-top-color:#6d9fe8;background:linear-gradient(145deg,#fff 0%,#f1f6ff 100%)}
+body.workbench-v4 .stat-card:nth-child(3){border-top-color:#8ab4f2;background:linear-gradient(145deg,#fff 0%,#f5f8ff 100%)}
+body.workbench-v4 .stat-card:nth-child(4){border-top-color:#7199d9;background:linear-gradient(145deg,#fff 0%,#f0f5fc 100%)}
+body.workbench-v4 .stat-card:hover{transform:translateY(-2px);border-color:#b9d0ef;background:#fff;box-shadow:0 14px 30px rgba(47,88,145,.11)}
+body.workbench-v4 .stat-card:focus-visible{outline:3px solid rgba(37,99,235,.16);outline-offset:2px}
+body.workbench-v4 .stat-top{color:#617993}
+body.workbench-v4 .stat-icon,
+body.workbench-v4 .stat-card.blue .stat-icon,
+body.workbench-v4 .stat-card.green .stat-icon,
+body.workbench-v4 .stat-card.orange .stat-icon{
+  background:#eaf2ff;
+  color:var(--wb-primary);
+  border:1px solid #d6e5fb;
+  box-shadow:inset 0 1px #fff;
+}
+body.workbench-v4 .stat-number{color:var(--wb-ink)}
+body.workbench-v4 .stat-note{color:#8b9caf}
+body.workbench-v4 .stat-note b{color:var(--wb-primary)}
+
+body.workbench-v4 .dashboard-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.5fr) minmax(340px,.72fr);
+  grid-template-rows:232px minmax(390px,auto);
+  grid-template-areas:"quick usage" "recent activity";
+  gap:16px;
+  align-items:stretch;
+}
+body.workbench-v4 .dashboard-grid>div{display:contents}
+body.workbench-v4 .dashboard-grid>div:first-child>.panel:first-child{grid-area:quick}
+body.workbench-v4 .dashboard-grid>div:first-child>.panel:nth-child(2){grid-area:recent}
+body.workbench-v4 .dashboard-grid>div:nth-child(2)>.panel:first-child{grid-area:usage}
+body.workbench-v4 .dashboard-grid>div:nth-child(2)>.panel:nth-child(2){grid-area:activity}
+body.workbench-v4 .dashboard-grid .panel{
+  height:100%;
+  min-height:0;
+  margin-bottom:0!important;
+  overflow:hidden;
+  border:1px solid var(--wb-primary-line);
+  border-radius:14px;
+  background:rgba(255,255,255,.96);
+  box-shadow:0 8px 24px rgba(47,88,145,.055);
+}
+body.workbench-v4 .card-head{
+  height:60px;
+  padding:0 18px;
+  background:linear-gradient(180deg,#fbfdff,#f6f9ff);
+  border-bottom:1px solid #e7eef8;
+}
+body.workbench-v4 .panel-title{color:var(--wb-ink);font-weight:650}
+body.workbench-v4 .panel-subtitle{color:var(--wb-muted)}
+body.workbench-v4 .btn.text{color:var(--wb-primary);font-weight:600}
+body.workbench-v4 .dashboard-grid>div:first-child>.panel:first-child .card-body,
+body.workbench-v4 .dashboard-grid>div:nth-child(2)>.panel:first-child .card-body{
+  height:calc(100% - 60px);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+body.workbench-v4 .quick-actions{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+  width:100%;
+}
+body.workbench-v4 .quick{
+  min-height:112px;
+  height:100%;
+  padding:15px;
+  border:1px solid var(--wb-primary-line);
+  border-radius:12px;
+  background:linear-gradient(145deg,#ffffff,#f5f8ff);
+  box-shadow:inset 0 1px #fff;
+  transition:transform .18s,border-color .18s,box-shadow .18s,background .18s;
+}
+body.workbench-v4 .quick:hover{transform:translateY(-2px);background:#fff;border-color:#b8cfee;box-shadow:0 10px 24px rgba(47,88,145,.09)}
+body.workbench-v4 .quick-icon{background:#eaf2ff!important;color:var(--wb-primary)!important;border:1px solid #d9e7fa}
+body.workbench-v4 .quick strong{color:#2f4660}
+body.workbench-v4 .quick p{color:#8a9bad}
+
+body.workbench-v4 .list-panel{display:flex;flex-direction:column}
+body.workbench-v4 .list-panel .file-table{flex:1}
+body.workbench-v4 .list-panel .check-col,
+body.workbench-v4 .list-panel .owner-col{display:none}
+body.workbench-v4 .file-table thead{background:#f4f8ff}
+body.workbench-v4 .file-table tbody tr{background:#fff}
+body.workbench-v4 .file-table tbody tr:hover{background:#f7faff}
+body.workbench-v4 .file-table th{color:#7c90a8}
+body.workbench-v4 .file-name-title{color:#2f4660}
+body.workbench-v4 .space-summary{gap:4px;padding:3px;border-radius:999px;background:#eaf1fb}
+body.workbench-v4 .space-summary .space-segment{height:8px}
+body.workbench-v4 .legend div{color:#6f849c}
+body.workbench-v4 .activity{min-height:72px;padding:13px 0}
+body.workbench-v4 .activity-avatar{background:#eaf2ff;color:#4f77a8;border:1px solid #d9e7fa}
+body.workbench-v4 .activity-main b{color:#304962}
+body.workbench-v4 .activity-main span{color:#91a0b1}
+
+@media(max-width:1180px){
+  body.workbench-v4 .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  body.workbench-v4 .dashboard-grid{
+    grid-template-columns:1fr;
+    grid-template-rows:auto;
+    grid-template-areas:"quick" "usage" "recent" "activity";
+  }
+  body.workbench-v4 .dashboard-grid>div{display:contents}
+}
+@media(max-width:760px){
+  body.workbench-v4 .stats-grid,
+  body.workbench-v4 .quick-actions{grid-template-columns:1fr}
+}
