@@ -12,7 +12,7 @@ if MARKER in text:
     raise SystemExit(0)
 
 def replace_function(source: str, name: str, next_name: str, replacement: str) -> str:
-    pattern = rf"function {re.escape(name)}\([^\\n]*?(?=\nfunction {re.escape(next_name)}\()"
+    pattern = rf"function {re.escape(name)}\([\s\S]*?(?=\nfunction {re.escape(next_name)}\()"
     updated, count = re.subn(pattern, replacement.rstrip(), source, count=1, flags=re.S)
     if count != 1:
         raise RuntimeError(f"Could not replace function {name}; matches={count}")
