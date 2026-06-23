@@ -19,9 +19,7 @@
       avatars.rel='stylesheet';
       document.head.appendChild(avatars);
     }
-    if(!avatars.href.endsWith('assets/workbench-v4-avatars.css?v=2')){
-      avatars.href='assets/workbench-v4-avatars.css?v=2';
-    }
+    if(!avatars.href.endsWith('assets/workbench-v4-avatars.css?v=2'))avatars.href='assets/workbench-v4-avatars.css?v=2';
   }
 
   function ensureAdminDeptV3(attempt=0){
@@ -37,15 +35,15 @@
     document.body.appendChild(script);
   }
 
-  function ensureAdminDeptV8(attempt=0){
-    if(window.__adminDeptConsoleV8||document.getElementById('admin-dept-console-v8-script'))return;
+  function ensureAdminDeptV9(attempt=0){
+    if(window.__adminDeptConsoleV9||document.getElementById('admin-dept-console-v9-script'))return;
     if(!window.__adminDeptConsoleV3){
-      if(attempt<180)window.setTimeout(()=>ensureAdminDeptV8(attempt+1),50);
+      if(attempt<180)window.setTimeout(()=>ensureAdminDeptV9(attempt+1),50);
       return;
     }
     const script=document.createElement('script');
-    script.id='admin-dept-console-v8-script';
-    script.src='assets/admin-dept-console-v8.js?v=1';
+    script.id='admin-dept-console-v9-script';
+    script.src='assets/admin-dept-console-v9.js?v=1';
     script.async=false;
     document.body.appendChild(script);
   }
@@ -61,8 +59,7 @@
       const progress=Math.min(1,(now-start)/duration);
       const eased=1-Math.pow(1-progress,3);
       node.textContent=String(Math.round(target*eased));
-      if(progress<1)requestAnimationFrame(tick);
-      else node.textContent=String(target);
+      if(progress<1)requestAnimationFrame(tick);else node.textContent=String(target);
     };
     requestAnimationFrame(tick);
   }
@@ -77,12 +74,10 @@
         const rect=card.getBoundingClientRect();
         const x=(event.clientX-rect.left)/rect.width;
         const y=(event.clientY-rect.top)/rect.height;
-        const rotateY=(x-.5)*3.2;
-        const rotateX=(.5-y)*2.6;
         card.style.setProperty('--mx',(x*100).toFixed(1)+'%');
         card.style.setProperty('--my',(y*100).toFixed(1)+'%');
-        card.style.setProperty('--rx',rotateX.toFixed(2)+'deg');
-        card.style.setProperty('--ry',rotateY.toFixed(2)+'deg');
+        card.style.setProperty('--rx',((.5-y)*2.6).toFixed(2)+'deg');
+        card.style.setProperty('--ry',((x-.5)*3.2).toFixed(2)+'deg');
       });
     });
     card.addEventListener('pointerleave',()=>{
@@ -95,17 +90,12 @@
   }
 
   function enhanceRecentTable(){
-    const panel=[...document.querySelectorAll('.list-panel')].find(item=>
-      (item.querySelector('.panel-title')?.textContent||'').trim()==='最近访问'
-    );
+    const panel=[...document.querySelectorAll('.list-panel')].find(item=>(item.querySelector('.panel-title')?.textContent||'').trim()==='最近访问');
     if(!panel||panel.dataset.workbenchRecent==='true')return;
-
     const table=panel.querySelector('.file-table');
     if(!table)return;
-
     const sourceHead=table.querySelector('th.owner-col');
     if(sourceHead)sourceHead.textContent='来源';
-
     table.querySelectorAll('tbody tr').forEach((row,index)=>{
       const sourceCell=row.querySelector('td.owner-col');
       if(!sourceCell)return;
@@ -113,7 +103,6 @@
       const enterprise=/智能知识库总体架构方案|架构方案/.test(fileName)||index>=3;
       sourceCell.innerHTML=`<span class="wb-source-pill ${enterprise?'enterprise':''}">${enterprise?'企业空间':'个人空间'}</span>`;
     });
-
     panel.dataset.workbenchRecent='true';
   }
 
@@ -122,34 +111,22 @@
     const active=title==='工作台';
     document.body.classList.toggle('workbench-v4',active);
     if(!active)return;
-
     ensurePremiumMotionStyles();
     document.querySelector('.page-head .page-actions')?.remove();
     enhanceRecentTable();
-
     document.querySelectorAll('.stats-grid .stat-card').forEach((card,index)=>{
       const label=(card.querySelector('.stat-top span')?.textContent||'').trim();
       const route=routes[label];
       if(!route||card.dataset.workbenchV4==='true')return;
-
       card.dataset.workbenchV4='true';
       card.style.setProperty('--card-index',String(index));
       card.classList.add('wb-stat-enter');
       card.tabIndex=0;
       card.setAttribute('role','button');
       card.setAttribute('aria-label','打开'+label);
-
-      const open=()=>{
-        if(typeof window.navigate==='function')window.navigate(route);
-      };
+      const open=()=>{if(typeof window.navigate==='function')window.navigate(route)};
       card.addEventListener('click',open);
-      card.addEventListener('keydown',event=>{
-        if(event.key==='Enter'||event.key===' '){
-          event.preventDefault();
-          open();
-        }
-      });
-
+      card.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();open();}});
       attachMotion(card);
       animateNumber(card.querySelector('.stat-number'));
     });
@@ -158,6 +135,6 @@
   const root=document.getElementById('app');
   if(root)new MutationObserver(syncWorkbench).observe(root,{childList:true,subtree:true});
   ensureAdminDeptV3();
-  ensureAdminDeptV8();
+  ensureAdminDeptV9();
   syncWorkbench();
 })();
