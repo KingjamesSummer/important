@@ -2,9 +2,6 @@ name: Refine personal space prototype
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - .github/workflows/refine-personal-space.yml
 
 permissions:
   contents: write
