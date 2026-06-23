@@ -24,6 +24,19 @@
     }
   }
 
+  function ensureAdminDeptV3(attempt=0){
+    if(window.__adminDeptConsoleV3||document.getElementById('admin-dept-console-v3-script'))return;
+    if(!window.__adminDeptConsoleV2){
+      if(attempt<160)window.setTimeout(()=>ensureAdminDeptV3(attempt+1),50);
+      return;
+    }
+    const script=document.createElement('script');
+    script.id='admin-dept-console-v3-script';
+    script.src='assets/admin-dept-console-v3.js?v=3';
+    script.async=false;
+    document.body.appendChild(script);
+  }
+
   function animateNumber(node){
     if(!node||node.dataset.counted==='true'||reduceMotion)return;
     const target=Number((node.textContent||'').replace(/[^0-9.]/g,''));
@@ -131,5 +144,6 @@
 
   const root=document.getElementById('app');
   if(root)new MutationObserver(syncWorkbench).observe(root,{childList:true,subtree:true});
+  ensureAdminDeptV3();
   syncWorkbench();
 })();
