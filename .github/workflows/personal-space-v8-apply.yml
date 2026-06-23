@@ -1,0 +1,83 @@
+name: Apply personal space v8
+
+on:
+  push:
+    paths:
+      - .github/workflows/personal-space-v8-apply.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Apply consolidated personal-space refinements
+        run: |
+          python scripts/personal_space_v8.py
+          python scripts/personal_space_v8_integrity.py
+
+      - name: Validate generated prototype
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          html = Path('web-prototype.html').read_text(encoding='utf-8')
+          required = [
+              'personal-space-v8-multitag-ownership-icons',
+              'personal-space-v8-integrity-polish',
+              'function personalTags(file)',
+              'function applyTags()',
+              'function applyGrant(id,space)',
+              'function transferItem(id)',
+              '设置多标签',
+              '转移所有权',
+              '共享授权',
+              'fluent-color:folder-24',
+              'material-symbols:upload-rounded',
+              'file-card-tags',
+          ]
+          for item in required:
+              assert item in html, item
+
+          blocks = re.findall(r'<script(?:\s[^>]*)?>([\s\S]*?)</script>', html, re.I)
+          inline = [block for block in blocks if block.strip()]
+          assert inline
+          Path('/tmp/web-prototype.js').write_text(inline[-1], encoding='utf-8')
+          PY
+          node --check /tmp/web-prototype.js
+
+      - name: Return workflow to manual-only mode
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('.github/workflows/personal-space-v8-apply.yml')
+          text = path.read_text(encoding='utf-8')
+          old = "on:\n  push:\n    paths:\n      - .github/workflows/personal-space-v8-apply.yml\n  workflow_dispatch:\n"
+          new = "on:\n  workflow_dispatch:\n"
+          if old not in text:
+              raise SystemExit('workflow trigger block not found')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
+
+      - name: Commit completed refinement
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add web-prototype.html .github/workflows/personal-space-v8-apply.yml
+          if git diff --cached --quiet; then
+            echo 'No changes to commit.'
+            exit 0
+          fi
+          git commit -m 'feat: complete personal space multi-tag and ownership flow'
+          git push
