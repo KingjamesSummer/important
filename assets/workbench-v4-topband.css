@@ -1,27 +1,50 @@
-/* Workbench v4 top accent bands — fill each card edge to edge. */
+/* Workbench v4 card fill correction — remove the heavy top bars. */
 body.workbench-v4 .stat-card{
-  padding-top:26px;
+  padding-top:18px;
+  border-color:rgba(var(--card-accent-rgb),.22);
+  background:
+    radial-gradient(circle at var(--mx) var(--my),rgba(var(--card-accent-rgb),.10),transparent 34%),
+    linear-gradient(140deg,
+      rgba(255,255,255,.995) 0%,
+      rgba(250,252,255,.99) 48%,
+      rgba(var(--card-accent-rgb),.075) 100%);
+  box-shadow:
+    inset 0 3px 0 rgba(var(--card-accent-rgb),.72),
+    0 8px 22px rgba(47,88,145,.055),
+    inset 0 1px rgba(255,255,255,.95);
 }
 body.workbench-v4 .stat-card::before{
-  left:-1px;
-  right:-1px;
-  top:-1px;
-  height:14px;
-  border-radius:14px 14px 0 0;
+  left:0;
+  right:0;
+  top:0;
+  bottom:0;
+  height:auto;
+  z-index:0;
+  border-radius:inherit;
   background:
-    linear-gradient(90deg,
-      rgba(var(--card-accent-rgb),.78) 0%,
-      var(--card-accent) 42%,
-      rgba(var(--card-accent-rgb),.88) 100%);
-  background-size:160% 100%;
+    linear-gradient(118deg,
+      rgba(var(--card-accent-rgb),.075) 0%,
+      transparent 34%,
+      transparent 66%,
+      rgba(var(--card-accent-rgb),.035) 100%);
+  background-size:180% 100%;
+  box-shadow:none;
+  pointer-events:none;
+  animation:wbCardWash 7.6s ease-in-out infinite;
+}
+body.workbench-v4 .stat-card:hover{
   box-shadow:
-    0 4px 12px rgba(var(--card-accent-rgb),.14),
-    inset 0 1px rgba(255,255,255,.30);
+    inset 0 3px 0 rgba(var(--card-accent-rgb),.92),
+    0 16px 34px rgba(var(--card-accent-rgb),.13),
+    0 5px 12px rgba(47,88,145,.05),
+    inset 0 1px #fff;
 }
 body.workbench-v4 .stat-card:hover::before{
-  box-shadow:
-    0 6px 16px rgba(var(--card-accent-rgb),.20),
-    inset 0 1px rgba(255,255,255,.36);
+  box-shadow:none;
+}
+@keyframes wbCardWash{
+  0%,100%{background-position:0 50%}
+  50%{background-position:100% 50%}
 }
 @media(prefers-reduced-motion:reduce){
   body.workbench-v4 .stat-card::before{animation:none!important}
