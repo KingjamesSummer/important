@@ -1,0 +1,81 @@
+/* Flat admin theme: system blue + white only, no gradients. */
+body.admin-console-v2{
+  --flat-blue:#1677ff;
+  --flat-blue-strong:#0958d9;
+  --flat-blue-soft:#eaf3ff;
+  --flat-blue-pale:#f5f9ff;
+  --flat-white:#ffffff;
+  --flat-ink:#111827;
+  --flat-text:#374151;
+  --flat-muted:#6b7280;
+  --flat-line:#e5e7eb;
+  --flat-blue-line:#d6e7ff;
+  background:#f5f9ff!important;
+}
+body.admin-console-v2 *,body.admin-console-v2 *::before,body.admin-console-v2 *::after{background-image:none!important}
+body.admin-console-v2 .app,body.admin-console-v2 .main{background:#f5f9ff!important}
+body.admin-console-v2 .sidebar,body.admin-console-v2 .admin-shell-sidebar{background:#fff!important;border-right-color:#e5e7eb!important;box-shadow:4px 0 16px rgba(17,24,39,.035)!important}
+body.admin-console-v2 .admin-shell-brand,body.admin-console-v2 .gdg-brand-v4{background:#fff!important;border-color:#e5e7eb!important;box-shadow:none!important}
+body.admin-console-v2 .admin-shell-brand::before,body.admin-console-v2 .admin-shell-brand::after,body.admin-console-v2 .gdg-brand-v4::before,body.admin-console-v2 .gdg-brand-v4::after,body.admin-console-v2 .topbar::before,body.admin-console-v2 .topbar::after{content:none!important;display:none!important}
+body.admin-console-v2 .admin-brand-title strong,body.admin-console-v2 .page-title,body.admin-console-v2 .admin-head h3{color:#111827!important}
+body.admin-console-v2 .admin-brand-copy>span,body.admin-console-v2 .page-subtitle{color:#6b7280!important}
+body.admin-console-v2 .admin-brand-badge{background:#eaf3ff!important;border-color:#b8d6ff!important;color:#1677ff!important;box-shadow:none!important}
+body.admin-console-v2 .nav-title{color:#9ca3af!important}
+body.admin-console-v2 .nav-item{color:#374151!important}
+body.admin-console-v2 .nav-item .icon-stack{color:#6b7280!important}
+body.admin-console-v2 .nav-item:hover{background:#f5f9ff!important;color:#1677ff!important;transform:none!important}
+body.admin-console-v2 .nav-item.active{background:#eaf3ff!important;color:#1677ff!important;border-color:#c7ddff!important;box-shadow:inset 3px 0 #1677ff!important}
+body.admin-console-v2 .nav-item.active .icon-stack{color:#1677ff!important}
+body.admin-console-v2 .nav-item.active:before{background:#1677ff!important;box-shadow:none!important;animation:none!important}
+body.admin-console-v2 .admin-scope-card,body.admin-console-v2 .ad-console-scope{background:#fff!important;border-color:#d6e7ff!important;box-shadow:0 6px 16px rgba(17,24,39,.05)!important}
+body.admin-console-v2 .admin-scope-card span,body.admin-console-v2 .admin-scope-card small,body.admin-console-v2 .ad-console-scope span{color:#6b7280!important}
+body.admin-console-v2 .admin-scope-card strong,body.admin-console-v2 .ad-console-scope strong{color:#111827!important}
+body.admin-console-v2 .admin-return-button,body.admin-console-v2 .ad-console-return{background:#fff!important;border-color:#c7ddff!important;color:#1677ff!important;box-shadow:none!important}
+body.admin-console-v2 .admin-return-button:hover,body.admin-console-v2 .ad-console-return:hover{background:#f5f9ff!important;border-color:#1677ff!important;color:#0958d9!important;box-shadow:none!important}
+body.admin-console-v2 .topbar,body.admin-console-v2 .admin-shell-topbar{background:#fff!important;border-bottom-color:#e5e7eb!important;box-shadow:0 3px 12px rgba(17,24,39,.045)!important;animation:none!important}
+body.admin-console-v2 .admin-console-breadcrumb{color:#6b7280!important}
+body.admin-console-v2 .admin-console-breadcrumb strong{color:#111827!important}
+body.admin-console-v2 .admin-console-breadcrumb .sep{color:#d1d5db!important}
+body.admin-console-v2 .admin-console-breadcrumb .admin-mode{background:#eaf3ff!important;border-color:#c7ddff!important;color:#1677ff!important;box-shadow:none!important}
+body.admin-console-v2 .gdg-search,body.admin-console-v2 .global-search,body.admin-console-v2 .search-box{background:#fff!important;border-color:#d6e7ff!important;color:#374151!important;box-shadow:none!important}
+body.admin-console-v2 .gdg-search:focus-within,body.admin-console-v2 .global-search:focus-within,body.admin-console-v2 .search-box:focus-within{background:#fff!important;border-color:#1677ff!important;box-shadow:0 0 0 3px rgba(22,119,255,.10)!important}
+body.admin-console-v2 input::placeholder{color:#9ca3af!important}
+body.admin-console-v2 .kbd{background:#f5f9ff!important;border-color:#d6e7ff!important;color:#1677ff!important}
+body.admin-console-v2 .admin-top-tool{color:#1677ff!important}
+body.admin-console-v2 .admin-top-tool:hover{background:#f5f9ff!important;border-color:#b8d6ff!important;color:#0958d9!important;box-shadow:none!important}
+body.admin-console-v2 .admin-top-badge{background:#1677ff!important;box-shadow:none!important}
+body.admin-console-v2 .gdg-profile:hover{background:#f5f9ff!important;box-shadow:none!important}
+body.admin-console-v2 .gdg-avatar-v4,body.admin-console-v2 .avatar{background:#eaf3ff!important;border-color:#b8d6ff!important;color:#1677ff!important;box-shadow:none!important}
+body.admin-console-v2 .gdg-profile-copy strong{color:#111827!important}
+body.admin-console-v2 .gdg-profile-copy span{color:#6b7280!important}
+body.admin-console-v2 .ad-toolbar,body.admin-console-v2 .admin-toolbar{background:#fff!important;border-color:#d6e7ff!important;box-shadow:0 6px 16px rgba(17,24,39,.045)!important}
+body.admin-console-v2 .ad-sync-note{color:#6b7280!important}
+body.admin-console-v2 .ad-sync-pulse{background:#1677ff!important;box-shadow:0 0 0 4px #eaf3ff!important;animation:none!important}
+body.admin-console-v2 .ad-tree-panel,body.admin-console-v2 .ad-detail-panel,body.admin-console-v2 .ad-card,body.admin-console-v2 .ad-metric,body.admin-console-v2 .admin-card,body.admin-console-v2 .admin-panel{background:#fff!important;border-color:#e5e7eb!important;box-shadow:0 6px 18px rgba(17,24,39,.045)!important}
+body.admin-console-v2 .ad-tree-head,body.admin-console-v2 .ad-hero,body.admin-console-v2 .ad-card-head,body.admin-console-v2 .admin-head{background:#fff!important;border-color:#e5e7eb!important}
+body.admin-console-v2 .ad-tree-title-row,body.admin-console-v2 .ad-dept-copy h2,body.admin-console-v2 .ad-card-head{color:#111827!important}
+body.admin-console-v2 .ad-tree-search,body.admin-console-v2 .input,body.admin-console-v2 .select,body.admin-console-v2 .textarea{background:#fff!important;border-color:#d6e7ff!important;color:#374151!important}
+body.admin-console-v2 .ad-tree-search:focus-within,body.admin-console-v2 .input:focus,body.admin-console-v2 .select:focus,body.admin-console-v2 .textarea:focus{background:#fff!important;border-color:#1677ff!important;box-shadow:0 0 0 3px rgba(22,119,255,.10)!important}
+body.admin-console-v2 .ad-tree-line{color:#374151!important}
+body.admin-console-v2 .ad-tree-line:hover{background:#f5f9ff!important;color:#1677ff!important}
+body.admin-console-v2 .ad-tree-line.active{background:#eaf3ff!important;color:#1677ff!important;box-shadow:inset 3px 0 #1677ff!important}
+body.admin-console-v2 .ad-tree-children:before,body.admin-console-v2 .ad-tree-children>.ad-tree-node>.ad-tree-line:before{border-color:#d6e7ff!important}
+body.admin-console-v2 .ad-metric:before{background:#1677ff!important}
+body.admin-console-v2 .ad-metric strong{color:#111827!important}
+body.admin-console-v2 .ad-metric span,body.admin-console-v2 .ad-info-item label,body.admin-console-v2 .ad-role-row label{color:#6b7280!important}
+body.admin-console-v2 .ad-info-item div,body.admin-console-v2 .ad-library-main strong{color:#374151!important}
+body.admin-console-v2 .ad-tabs button{color:#6b7280!important}
+body.admin-console-v2 .ad-tabs button.active{color:#1677ff!important}
+body.admin-console-v2 .ad-tabs button.active:after{background:#1677ff!important}
+body.admin-console-v2 .btn{background:#fff!important;border-color:#d6e7ff!important;color:#374151!important;box-shadow:none!important}
+body.admin-console-v2 .btn:hover:not(:disabled){background:#f5f9ff!important;border-color:#1677ff!important;color:#1677ff!important;transform:none!important;box-shadow:none!important}
+body.admin-console-v2 .btn.primary{background:#1677ff!important;border-color:#1677ff!important;color:#fff!important;box-shadow:none!important}
+body.admin-console-v2 .btn.primary:hover:not(:disabled){background:#0958d9!important;border-color:#0958d9!important;color:#fff!important;transform:none!important;box-shadow:none!important}
+body.admin-console-v2 .badge{background:#f3f4f6!important;border-color:#e5e7eb!important;color:#4b5563!important}
+body.admin-console-v2 .badge.blue,body.admin-console-v2 .badge.purple,body.admin-console-v2 .badge.violet{background:#eaf3ff!important;border-color:#c7ddff!important;color:#1677ff!important}
+body.admin-console-v2 table thead th{background:#f9fafb!important;color:#6b7280!important;border-bottom-color:#e5e7eb!important}
+body.admin-console-v2 table tbody td{color:#374151!important;border-bottom-color:#f0f1f3!important}
+body.admin-console-v2 table tbody tr:hover{background:#f5f9ff!important}
+body.admin-console-v2 .modal-layer,body.admin-console-v2 .drawer-layer{background:rgba(17,24,39,.40)!important;backdrop-filter:none!important}
+body.admin-console-v2 .modal,body.admin-console-v2 .drawer{background:#fff!important;border-color:#e5e7eb!important;box-shadow:0 24px 64px rgba(17,24,39,.18)!important}
+body.admin-console-v2 .modal-head,body.admin-console-v2 .drawer-head,body.admin-console-v2 .modal-foot,body.admin-console-v2 .drawer-foot{background:#fff!important;border-color:#e5e7eb!important;color:#111827!important}
