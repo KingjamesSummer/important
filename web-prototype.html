@@ -50,13 +50,22 @@ body.admin-console-v2 .admin-shell-brand .gdg-brand-v4{background:#fff!important
 body.admin-console-v2 .admin-shell-brand .gdg-brand-v4:before,body.admin-console-v2 .admin-shell-brand .gdg-brand-v4:after{display:none!important}
 </style>`;
 
+  const outerWhiteFix=`<style id="admin-outer-white-fix-v2">
+html,body{background:#fff!important;background-image:none!important}
+body.admin-grant-v2,body.admin-grant-v2 .app,body.admin-grant-v2 .layout,body.admin-grant-v2 .workspace,body.admin-grant-v2 .shell,body.admin-grant-v2 .app-shell,body.admin-grant-v2 .content,body.admin-grant-v2 .content-area,body.admin-grant-v2 .content-shell,body.admin-grant-v2 .content-scroll,body.admin-grant-v2 .main,body.admin-grant-v2 .main-wrap,body.admin-grant-v2 .main-content,body.admin-grant-v2 .admin-main,body.admin-grant-v2 .admin-content,body.admin-grant-v2 .admin-shell-main,body.admin-grant-v2 .admin-console-main,body.admin-grant-v2 .admin-console-content,body.admin-grant-v2 .page-shell,body.admin-grant-v2 .page-wrap,body.admin-grant-v2 .page-container,body.admin-grant-v2 .page-content,body.admin-grant-v2 #app,body.admin-grant-v2 #root{background:#fff!important;background-color:#fff!important;background-image:none!important}
+body.admin-grant-v2 *{background-image:none!important}
+body.admin-grant-v2 .main,body.admin-grant-v2 .content,body.admin-grant-v2 .content-area,body.admin-grant-v2 .main-content,body.admin-grant-v2 .admin-content{min-height:calc(100vh - 64px)!important}
+body.admin-grant-v2 .ag-page{background:#fff!important;background-image:none!important}
+html::-webkit-scrollbar-track,body.admin-grant-v2::-webkit-scrollbar-track,body.admin-grant-v2 .main::-webkit-scrollbar-track,body.admin-grant-v2 .content::-webkit-scrollbar-track{background:#fff!important}
+</style>`;
+
   const styleNeedle="  const memberStyles=memberPatch.slice(0,splitAt);";
   const styleReplacement="  const memberStyles=memberPatch.slice(0,splitAt)+"+JSON.stringify(systemBlueTheme)+";";
   if(!source.includes(styleNeedle))throw new Error('管理中心样式补丁结构不兼容');
   source=source.replace(styleNeedle,styleReplacement);
 
   const oldOrder="    \"  html=html.replace('</body>','<scr'+'ipt src=\\\"assets/admin-dept-console-v1.js?v=1\\\"></scr'+'ipt>'+memberAdminScript+'</body>');\\n\";";
-  const newOrder="    \"  html=html.replace('</body>',memberAdminScript+'<scr'+'ipt src=\\\"assets/admin-dept-console-v2.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/public-shell-v1.js?v=3\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/public-shell-hotfix-v1.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-grant-polish-v2.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-shell-hotfix-v1.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-sunny-theme-v1.js?v=1\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-grant-flat-blue-v4.js?v=1\\\"></scr'+'ipt></body>');\\n\";";
+  const newOrder="    \"  html=html.replace('</body>',memberAdminScript+'<scr'+'ipt src=\\\"assets/admin-dept-console-v2.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/public-shell-v1.js?v=3\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/public-shell-hotfix-v1.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-grant-polish-v2.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-shell-hotfix-v1.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-grant-flat-blue-v4.js?v=1\\\"></scr'+'ipt>'+"+JSON.stringify(outerWhiteFix)+"+'</body>');\\n\";";
   if(!source.includes(oldOrder))throw new Error('部门管理脚本顺序补丁结构不兼容');
   source=source.replace(oldOrder,newOrder);
   source=source.replace(/assets\/workbench-v4\.js\?v=3/g,'assets/workbench-v4.js?v=11');
