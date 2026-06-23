@@ -78,6 +78,7 @@
   appendStyle('collaboration-v4','assets/collaboration-space-v4.css?v=1');
   appendStyle('collaboration-v5','assets/collaboration-space-v5.css?v=1');
   appendStyle('collaboration-v6','assets/collaboration-space-v6.css?v=1');
+  appendStyle('admin-flat-blue-v1','assets/admin-flat-blue-v1.css?v=1');
   const loadV6=()=>appendScript('collaboration-v6','assets/collaboration-space-v6.js?v=1');
   const loadV5=()=>appendScript('collaboration-v5','assets/collaboration-space-v5.js?v=1',loadV6);
   const loadV4=()=>appendScript('collaboration-v4','assets/collaboration-space-v4.js?v=1',loadV5);
