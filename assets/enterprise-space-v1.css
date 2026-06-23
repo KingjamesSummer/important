@@ -1,4 +1,4 @@
-/* Enterprise space follows the same visual language as personal space. */
+/* Enterprise space: reuse the personal-space file-list language. */
 .enterprise-mode .nav-item.active{background:var(--primary-soft);color:var(--primary)}
 .enterprise-mode .nav-item.active:before{background:var(--primary)}
 .enterprise-nav-caret{margin-left:auto;width:16px;height:16px;display:grid;place-items:center;color:var(--muted);transition:transform .16s}
@@ -30,27 +30,25 @@
 .enterprise-file-content{flex:1;min-height:0;align-items:stretch}
 .enterprise-file-content>.table-zone,.enterprise-file-content>.grid-zone{min-height:0}
 .enterprise-file-table{table-layout:fixed}
-.enterprise-file-table col.enterprise-check-col{width:46px}
-.enterprise-file-table col.enterprise-name-col{width:42%}
-.enterprise-file-table col.enterprise-size-col{width:100px}
-.enterprise-file-table col.enterprise-owner-col{width:150px}
-.enterprise-file-table col.enterprise-time-col{width:176px}
-.enterprise-file-table col.enterprise-status-col{width:112px}
-.enterprise-file-table col.enterprise-op-col{width:56px}
 .enterprise-file-table td{height:66px}
 .enterprise-file-table th,.enterprise-file-table td{padding-left:12px;padding-right:12px}
 .enterprise-file-table .file-name{gap:11px}
 .enterprise-file-table .file-name-copy{min-width:0}
 .enterprise-file-table .file-entry-link{max-width:100%}
-.enterprise-file-table .file-name-meta .badge{height:20px}
+.enterprise-file-table .file-name-meta{min-height:16px}
 .enterprise-file-table .status-cell{white-space:nowrap}
 .enterprise-file-table tbody tr.selected{background:var(--primary-soft)}
 .enterprise-file-table tbody tr.selected:before{background:var(--primary)}
 .enterprise-file-table .file-symbol.folder{background:transparent!important;border-color:transparent!important;box-shadow:none!important}
 .enterprise-file-table .file-symbol.folder>.online-file-icon{width:38px!important;height:38px!important}
-.enterprise-panel .selection-bar{flex:none}
-.enterprise-panel .selection-bar+.enterprise-file-content{min-height:0}
+.file-symbol.zip{color:#a8762b}
+.file-symbol.zip>.online-file-icon{width:29px!important;height:29px!important;font-size:29px!important;display:inline-flex;align-items:center;justify-content:center;transform:none!important}
+.enterprise-panel .personal-bulk-wrap{flex:none}
+.enterprise-panel .personal-bulk-menu{width:205px}
+.enterprise-panel .personal-bulk-menu button:disabled{opacity:.42;cursor:not-allowed}
 .enterprise-panel .filter-summary{flex:none}
-.enterprise-empty-actions{display:flex;justify-content:center;gap:8px;margin-top:14px}
-@media(max-width:1200px){.enterprise-file-table col.enterprise-owner-col{width:125px}.enterprise-file-table col.enterprise-time-col{width:150px}}
-@media(max-width:1060px){.enterprise-file-table col.enterprise-owner-col,.enterprise-file-table th:nth-child(4),.enterprise-file-table td:nth-child(4){display:none}.enterprise-panel .personal-search{width:270px}}
+.enterprise-panel .personal-pagination{border-radius:0 0 14px 14px}
+.enterprise-file-table .enterprise-tag-static{cursor:default}
+.enterprise-file-table .enterprise-tag-static:hover{transform:none;box-shadow:none;filter:none}
+@media(max-width:1370px){.enterprise-panel .personal-search{width:330px}}
+@media(max-width:1160px){.enterprise-file-table col.personal-activity-col{display:none}.enterprise-file-table th:nth-child(3),.enterprise-file-table td:nth-child(3){display:none}.enterprise-panel .personal-search{width:260px}}
