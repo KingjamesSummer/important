@@ -1,0 +1,62 @@
+name: Fix personal space v5
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/fix-personal-space-v5.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Apply personal-space v5 patch
+        run: python scripts/fix_personal_space_v5.py
+
+      - name: Validate HTML and JavaScript
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          html = Path('web-prototype.html').read_text(encoding='utf-8')
+          required = [
+              'personal-space-v5-stable-interaction',
+              'function syncPersonalSelection',
+              'function destinationTree',
+              "oncontextmenu=\"openMenu",
+              '复制到此处',
+              'iconify-ready',
+          ]
+          for item in required:
+              assert item in html, item
+
+          blocks = re.findall(r'<script(?:\s[^>]*)?>([\s\S]*?)</script>', html, re.I)
+          inline = [block for block in blocks if block.strip()]
+          assert inline
+          Path('/tmp/web-prototype.js').write_text(inline[-1], encoding='utf-8')
+          PY
+          node --check /tmp/web-prototype.js
+
+      - name: Commit validated changes
+        run: |
+          if git diff --quiet; then
+            echo 'No changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add web-prototype.html scripts/fix_personal_space_v5.py
+          git commit -m 'fix: stabilize personal space interactions'
+          git push
