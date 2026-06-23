@@ -1,0 +1,71 @@
+/* Collaboration space v6: system-aligned colors, solid preview, hierarchical organization tree */
+
+/* Stronger, cleaner space palette. The previous muted green is replaced by cyan-blue. */
+.color-sky{--space:#1677ff;--space-soft:#eaf3ff;--space-fg:#0f5ed7;--space-line:#85b7ff}
+.color-orange{--space:#f07b1f;--space-soft:#fff1e8;--space-fg:#b95000;--space-line:#ffb47a}
+.color-violet{--space:#7c3aed;--space-soft:#f2ebff;--space-fg:#5b21b6;--space-line:#bfa7ff}
+.color-green{--space:#0891d1;--space-soft:#e8f8ff;--space-fg:#066a96;--space-line:#7fd4f2}
+.color-rose{--space:#e5484d;--space-soft:#fff0f1;--space-fg:#bd2930;--space-line:#ff9da2}
+.color-amber{--space:#d98900;--space-soft:#fff7df;--space-fg:#a46100;--space-line:#ffc866}
+
+/* Color menu remains system white/blue. Each color is represented only by its clear color dot. */
+.collab-v3-color-field button{background:#fff!important;border-color:#dce5ef!important;color:#5f7388!important}
+.collab-v3-color-field button:hover{background:#f8fbff!important;border-color:#b8d0ef!important;color:#315f86!important}
+.collab-v3-color-field button.selected{background:#edf5ff!important;border-color:#83b4f4!important;color:#1769ff!important;box-shadow:inset 0 0 0 1px rgba(23,105,255,.05)!important}
+.collab-v3-color-field button>i{background:var(--choice,#1677ff)!important;border:2px solid #fff!important;box-shadow:0 0 0 1px rgba(32,50,71,.16)!important}
+.collab-v3-color-field button.color-sky>i{background:#1677ff!important}
+.collab-v3-color-field button.color-orange>i{background:#f07b1f!important}
+.collab-v3-color-field button.color-violet>i{background:#7c3aed!important}
+.collab-v3-color-field button.color-green>i{background:#0891d1!important}
+.collab-v3-color-field button.color-rose>i{background:#e5484d!important}
+.collab-v3-color-field button.color-amber>i{background:#d98900!important}
+
+/* Preview card uses the selected color as a full solid fill: no gradient, no foggy tint. */
+.collab-v3-preview{background:#f7f9fc!important;border-color:#e2e8f0!important}
+.collab-v3-preview article{background:var(--preview,#1677ff)!important;border-color:var(--preview,#1677ff)!important;box-shadow:0 12px 28px color-mix(in srgb,var(--preview,#1677ff) 25%,transparent)!important;color:#fff!important}
+.collab-v3-preview article:before{display:none!important;content:none!important}
+.collab-v3-preview-icon{background:rgba(255,255,255,.16)!important;border-color:rgba(255,255,255,.38)!important;color:#fff!important;box-shadow:none!important}
+.collab-v3-preview strong,.collab-v3-preview p{color:#fff!important}
+.collab-v3-preview p{opacity:.86!important}
+.collab-v3-preview footer{border-top-color:rgba(255,255,255,.28)!important}
+.collab-v3-preview footer .badge{background:#fff!important;border-color:#fff!important;color:var(--preview-fg,#0f5ed7)!important}
+.collab-v3-preview footer b{color:#fff!important}
+.collab-v3-preview footer b:before{background:#fff!important;box-shadow:0 0 0 3px rgba(255,255,255,.18)!important}
+
+/* Avatars use clear, crisp colors. No gray-green or misty fills. */
+.collab-v3-member-side article>i.tone-sky,.collab-v3-timeline-avatar.tone-sky,.collab-v3-avatar-stack i.tone-sky,.collab-v6-person-avatar.tone-sky{background:#1677ff!important;color:#fff!important}
+.collab-v3-member-side article>i.tone-orange,.collab-v3-timeline-avatar.tone-orange,.collab-v3-avatar-stack i.tone-orange,.collab-v6-person-avatar.tone-orange{background:#f07b1f!important;color:#fff!important}
+.collab-v3-member-side article>i.tone-violet,.collab-v3-timeline-avatar.tone-violet,.collab-v3-avatar-stack i.tone-violet,.collab-v6-person-avatar.tone-violet{background:#7c3aed!important;color:#fff!important}
+.collab-v3-member-side article>i.tone-cyan,.collab-v3-timeline-avatar.tone-cyan,.collab-v3-avatar-stack i.tone-cyan,.collab-v6-person-avatar.tone-cyan{background:#0891d1!important;color:#fff!important}
+.collab-v3-member-side article>i.tone-rose,.collab-v3-timeline-avatar.tone-rose,.collab-v3-avatar-stack i.tone-rose,.collab-v6-person-avatar.tone-rose{background:#e5484d!important;color:#fff!important}
+.collab-v3-member-side article>i.tone-amber,.collab-v3-timeline-avatar.tone-amber,.collab-v3-avatar-stack i.tone-amber,.collab-v6-person-avatar.tone-amber{background:#d98900!important;color:#fff!important}
+.collab-v3-member-side article>i.tone-green,.collab-v3-timeline-avatar.tone-green,.collab-v3-avatar-stack i.tone-green,.collab-v6-person-avatar.tone-green{background:#0891d1!important;color:#fff!important}
+
+/* Hierarchical invitation dialog */
+.collab-v6-layer{z-index:3100!important}
+.collab-v6-invite-modal{width:min(1000px,calc(100vw - 36px));max-height:calc(100vh - 40px);overflow:hidden;border:1px solid #dce4ec;border-radius:14px;background:#fff;box-shadow:0 30px 80px rgba(31,52,73,.22);display:flex;flex-direction:column}
+.collab-v6-invite-modal>header{min-height:70px;padding:0 20px;border-bottom:1px solid #e9eef4;display:flex;align-items:center;background:#fff}
+.collab-v6-invite-modal>header>div strong{display:block;color:#263c50;font-size:15px;font-weight:650}.collab-v6-invite-modal>header>div span{display:block;margin-top:4px;color:#94a1af;font-size:9px}
+.collab-v6-invite-modal>header>button{margin-left:auto;width:34px;height:34px;border:0;border-radius:8px;background:transparent;color:#697b8e;display:grid;place-items:center}.collab-v6-invite-modal>header>button:hover{background:#f3f7fa;color:#315f86}
+.collab-v6-invite-body{height:440px;display:grid;grid-template-columns:270px minmax(0,1fr)}
+.collab-v6-org-tree{min-width:0;overflow:auto;padding:16px 12px;border-right:1px solid #e8edf3;background:#fbfcfe}
+.collab-v6-org-tree h4{margin:0 10px 10px;color:#8997a6;font-size:10px;font-weight:600}
+.collab-v6-tree-node{min-width:0}.collab-v6-tree-children{position:relative;margin-left:14px;padding-left:10px}.collab-v6-tree-children:before{content:"";position:absolute;left:4px;top:0;bottom:8px;width:1px;background:#e1e8ef}
+.collab-v6-tree-row{width:100%;height:40px;border:0;border-radius:8px;background:transparent;color:#5d7186;padding:0 9px;display:grid;grid-template-columns:18px 18px minmax(0,1fr);align-items:center;gap:7px;text-align:left}
+.collab-v6-tree-row:hover{background:#f2f7fc;color:#315f86}.collab-v6-tree-row.active{background:#eaf3ff;color:#1769ff;font-weight:650}
+.collab-v6-tree-row>.icon-stack{width:16px;height:16px}.collab-v6-tree-row>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.collab-v6-tree-toggle{width:18px;height:18px;display:grid;place-items:center;color:#8c9bab;transition:.16s}.collab-v6-tree-toggle .icon-stack{width:13px;height:13px;transform:rotate(0deg);transition:.16s}.collab-v6-tree-toggle.open .icon-stack{transform:rotate(90deg)}
+.collab-v6-tree-spacer{width:18px;height:18px}.collab-v6-tree-row.root{margin-bottom:4px}
+.collab-v6-people-pane{min-width:0;display:flex;flex-direction:column;background:#fff}
+.collab-v6-people-head{height:76px;padding:0 16px;border-bottom:1px solid #e9eef4;display:flex;align-items:center;gap:14px}.collab-v6-people-head>div:first-child strong{display:block;color:#2f4357;font-size:13px}.collab-v6-people-head>div:first-child span{display:block;margin-top:4px;color:#95a2af;font-size:9px}.collab-v6-people-head .search-box{margin-left:auto;width:310px;background:#fff}
+.collab-v6-people-list{flex:1;min-height:0;overflow:auto;padding:8px 12px}.collab-v6-people-list>button{width:100%;min-height:60px;border:1px solid transparent;border-radius:10px;background:#fff;display:grid;grid-template-columns:38px minmax(0,1fr) 20px;align-items:center;gap:11px;padding:8px 10px;text-align:left;transition:.14s}
+.collab-v6-people-list>button:hover{background:#f8fbff}.collab-v6-people-list>button.selected{border-color:#b8d3f4;background:#edf5ff}
+.collab-v6-person-avatar{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:700;box-shadow:none!important}
+.collab-v6-people-list b{display:block;color:#33495d;font-size:11px}.collab-v6-people-list small{display:block;margin-top:4px;color:#94a1ad;font-size:9px}.collab-v6-people-list em{width:18px;height:18px;border-radius:50%;border:1px solid #c8d7e8;background:#fff;color:#1769ff;display:grid;place-items:center;opacity:0}.collab-v6-people-list button.selected em{opacity:1}
+.collab-v6-empty{height:250px;display:grid;place-items:center;color:#9aa6b2;font-size:11px}
+.collab-v6-selected-strip{min-height:66px;padding:10px 16px;border-top:1px solid #e9eef4;background:#fbfcfe;display:flex;align-items:center;gap:12px}.collab-v6-selected-strip>span{color:#7d8c9b;font-size:10px;font-weight:600}.collab-v6-selected-strip>div{display:flex;align-items:center;gap:8px;overflow:auto}.collab-v6-selected-strip>div>em{font-style:normal;color:#a0abb5;font-size:10px}.collab-v6-selected-strip>div>button{height:42px;border:1px solid #dfe7ef;border-radius:9px;background:#fff;color:#586e82;display:grid;grid-template-columns:28px minmax(0,1fr) 14px;align-items:center;gap:8px;padding:0 9px;text-align:left}.collab-v6-selected-strip button>i{width:28px;height:28px;border-radius:8px;font-size:10px}.collab-v6-selected-strip button b{display:block;color:#344b60;font-size:10px}.collab-v6-selected-strip button small{display:block;margin-top:2px;color:#9aa6b1;font-size:8px}.collab-v6-selected-strip button>.icon-stack{width:13px;height:13px}
+.collab-v6-invite-modal>footer{min-height:68px;padding:12px 18px;border-top:1px solid #e9eef4;display:flex;align-items:center;justify-content:flex-end;gap:8px;background:#fff}.collab-v6-invite-modal>footer label{margin-right:auto;display:flex;align-items:center;gap:8px}.collab-v6-invite-modal>footer label span{color:#687b8e;font-size:10px}.collab-v6-invite-modal>footer .select{width:124px;height:34px}
+
+@media(max-width:820px){
+  .collab-v6-invite-body{height:auto;grid-template-columns:1fr}.collab-v6-org-tree{max-height:210px;border-right:0;border-bottom:1px solid #e8edf3}.collab-v6-people-pane{height:360px}.collab-v6-people-head{align-items:flex-start;flex-direction:column;justify-content:center;height:auto;min-height:96px}.collab-v6-people-head .search-box{width:100%;margin-left:0}.collab-v6-selected-strip{align-items:flex-start;flex-direction:column}.collab-v6-invite-modal>footer{flex-wrap:wrap}.collab-v6-invite-modal>footer label{width:100%;margin-right:0}
+}
