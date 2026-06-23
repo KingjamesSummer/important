@@ -25,6 +25,13 @@
   const escapeHtml=value=>typeof window.safe==='function'?window.safe(value):String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 
   function installStyle(){
+    if(!document.getElementById('admin-dept-console-v11-theme')){
+      const link=document.createElement('link');
+      link.id='admin-dept-console-v11-theme';
+      link.rel='stylesheet';
+      link.href='assets/admin-dept-console-v9.css?v=2';
+      document.head.appendChild(link);
+    }
     if(document.getElementById('admin-dept-console-v11-style'))return;
     const style=document.createElement('style');
     style.id='admin-dept-console-v11-style';
