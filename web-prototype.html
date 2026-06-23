@@ -30,76 +30,16 @@ html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;backgr
     "pageHead('工作台','集中查看常用文件、协作动态和待处理事项')"
   );
 
-  const workbenchStyle=`<style id="workbench-v3-style">
-  body.workbench-v3{--wb-line:#dbe5eb;--wb-ink:#203247;--wb-muted:#8696a5}
-  body.workbench-v3 .main{background:radial-gradient(circle at 9% 0,rgba(108,146,171,.16),transparent 29%),linear-gradient(180deg,#edf3f6 0%,#f4f7f9 58%,#edf2f5 100%)}
-  body.workbench-v3 .page{max-width:1580px}
-  body.workbench-v3 .page-head{margin-bottom:16px;padding:2px 2px 0}
-  body.workbench-v3 .page-title{font-size:24px;color:var(--wb-ink);letter-spacing:-.35px}
-  body.workbench-v3 .page-subtitle{color:#7f8f9e}
-  body.workbench-v3 .page-actions{display:none!important}
-  body.workbench-v3 .stats-grid{gap:14px;margin-bottom:16px}
-  body.workbench-v3 .stat-card{min-height:112px;border-color:var(--wb-line);border-radius:14px;box-shadow:0 8px 22px rgba(31,52,72,.055);cursor:pointer;transition:transform .18s,border-color .18s,box-shadow .18s}
-  body.workbench-v3 .stat-card:nth-child(1){background:linear-gradient(145deg,#f9fbfd,#e8f0f5);border-top:3px solid #7596ad}
-  body.workbench-v3 .stat-card:nth-child(2){background:linear-gradient(145deg,#fbfdfc,#e8f2ed);border-top:3px solid #72a087}
-  body.workbench-v3 .stat-card:nth-child(3){background:linear-gradient(145deg,#fffdf9,#f9efdf);border-top:3px solid #c08b49}
-  body.workbench-v3 .stat-card:nth-child(4){background:linear-gradient(145deg,#fbfcfd,#ebf0f4);border-top:3px solid #8598aa}
-  body.workbench-v3 .stat-card:hover{transform:translateY(-2px);border-color:#c2d2dc;box-shadow:0 14px 30px rgba(31,52,72,.09)}
-  body.workbench-v3 .stat-card:focus-visible{outline:3px solid rgba(95,131,157,.18);outline-offset:2px}
-  body.workbench-v3 .stat-icon{background:rgba(255,255,255,.65);border:1px solid rgba(255,255,255,.82)}
-  body.workbench-v3 .dashboard-grid{grid-template-columns:minmax(0,1.48fr) minmax(330px,.72fr);gap:16px}
-  body.workbench-v3 .dashboard-grid .panel{border-color:var(--wb-line);border-radius:14px;background:rgba(249,251,252,.96);box-shadow:0 8px 24px rgba(31,52,72,.05);overflow:hidden}
-  body.workbench-v3 .card-head{background:linear-gradient(180deg,#f8fbfc,#f2f6f8);border-bottom-color:#e4ebf0}
-  body.workbench-v3 .panel-title{color:var(--wb-ink);font-weight:650}
-  body.workbench-v3 .panel-subtitle{color:var(--wb-muted)}
-  body.workbench-v3 .quick-actions{gap:11px}
-  body.workbench-v3 .quick{min-height:104px;border-color:#dbe5eb;border-radius:12px}
-  body.workbench-v3 .quick:nth-child(1){background:linear-gradient(145deg,#f7fafc,#e8f0f5)}
-  body.workbench-v3 .quick:nth-child(2){background:linear-gradient(145deg,#fbfcfd,#edf2f5)}
-  body.workbench-v3 .quick:nth-child(3){background:linear-gradient(145deg,#f8fcfa,#e8f2ed)}
-  body.workbench-v3 .quick:nth-child(4){background:linear-gradient(145deg,#fffdf8,#f9efdf)}
-  body.workbench-v3 .quick:hover{background:#fff;border-color:#c4d4de;box-shadow:0 10px 24px rgba(31,52,72,.08)}
-  body.workbench-v3 .quick-icon{background:#dfeaf1;color:#496f8a}
-  body.workbench-v3 .quick:nth-child(3) .quick-icon{background:#e2efe7;color:#4f7c68}
-  body.workbench-v3 .quick:nth-child(4) .quick-icon{background:#f5e9d5;color:#98703b}
-  body.workbench-v3 .file-table thead{background:#edf3f6}
-  body.workbench-v3 .file-table tbody tr{background:rgba(255,255,255,.72)}
-  body.workbench-v3 .file-table tbody tr:hover{background:#f0f5f8}
-  body.workbench-v3 .space-summary{gap:4px;padding:3px;border-radius:999px;background:#e3ebf0}
-  body.workbench-v3 .space-summary .space-segment{height:8px}
-  body.workbench-v3 .activity-avatar{background:#e3ebf0;color:#5b7488}
-  @media(max-width:1180px){body.workbench-v3 .dashboard-grid{grid-template-columns:1fr}body.workbench-v3 .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-  </style>`;
+  html=html.replace(
+    '</head>',
+    '<link rel="stylesheet" href="assets/personal-space-v8.css?v=2"><link rel="stylesheet" href="assets/personal-space-v9.css?v=1"><link rel="stylesheet" href="assets/enterprise-space-v1.css?v=2"><link rel="stylesheet" href="assets/workbench-v4.css?v=1"><style>.destination-v9-check{width:18px!important;height:18px!important;border-radius:0!important;background:transparent!important;color:#3f759d!important}.destination-v9-check .icon-stack{width:14px!important;height:14px!important}.transfer-person-check{width:18px!important;height:18px!important;border-radius:0!important;background:transparent!important;color:#3f759d!important}</style></head>'
+  );
 
-  const workbenchScript=`<script id="workbench-v3-script">(function(){
-    const routes={最近访问:'personal',协作空间:'collaboration',待我处理:'related',有效外链:'links'};
-    function syncWorkbench(){
-      const title=(document.querySelector('.page-title')?.textContent||'').trim();
-      const active=title==='工作台';
-      document.body.classList.toggle('workbench-v3',active);
-      if(!active)return;
-      document.querySelector('.page-head .page-actions')?.remove();
-      document.querySelectorAll('.stats-grid .stat-card').forEach(card=>{
-        if(card.dataset.workbenchV3==='true')return;
-        const label=(card.querySelector('.stat-top span')?.textContent||'').trim();
-        const route=routes[label];
-        if(!route)return;
-        card.dataset.workbenchV3='true';
-        card.tabIndex=0;
-        card.setAttribute('role','button');
-        card.setAttribute('aria-label','打开'+label);
-        const open=()=>{if(typeof window.navigate==='function')window.navigate(route)};
-        card.addEventListener('click',open);
-        card.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();open()}});
-      });
-    }
-    const root=document.getElementById('app');
-    if(root)new MutationObserver(syncWorkbench).observe(root,{childList:true,subtree:true});
-    syncWorkbench();
-  })();<\/script>`;
+  html=html.replace(
+    '</body>',
+    '<script src="assets/personal-space-v8.js?v=2"><\/script><script src="assets/personal-space-v9.js?v=1"><\/script><script src="assets/enterprise-space-v1.js?v=2"><\/script><script src="assets/personal-space-v10.js?v=1"><\/script><script src="assets/workbench-v4.js?v=1"><\/script><script>window.switchDestinationSpace=function(space,button){document.querySelectorAll(".destination-space-item").forEach(item=>item.classList.toggle("active",item===button));document.querySelectorAll(".destination-v9-pane").forEach(pane=>{pane.hidden=pane.dataset.space!==space;pane.classList.toggle("active",pane.dataset.space===space)});document.querySelectorAll(".destination-v9-radio").forEach(input=>input.checked=false);document.querySelectorAll(".destination-v9-row").forEach(row=>row.classList.remove("selected"));const names={personal:"个人空间",enterprise:"企业空间",collab:"协作空间"};const title=document.getElementById("destinationSpaceTitle");if(title)title.textContent=names[space];const summary=document.getElementById("destinationSelectedText");if(summary)summary.textContent="尚未选择";const submit=document.getElementById("destinationSubmit");if(submit)submit.disabled=true;const search=document.getElementById("destinationSearch");if(search){search.value="";filterDestinationRows("")}};<\/script></body>'
+  );
 
-  html=html.replace('</head>','<link rel="stylesheet" href="assets/personal-space-v8.css?v=2"><link rel="stylesheet" href="assets/personal-space-v9.css?v=1"><link rel="stylesheet" href="assets/enterprise-space-v1.css?v=2">'+workbenchStyle+'<style>.destination-v9-check{width:18px!important;height:18px!important;border-radius:0!important;background:transparent!important;color:#3f759d!important}.destination-v9-check .icon-stack{width:14px!important;height:14px!important}.transfer-person-check{width:18px!important;height:18px!important;border-radius:0!important;background:transparent!important;color:#3f759d!important}</style></head>');
-  html=html.replace('</body>','<script src="assets/personal-space-v8.js?v=2"><\/script><script src="assets/personal-space-v9.js?v=1"><\/script>'+workbenchScript+'<script src="assets/enterprise-space-v1.js?v=2"><\/script><script src="assets/personal-space-v10.js?v=1"><\/script><script>window.switchDestinationSpace=function(space,button){document.querySelectorAll(".destination-space-item").forEach(item=>item.classList.toggle("active",item===button));document.querySelectorAll(".destination-v9-pane").forEach(pane=>{pane.hidden=pane.dataset.space!==space;pane.classList.toggle("active",pane.dataset.space===space)});document.querySelectorAll(".destination-v9-radio").forEach(input=>input.checked=false);document.querySelectorAll(".destination-v9-row").forEach(row=>row.classList.remove("selected"));const names={personal:"个人空间",enterprise:"企业空间",collab:"协作空间"};const title=document.getElementById("destinationSpaceTitle");if(title)title.textContent=names[space];const summary=document.getElementById("destinationSelectedText");if(summary)summary.textContent="尚未选择";const submit=document.getElementById("destinationSubmit");if(submit)submit.disabled=true;const search=document.getElementById("destinationSearch");if(search){search.value="";filterDestinationRows("")}};<\/script></body>');
   document.open();document.write(html);document.close();
 })().catch(error=>{
   document.body.innerHTML='<div class="loader"><strong>原型载入失败</strong><small>'+String(error.message||error)+'</small></div>';
