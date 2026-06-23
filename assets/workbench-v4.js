@@ -4,12 +4,24 @@
   const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function ensurePremiumMotionStyles(){
-    if(document.getElementById('workbench-v4-premium-motion'))return;
-    const link=document.createElement('link');
-    link.id='workbench-v4-premium-motion';
-    link.rel='stylesheet';
-    link.href='assets/workbench-v4-premium-motion.css?v=1';
-    document.head.appendChild(link);
+    if(!document.getElementById('workbench-v4-premium-motion')){
+      const link=document.createElement('link');
+      link.id='workbench-v4-premium-motion';
+      link.rel='stylesheet';
+      link.href='assets/workbench-v4-premium-motion.css?v=1';
+      document.head.appendChild(link);
+    }
+
+    let avatars=document.getElementById('workbench-v4-avatars-v2');
+    if(!avatars){
+      avatars=document.createElement('link');
+      avatars.id='workbench-v4-avatars-v2';
+      avatars.rel='stylesheet';
+      document.head.appendChild(avatars);
+    }
+    if(!avatars.href.endsWith('assets/workbench-v4-avatars.css?v=2')){
+      avatars.href='assets/workbench-v4-avatars.css?v=2';
+    }
   }
 
   function animateNumber(node){
