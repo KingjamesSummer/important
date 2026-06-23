@@ -30,7 +30,14 @@ html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;backgr
     "pageHead('工作台','集中查看常用文件、协作动态和待处理事项')"
   );
 
-  const workbenchCardFill=`<style id="workbench-card-fill-v5">
+  const workbenchCardFill=`<style id="workbench-card-fill-v6">
+    body.workbench-v4 .page-head{
+      margin:-26px -28px 18px!important;
+      padding:26px 28px 18px!important;
+      background:#fff!important;
+      border-bottom:1px solid #e8eef6;
+      box-shadow:0 1px 0 rgba(255,255,255,.92);
+    }
     body.workbench-v4 .stat-card{
       --card-fill-a:#dfeaff;
       --card-fill-b:#f1f6ff;
