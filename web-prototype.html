@@ -3,35 +3,91 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>GDG知识库｜管理中心</title>
+<title>GDG知识库｜智能知识库管理平台高保真交互原型</title>
 <style>
 html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;background:#fff;color:#315a84;font-family:Inter,"PingFang SC","Microsoft YaHei",sans-serif}.loader{padding:22px 26px;border:1px solid #d5e9ff;border-radius:14px;background:#fff;box-shadow:0 16px 46px rgba(23,105,255,.09)}.loader strong{display:block;color:#12345d;margin-bottom:7px}.loader small{color:#5f80a0;line-height:1.6}
 </style>
 </head>
 <body>
-<div class="loader"><strong>正在进入管理中心</strong><small id="routeHint">正在读取本地模块</small></div>
+<div class="loader"><strong>正在载入 GDG知识库原型…</strong><small>正在加载纯蓝白、无渐变的部门管理界面</small></div>
 <script>
-(()=>{
-  const query=new URLSearchParams(window.location.search);
-  const section=String(window.location.hash||'').replace('#','');
-  const isAdmin=query.get('console')==='admin';
-  let target='admin-member-local.html?console=admin#member';
-  let label='成员管理';
-
-  if(isAdmin&&(section==='dept'||section==='audit')){
-    target='admin-dept-local.html'+window.location.search+window.location.hash;
-    label=section==='audit'?'治理与审计':'部门管理';
-  }else if(isAdmin&&(section==='grant'||section==='security')){
-    target='admin-grant-local.html'+window.location.search+window.location.hash;
-    label=section==='security'?'安全配置':'管理员设置';
-  }else if(isAdmin&&section==='member'){
-    target='admin-member-local.html'+window.location.search+window.location.hash;
+(async()=>{
+  const revision='1ac99de78e4af6875f73cf446f8659b074b0f68d';
+  const sources=[
+    `https://cdn.jsdelivr.net/gh/KingjamesSummer/important@${revision}/web-prototype.html`,
+    `https://raw.githubusercontent.com/KingjamesSummer/important/${revision}/web-prototype.html`
+  ];
+  let source='';
+  for(const url of sources){
+    try{
+      const response=await fetch(url,{cache:'no-store'});
+      if(response.ok){source=await response.text();break}
+    }catch(error){}
   }
+  if(!source)throw new Error('管理中心基础版本加载失败');
 
-  const hint=document.getElementById('routeHint');
-  if(hint)hint.textContent=`正在进入本地${label}页面`;
-  window.location.replace(target);
-})();
+  const systemBlueTheme=`<style id="admin-system-blue-v4">
+body.admin-console-v2{background:#fff!important}
+body.admin-console-v2 .app{background:#fff!important}
+body.admin-console-v2 .main{background:#fff!important;background-image:none!important}
+body.admin-console-v2 .sidebar{border-right-color:#d8e9fd!important}
+body.admin-console-v2 .nav-item:hover{background:#eef7ff!important;color:#075fe9!important}
+body.admin-console-v2 .nav-item.active{background:#e2f0ff!important;color:#075fe9!important;border-color:#bcd9ff!important}
+body.admin-console-v2 .nav-item.active:before{background:#1769ff!important;box-shadow:none!important}
+body.admin-console-v2 .ad-console-scope{border-color:#c9e0fb!important;background:#f4f9ff!important}
+body.admin-console-v2 .ad-console-scope strong{color:#174b87!important}
+body.admin-console-v2 .ad-console-return:hover{border-color:#74b5ff!important;background:#edf6ff!important;color:#075fe9!important}
+body.admin-console-v2 .btn,body.admin-console-v2 button{background-image:none!important}
+body.admin-console-v2 .btn.primary{background:#1769ff!important;background-image:none!important;border-color:#1769ff!important;box-shadow:0 7px 18px rgba(23,105,255,.16)!important}
+body.admin-console-v2 .btn.primary:hover{background:#0756d6!important;background-image:none!important;border-color:#0756d6!important}
+body.admin-console-v2 .badge.blue{background:#e5f2ff!important;color:#075fe9!important}
+body.admin-console-v2 .search-box:focus-within,body.admin-console-v2 .global-search:focus-within{border-color:#69adff!important;box-shadow:0 0 0 3px rgba(23,105,255,.09)!important}
+body.admin-console-v2 .page-title,body.admin-console-v2 .admin-head h3{color:#0d2f5e!important}
+body.admin-console-v2 .topbar.admin-shell-topbar{margin:0!important;border-radius:0!important;border-top:0!important;border-left:0!important;border-right:0!important;background:#fff!important;background-image:none!important;box-shadow:0 4px 16px rgba(23,105,255,.04)!important}
+body.admin-console-v2 .topbar.admin-shell-topbar:before,body.admin-console-v2 .topbar.admin-shell-topbar:after{content:none!important;display:none!important}
+body.admin-console-v2 .admin-shell-brand{background:#fff!important;background-image:none!important;border-bottom:1px solid #dceaff!important}
+body.admin-console-v2 .admin-shell-brand .gdg-brand-v4{background:#fff!important;background-image:none!important;box-shadow:none!important}
+body.admin-console-v2 .admin-shell-brand .gdg-brand-v4:before,body.admin-console-v2 .admin-shell-brand .gdg-brand-v4:after{display:none!important}
+.sidebar .enterprise-org-v7{width:calc(100% - 32px)!important;margin:4px 8px 14px 24px!important;padding:2px 0 4px 10px!important;overflow:visible!important;box-sizing:border-box!important}
+.sidebar .enterprise-dept-list-v7{width:100%!important;padding-left:8px!important;overflow:visible!important;box-sizing:border-box!important}
+.sidebar .enterprise-org-root-v7,.sidebar .enterprise-dept-node-v7{min-height:36px!important;height:36px!important;padding:0 8px!important;border-radius:8px!important;gap:8px!important;color:#5d7087!important;overflow:hidden!important;box-sizing:border-box!important}
+.sidebar .enterprise-org-root-v7:hover,.sidebar .enterprise-dept-node-v7:hover{background:#f4f8fd!important;color:#315f8d!important}
+.sidebar .enterprise-org-root-v7.active,.sidebar .enterprise-dept-node-v7.active{background:#eaf3ff!important;color:#1769ff!important;font-weight:650!important}
+.sidebar .enterprise-org-root-v7>span,.sidebar .enterprise-dept-node-v7>span{display:block!important;flex:1 1 auto!important;width:auto!important;min-width:0!important;max-width:none!important;overflow:visible!important;text-overflow:clip!important;white-space:nowrap!important;word-break:keep-all!important;font-size:12px!important}
+.sidebar .enterprise-dept-node-v7 iconify-icon{color:#7d9fca!important}
+.sidebar .enterprise-dept-node-v7.active iconify-icon{color:#1769ff!important}
+.sidebar .enterprise-dept-node-v7:before{left:-8px!important;width:6px!important;border-color:#dbe6f2!important}
+.sidebar .enterprise-org-tree-v4{width:calc(100% - 32px)!important;min-width:0!important;margin:4px 8px 14px 24px!important;padding:2px 0 4px 10px!important;box-sizing:border-box!important;overflow:visible!important}
+.sidebar .enterprise-dept-group-v4{margin-top:2px!important}
+.sidebar .enterprise-dept-group-head-v4{display:none!important}
+.sidebar .enterprise-dept-children-v4{display:block!important;width:100%!important;min-width:0!important;max-width:none!important;padding:0 0 0 8px!important;margin:0!important;box-sizing:border-box!important;overflow:visible!important}
+.sidebar .enterprise-dept-nav-v4{display:flex!important;grid-template-columns:none!important;align-items:center!important;gap:8px!important;width:100%!important;min-width:0!important;max-width:none!important;height:36px!important;margin:2px 0!important;padding:0 8px!important;box-sizing:border-box!important;overflow:hidden!important}
+.sidebar .enterprise-dept-nav-v4>.icon-stack,.sidebar .enterprise-dept-nav-v4>.icon{width:15px!important;min-width:15px!important;height:15px!important;flex:0 0 15px!important}
+.sidebar .enterprise-dept-nav-v4>strong{display:block!important;flex:1 1 auto!important;width:auto!important;min-width:0!important;max-width:none!important;overflow:visible!important;text-overflow:clip!important;white-space:nowrap!important;word-break:keep-all!important}
+.sidebar .enterprise-dept-nav-v4>span,.sidebar .enterprise-dept-nav-v4>.enterprise-default-v4,.sidebar .enterprise-dept-nav-v4>.enterprise-nav-count-v4,.sidebar .enterprise-library-root-v4>.enterprise-nav-count-v4{display:none!important}
+.sidebar .enterprise-library-root-v4{display:flex!important;grid-template-columns:none!important;align-items:center!important;gap:8px!important;width:100%!important;min-width:0!important;padding:0 8px!important;box-sizing:border-box!important}
+.sidebar .enterprise-library-root-v4>strong{display:block!important;flex:1 1 auto!important;min-width:0!important;overflow:visible!important;text-overflow:clip!important;white-space:nowrap!important}
+</style>`;
+
+  const styleNeedle="  const memberStyles=memberPatch.slice(0,splitAt);";
+  const styleReplacement="  const memberStyles=memberPatch.slice(0,splitAt)+"+JSON.stringify(systemBlueTheme)+";";
+  if(!source.includes(styleNeedle))throw new Error('管理中心样式补丁结构不兼容');
+  source=source.replace(styleNeedle,styleReplacement);
+
+  const oldOrder="    \"  html=html.replace('</body>','<scr'+'ipt src=\\\"assets/admin-dept-console-v1.js?v=1\\\"></scr'+'ipt>'+memberAdminScript+'</body>');\\n\";";
+  const newOrder="    \"  html=html.replace('</body>','<scr'+'ipt src=\\\"assets/admin-dept-console-v2.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/public-shell-v1.js?v=3\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/public-shell-hotfix-v1.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-grant-polish-v2.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-shell-hotfix-v1.js?v=2\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-sunny-theme-v1.js?v=1\\\"></scr'+'ipt><scr'+'ipt src=\\\"assets/admin-dept-console-v11.js?v=3\\\"></scr'+'ipt>'+memberAdminScript+'</body>');\\n\";";
+  if(!source.includes(oldOrder))throw new Error('部门管理脚本顺序补丁结构不兼容');
+  source=source.replace(oldOrder,newOrder);
+  source=source.replace(/assets\/workbench-v4\.js\?v=3/g,'assets/workbench-v4.js?v=13');
+  source=source.replace(/assets\/enterprise-space-v1\.css\?v=\d+/g,'assets/enterprise-space-v1.css?v=8');
+  source=source.replace(/assets\/enterprise-space-v2\.js\?v=\d+/g,'assets/enterprise-space-v2.js?v=3');
+
+  document.open();
+  document.write(source);
+  document.close();
+})().catch(error=>{
+  document.body.innerHTML='<div class="loader"><strong>原型载入失败</strong><small>'+String(error.message||error)+'</small></div>';
+});
 </script>
 </body>
 </html>
