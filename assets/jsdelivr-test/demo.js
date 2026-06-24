@@ -1,1 +1,0 @@
-document.addEventListener('DOMContentLoaded',function(){var button=document.getElementById('runDemo');var result=document.getElementById('demoResult');if(!button||!result)return;button.addEventListener('click',function(){result.textContent='JS 已通过 jsDelivr 加载并执行，当前时间：'+new Date().toLocaleTimeString('zh-CN');button.textContent='执行成功';});});
