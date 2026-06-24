@@ -20,14 +20,6 @@ html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;backgr
     return;
   }
 
-  if(window.location.protocol==='file:'){
-    const safePreview='https://cdn.jsdelivr.net/gh/KingjamesSummer/important@7521b798e94ebc37fbbd13b3e33b503de09cbe8a/web-prototype.html';
-    const hint=document.querySelector('.loader small');
-    if(hint)hint.textContent='正在切换到安全预览地址，避免 file:// 跨域限制';
-    window.location.replace(safePreview+window.location.search+window.location.hash);
-    return;
-  }
-
   const revision='971ebd67af097c2581fbe22d60be6df7fa8bc801';
   const sources=[
     `https://cdn.jsdelivr.net/gh/KingjamesSummer/important@${revision}/web-prototype.html`,
@@ -80,6 +72,48 @@ html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;backgr
   if(!source.includes('</head>')||!source.includes('</body>'))throw new Error('成员管理挂载点不兼容');
   source=source.replace('</head>',memberStyles+'</head>');
   source=source.replace('</body>',memberScriptTag+adminWorkspaceTag+'</body>');
+
+  if(window.location.protocol==='file:'){
+    const resolveLoaderChain=async initial=>{
+      let current=initial;
+      for(let depth=0;depth<16;depth+=1){
+        const scripts=[...current.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)];
+        const loader=scripts.map(match=>match[1]).find(code=>/document\.write\((?:source|html)\)/.test(code));
+        if(!loader)return current;
+
+        const headMatch=current.match(/<head[^>]*>([\s\S]*?)<\/head>/i);
+        const bodyMatch=current.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+        const collectTags=fragment=>[...(fragment||'').matchAll(/<link\b[^>]*>|<style\b[^>]*>[\s\S]*?<\/style>|<script\b[^>]*>[\s\S]*?<\/script>/gi)].map(match=>match[0]);
+        const headExtras=collectTags(headMatch?.[1]).filter(tag=>{
+          if(/^<script/i.test(tag)&&/document\.write\((?:source|html)\)/.test(tag))return false;
+          if(/^<style/i.test(tag)&&tag.includes('.loader')&&tag.includes('place-items:center'))return false;
+          return true;
+        });
+        const bodyExtras=collectTags(bodyMatch?.[1]).filter(tag=>!(/document\.write\((?:source|html)\)/.test(tag)));
+
+        let written='';
+        const mockDocument={body:{innerHTML:''},open(){},write(value){written+=String(value??'');},close(){},querySelector(){return null;}};
+        const mockWindow={location:{protocol:'https:',search:window.location.search,hash:window.location.hash,replace(){}},fetch:window.fetch.bind(window)};
+        let runnable=loader.trim();
+        if(!/^\(async\s*\(\)\s*=>\s*\{/.test(runnable))return current;
+        runnable=runnable.replace(/^\(async\s*\(\)\s*=>\s*\{/,'return (async()=>{');
+        const run=new Function('window','document','fetch','URLSearchParams',runnable);
+        await run(mockWindow,mockDocument,window.fetch.bind(window),URLSearchParams);
+        if(!written)throw new Error(`第 ${depth+1} 层原型解析失败`);
+
+        const uniqueHead=[...new Set(headExtras)];
+        const uniqueBody=[...new Set(bodyExtras)];
+        if(uniqueHead.length&&written.includes('</head>'))written=written.replace('</head>',uniqueHead.join('\n')+'\n</head>');
+        if(uniqueBody.length&&written.includes('</body>'))written=written.replace('</body>',uniqueBody.join('\n')+'\n</body>');
+        current=written;
+      }
+      throw new Error('原型加载层级过深，请重新拉取最新代码');
+    };
+
+    source=await resolveLoaderChain(source);
+    const assetBase='https://cdn.jsdelivr.net/gh/KingjamesSummer/important@main/';
+    if(!/<base\s/i.test(source))source=source.replace(/<head([^>]*)>/i,`<head$1>\n<base href="${assetBase}">`);
+  }
 
   document.open();
   document.write(source);
