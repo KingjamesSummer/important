@@ -1,13 +1,16 @@
-/* Department management v12 — flat system-blue organization console. */
+/* Department management v12 — personal-space aligned visual system and complete interactions. */
 (function(){
   if(window.__adminDeptConsoleV12)return;
   window.__adminDeptConsoleV12=true;
   if(!window.state||typeof window.render!=='function')return;
-  const prior=window.adminPage;
-  const icon=n=>typeof window.icon==='function'?window.icon(n):'';
-  const safe=v=>typeof window.safe==='function'?window.safe(v):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const copy=v=>JSON.parse(JSON.stringify(v));
-  const DEPTS=[
+
+  const previousAdminPage=window.adminPage;
+  const icon=name=>typeof window.icon==='function'?window.icon(name):'';
+  const esc=value=>typeof window.safe==='function'?window.safe(value):String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const clone=value=>JSON.parse(JSON.stringify(value));
+  const toast=(message,type='success')=>typeof window.toast==='function'&&window.toast(message,type);
+
+  const DEPARTMENT_SEED=[
     ['group',null,'贵安发展集团','GAJT','company','active','MDM 同步','操作者','共享企业剩余可用额度','active',['张明远','李晓华'],['周凯'],['张明远','李晓华']],
     ['general','group','综合管理部','ZHGL','department','active','MDM 同步','下载者','共享企业剩余可用额度','active',['李晓华'],['王璐'],[]],
     ['finance','group','财务管理部','CWGL','department','active','MDM 同步','预览者','指定额度 300 GB','active',['陈敏'],['许欣'],[]],
@@ -21,8 +24,13 @@
     ['siteB','construction','项目二部','XMEB','department','active','MDM 同步','下载者','继承上级策略','active',['周工'],['赵敏'],[]],
     ['strategy','group','战略研究室','ZLYJ','department','active','本地维护','预览者','不分配空间','none',[],[],[]],
     ['operations','group','运营管理部','YYGL','department','disabled','MDM 同步','预览者','不分配空间','disabled',['唐楠'],['王璐'],[]]
-  ].map((x,i)=>({id:x[0],parent:x[1],name:x[2],code:x[3],kind:x[4],status:x[5],source:x[6],permission:x[7],quota:x[8],library:x[9],managers:x[10],fileAdmins:x[11],subAdmins:x[12],updated:i<5?'今天 08:46':'昨天 17:20'}));
-  const MEMBERS=[
+  ].map((item,index)=>({
+    id:item[0],parent:item[1],name:item[2],code:item[3],kind:item[4],status:item[5],source:item[6],
+    permission:item[7],quota:item[8],library:item[9],managers:item[10],fileAdmins:item[11],subAdmins:item[12],
+    updated:index<5?'今天 08:46':'昨天 17:20'
+  }));
+
+  const MEMBER_SEED=[
     ['u1','张明远','000001','技术开发岗','138 8512 3101','active',['research'],'research',['group']],
     ['u2','周凯','000018','技术开发岗','139 8512 1148','active',['research','platform'],'research',[]],
     ['u3','许欣','000026','产品设计岗','137 8512 5126','active',['research','product'],'research',[]],
@@ -37,83 +45,603 @@
     ['u12','孙琳','000116','前端开发岗','182 8512 3116','active',[],null,[]],
     ['u13','郭辰','000127','测试工程师','181 8512 7127','disabled',['general'],'general',[]],
     ['u14','吴桐','000138','产品运营岗','180 8512 2138','active',['operations'],'operations',[]]
-  ].map(x=>({id:x[0],name:x[1],no:x[2],job:x[3],phone:x[4],status:x[5],departments:x[6],primary:x[7],subScopes:x[8]}));
-  function init(){
-    const d=state.dm||(state.dm={});
-    if(!d.depts)d.depts=copy(DEPTS);if(!d.members)d.members=copy(MEMBERS);
-    d.selected=d.selected||'research';d.expanded=d.expanded||['group','research','construction'];d.tab=d.tab||'overview';
-    d.treeQuery=d.treeQuery||'';d.memberQuery=d.memberQuery||'';d.role=d.role||'all';d.status=d.status||'all';d.sort=d.sort||['name','asc'];d.page=d.page||1;d.size=5;
-    d.dialog=d.dialog||null;d.treeMenu=d.treeMenu||null;d.memberMenu=d.memberMenu||null;d.filter=d.filter||null;
-    return d;
+  ].map(item=>({
+    id:item[0],name:item[1],no:item[2],job:item[3],phone:item[4],status:item[5],departments:item[6],primary:item[7],subScopes:item[8]
+  }));
+
+  function model(){
+    const dm=state.dm||(state.dm={});
+    if(!dm.depts)dm.depts=clone(DEPARTMENT_SEED);
+    if(!dm.members)dm.members=clone(MEMBER_SEED);
+    dm.selected=dm.selected||'research';
+    dm.expanded=Array.isArray(dm.expanded)?dm.expanded:['group','research','construction'];
+    dm.tab=dm.tab||'overview';
+    dm.treeQuery=dm.treeQuery||'';
+    dm.memberQuery=dm.memberQuery||'';
+    dm.role=dm.role||'all';
+    dm.status=dm.status||'all';
+    dm.sort=Array.isArray(dm.sort)?dm.sort:['name','asc'];
+    dm.page=dm.page||1;
+    dm.pageSize=6;
+    dm.dialog=dm.dialog||null;
+    dm.treeMenu=dm.treeMenu||null;
+    dm.memberMenu=dm.memberMenu||null;
+    dm.filterMenu=dm.filterMenu||null;
+    return dm;
   }
-  const D=()=>init();const depts=()=>D().depts;const members=()=>D().members;
-  const dept=id=>depts().find(x=>x.id===id);const member=id=>members().find(x=>x.id===id);const kids=id=>depts().filter(x=>x.parent===id);
-  const desc=id=>kids(id).flatMap(x=>[x,...desc(x.id)]);const inDept=(m,id)=>id==='unassigned'?!m.departments.length:m.departments.includes(id);const deptMembers=id=>members().filter(m=>inDept(m,id));
-  function path(x){const a=[];while(x){a.unshift(x.name);x=dept(x.parent)}return a.join(' / ')}
-  function depth(x){let n=0;while(x&&x.parent){n++;x=dept(x.parent)}return n}
-  function companyOf(x){while(x){if(x.kind==='company')return x;x=dept(x.parent)}return null}
-  function roles(m,x){const r=[];if(x?.managers?.includes(m.name))r.push('部门负责人');if(x?.fileAdmins?.includes(m.name))r.push('文件管理员');const c=x?.id==='unassigned'?null:companyOf(x);if(c&&m.subScopes.includes(c.id))r.push('分级管理员');return r}
-  const first=n=>safe(String(n||'成员').slice(0,1));const tell=(m,t='success')=>typeof window.toast==='function'&&window.toast(m,t);
-  function css(){if(document.getElementById('dept-v12-css'))return;const s=document.createElement('style');s.id='dept-v12-css';s.textContent=`
-body.admin-console-v2,body.admin-console-v2 .main{background:#fff!important;background-image:none!important}body.admin-console-v2 .main{padding:18px 20px 24px!important}.dm,.dm *{box-sizing:border-box}.dm{min-height:calc(100vh - 100px);background:#fff;color:#26394d}.dm button,.dm input{font:inherit}.dm-head{display:flex;gap:14px;align-items:flex-start;margin-bottom:12px}.dm-head h1{margin:0;color:#173552;font-size:21px}.dm-head p{margin:5px 0 0;color:#77899a;font-size:11px}.dm-scope{margin-left:auto;padding:7px 9px;border:1px solid #cfe2f7;border-radius:8px;background:#f6faff;color:#1769ff;font-size:9px}.dm-toolbar{height:54px;display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 10px;border:1px solid #dce8f4;border-radius:12px;background:#fff;box-shadow:0 5px 15px rgba(27,77,126,.05)}.dm-sync{color:#647b91;font-size:10px}.dm-sync:before{content:'';display:inline-block;width:7px;height:7px;margin-right:8px;border:2px solid #d8eaff;border-radius:50%;background:#1769ff}.spacer{flex:1}.dm-btn{height:36px;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:0 12px;border:1px solid #cfe0f1;border-radius:9px;background:#fff;color:#315b84;cursor:pointer}.dm-btn:hover:not(:disabled){border-color:#8ebcf2;background:#f4f9ff;color:#075edf}.dm-btn.primary{border-color:#1769ff;background:#1769ff;color:#fff}.dm-btn.primary:hover{background:#0756d6;color:#fff}.dm-btn.risk{border-color:#efc7cb;color:#b43c48}.dm-btn.text{height:auto;padding:0;border:0;background:transparent;color:#1769ff}.dm-btn.icon{width:36px;padding:0}.dm-btn.sm{height:30px;padding:0 9px;font-size:9px}.dm-btn:disabled{opacity:.45;cursor:not-allowed}.dm-work{height:calc(100vh - 178px);min-height:560px;display:grid;grid-template-columns:300px minmax(0,1fr);gap:12px}.dm-tree,.dm-detail{min-height:0;border:1px solid #dce8f4;border-radius:13px;background:#fff;box-shadow:0 7px 22px rgba(27,77,126,.05)}.dm-tree{display:flex;flex-direction:column;overflow:hidden}.dm-tree-head{padding:13px;border-bottom:1px solid #e6eef7}.dm-title{display:flex;align-items:center;gap:8px;color:#1e466f;font-size:13px;font-weight:750}.dm-title small{margin-left:auto;color:#8798aa;font-size:8px}.dm-tools{display:flex;gap:7px;margin-top:11px}.dm-search{height:36px;min-width:0;flex:1;display:flex;align-items:center;gap:7px;padding:0 10px;border:1px solid #d4e3f2;border-radius:9px;background:#fff}.dm-search:focus-within,.dm-input:focus,.dm-select.open .dm-select-trigger{border-color:#76aff6;box-shadow:0 0 0 3px rgba(23,105,255,.07)}.dm-search input{width:100%;border:0;outline:0;color:#294d70}.dm-tree-body{min-height:0;overflow:auto;padding:9px 8px 15px}.dm-section{padding:8px 7px;color:#8296a9;font-size:8px;font-weight:700}.dm-node{position:relative}.dm-row{height:37px;display:flex;align-items:center;gap:2px;margin:1px 0;padding:0 4px;border:1px solid transparent;border-radius:8px;color:#345b7f}.dm-row:hover{border-color:#d8e8f8;background:#f6faff}.dm-row.active{border-color:#a9cef7;background:#eaf4ff;color:#075edf;box-shadow:inset 3px 0 #1769ff}.dm-row.company{background:#f8fbff}.dm-toggle,.dm-more{width:25px;height:27px;display:grid;place-items:center;border:0;border-radius:7px;background:transparent;color:#5a7d9e;cursor:pointer}.dm-toggle:hover,.dm-more:hover{background:#e9f3ff;color:#1769ff}.dm-toggle.empty{visibility:hidden}.dm-toggle.closed .icon-stack{transform:rotate(-90deg)}.dm-pick{min-width:0;flex:1;height:35px;display:flex;align-items:center;gap:8px;padding:0 4px;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer}.dm-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;font-weight:650}.dm-count{padding:4px 6px;border:1px solid #d9e6f3;border-radius:6px;color:#7a91a7;font-size:8px}.dm-children{position:relative;margin-left:14px;padding-left:13px;border-left:1px solid #c7dcf2}.dm-children.closed{display:none}.dm-menu{position:absolute;right:3px;top:34px;z-index:120;width:180px;padding:5px;border:1px solid #d0e0ef;border-radius:9px;background:#fff;box-shadow:0 16px 38px rgba(22,63,105,.17)}.dm-menu button{width:100%;height:34px;display:flex;align-items:center;gap:8px;padding:0 9px;border:0;border-radius:7px;background:#fff;color:#3e6486;text-align:left;font-size:9px;cursor:pointer}.dm-menu button:hover{background:#edf6ff;color:#075edf}.dm-menu button.risk{color:#aa4550}.dm-menu button:disabled{color:#a9b5c0;cursor:not-allowed}.dm-detail{display:flex;flex-direction:column;overflow:hidden}.dm-hero{padding:14px 16px 12px;border-bottom:1px solid #e5edf6}.dm-hero-main{display:flex;gap:11px}.dm-node-icon{width:40px;height:40px;display:grid;place-items:center;border:1px solid #cfe2f8;border-radius:11px;background:#f1f7ff;color:#1769ff}.dm-copy h2{margin:0;color:#183955;font-size:18px}.dm-copy p{margin:4px 0 0;color:#8496a8;font-size:9px}.dm-chips{display:flex;gap:6px;margin-top:8px}.dm-chip,.dm-tag{display:inline-flex;align-items:center;padding:5px 7px;border:1px solid #d7e5f2;border-radius:7px;background:#fff;color:#6d8296;font-size:8px}.dm-chip.blue,.dm-tag{border-color:#bcd8f7;background:#edf6ff;color:#075edf}.dm-chip.ok{border-color:#c9e4d4;background:#f4fbf6;color:#2f7750}.dm-chip.off{border-color:#e5d5d7;background:#fff7f8;color:#a24e58}.dm-actions{margin-left:auto;display:flex;gap:7px}.dm-facts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:13px}.dm-fact{padding:8px 10px;border-left:2px solid #b9d8fb;background:#fbfdff}.dm-fact label{display:block;color:#8596a8;font-size:8px}.dm-fact strong{display:block;margin-top:4px;overflow:hidden;color:#2c4e6e;font-size:11px;text-overflow:ellipsis;white-space:nowrap}.dm-tabs{height:46px;display:flex;gap:20px;padding:0 16px;border-bottom:1px solid #e5edf6}.dm-tabs button{height:46px;position:relative;border:0;background:transparent;color:#657b90;cursor:pointer}.dm-tabs button.active{color:#075edf;font-weight:750}.dm-tabs button.active:after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;background:#1769ff}.dm-body{flex:1;min-height:0;overflow:auto;padding:12px}.dm-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(320px,.8fr);gap:10px}.dm-card{border:1px solid #dce8f4;border-radius:11px;background:#fff;overflow:hidden}.dm-card+.dm-card{margin-top:10px}.dm-card-head{height:43px;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid #e8eff7;color:#2b4e6f;font-size:11px;font-weight:750}.dm-card-body{padding:12px}.dm-info{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px}.dm-info div{min-height:54px;padding:8px 0;border-bottom:1px solid #edf2f7}.dm-info label{display:block;color:#8a9aaa;font-size:8px}.dm-info span{display:block;margin-top:5px;color:#355675;font-size:10px}.dm-people{display:flex;flex-wrap:wrap;gap:7px}.dm-person{display:inline-flex;align-items:center;gap:6px;padding:4px 8px 4px 4px;border:1px solid #d6e5f4;border-radius:8px;color:#365d82;font-size:9px}.dm-person i,.dm-avatar{display:grid;place-items:center;border:1px solid #bfd9f8;border-radius:50%;background:#eaf4ff;color:#075edf;font-style:normal;font-weight:750;line-height:1}.dm-person i{width:22px;height:22px}.dm-empty-inline{color:#8a9aaa;font-size:9px}.dm-note{padding:9px 10px;border:1px solid #d7e7f6;border-radius:9px;background:#f9fcff;color:#657f98;font-size:9px;line-height:1.65}.dm-note.warn{border-color:#ecd6b2;background:#fffaf2;color:#8d642c}.dm-note.risk{border-color:#efc9cd;background:#fff7f8;color:#9e4751}.dm-list{display:grid;gap:7px}.dm-list-row{min-height:42px;display:flex;align-items:center;gap:9px;padding:8px 9px;border:1px solid #e0eaf4;border-radius:9px;color:#5f7890;font-size:9px}.dm-members{border:1px solid #dce8f4;border-radius:11px;overflow:visible}.dm-members-head{min-height:52px;display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid #e7eef6}.dm-filter{position:relative}.dm-filter>button{min-width:108px}.dm-filter-menu{position:absolute;right:0;top:39px;z-index:90;width:150px;padding:5px;border:1px solid #d1e1f0;border-radius:9px;background:#fff;box-shadow:0 14px 34px rgba(24,67,111,.16)}.dm-filter-menu button{width:100%;height:32px;border:0;border-radius:7px;background:#fff;color:#476b8a;text-align:left;font-size:9px}.dm-filter-menu button:hover,.dm-filter-menu button.active{background:#edf6ff;color:#075edf}.dm-table-wrap{overflow:auto}.dm-table{width:100%;border-collapse:collapse;table-layout:fixed}.dm-table th{height:38px;padding:0 10px;border-bottom:1px solid #e5edf5;background:#fbfdff;color:#8293a4;font-size:8px;text-align:left}.dm-table th button{border:0;background:transparent;color:inherit;cursor:pointer}.dm-table td{height:56px;padding:7px 10px;border-bottom:1px solid #edf2f7;color:#506c86;font-size:9px;vertical-align:middle}.dm-table tr:hover td{background:#fbfdff}.dm-member{display:flex;align-items:center;gap:9px;min-width:0}.dm-avatar{width:34px;height:34px;min-width:34px;flex:0 0 34px;font-size:11px;text-align:center;overflow:hidden}.dm-member strong,.dm-member small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dm-member strong{color:#2d4f6d;font-size:10px}.dm-member small{margin-top:3px;color:#8a9baa}.dm-role-tags{display:flex;flex-wrap:wrap;gap:4px}.dm-status{display:inline-flex;align-items:center;gap:6px}.dm-status i{width:6px;height:6px;border-radius:50%;background:#3e9b68}.dm-status.off i{background:#b56b73}.dm-pager{height:46px;display:flex;align-items:center;gap:6px;padding:7px 10px;border-top:1px solid #e8eff6;color:#7b8fa2;font-size:9px}.dm-page-btn{width:30px;height:30px;border:1px solid #d5e3f1;border-radius:8px;background:#fff;color:#4f7393}.dm-page-btn.active{border-color:#8dbdf2;background:#edf6ff;color:#075edf}.dm-empty{min-height:240px;display:grid;place-items:center;align-content:center;gap:8px;color:#8799aa;text-align:center}.dm-empty p{margin:0;font-size:9px}.dm-child{display:grid;grid-template-columns:minmax(180px,1.4fr) 90px 90px 130px 70px;align-items:center;gap:10px;min-height:58px;margin-bottom:8px;padding:8px 10px;border:1px solid #dce8f4;border-radius:10px}.dm-modal-mask{position:fixed;inset:0;z-index:2700;display:grid;place-items:center;padding:20px;background:rgba(26,45,66,.38)}.dm-modal{width:min(720px,calc(100vw - 34px));max-height:calc(100vh - 40px);display:flex;flex-direction:column;border:1px solid #d6e3f0;border-radius:14px;background:#fff;box-shadow:0 24px 70px rgba(17,48,82,.24);overflow:hidden}.dm-modal.medium{width:min(590px,calc(100vw - 34px))}.dm-modal.small{width:min(470px,calc(100vw - 34px))}.dm-modal-head{height:56px;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid #e4ecf4;color:#1e405f;font-size:14px;font-weight:750}.dm-modal-body{overflow:auto;padding:15px 16px}.dm-modal-foot{min-height:60px;display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:10px 16px;border-top:1px solid #e4ecf4}.dm-form{display:grid;gap:13px}.dm-form-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.dm-field{display:grid;gap:6px}.dm-field>label{color:#56718a;font-size:9px}.dm-input{width:100%;height:38px;padding:0 10px;border:1px solid #d1e1f0;border-radius:9px;outline:0;color:#294e70}.dm-help{margin:0;color:#8395a6;font-size:8px;line-height:1.55}.dm-select{position:relative}.dm-select-trigger{width:100%;height:38px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;border:1px solid #d1e1f0;border-radius:9px;background:#fff;color:#315877;text-align:left}.dm-select-panel{display:none;position:absolute;left:0;right:0;top:44px;z-index:160;max-height:240px;overflow:auto;padding:5px;border:1px solid #cfdfef;border-radius:10px;background:#fff;box-shadow:0 16px 40px rgba(20,61,104,.16)}.dm-select.open .dm-select-panel{display:block}.dm-option{width:100%;min-height:34px;display:flex;align-items:center;gap:8px;padding:6px 9px;border:0;border-radius:7px;background:#fff;color:#456987;text-align:left;font-size:9px}.dm-option:hover,.dm-option.selected{background:#edf6ff;color:#075edf}.dm-option:disabled{color:#b1bdc8;cursor:not-allowed}.dm-option small{margin-left:auto}.dm-people-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.dm-person-choice{display:flex;align-items:center;gap:7px;padding:6px 7px;border:1px solid #d9e6f2;border-radius:9px;background:#fff;color:#436684;text-align:left}.dm-person-choice.selected{border-color:#8ebdf1;background:#edf6ff;color:#075edf}.dm-person-choice .dm-avatar{width:28px;height:28px;min-width:28px;flex-basis:28px;font-size:9px}.dm-switch{display:flex;align-items:flex-start;gap:9px;padding:10px;border:1px solid #d9e6f3;border-radius:9px}.dm-switch input{position:absolute;opacity:0}.dm-switch-control{width:32px;height:18px;position:relative;flex:0 0 32px;border-radius:10px;background:#c8d5e2}.dm-switch-control:after{content:'';position:absolute;left:2px;top:2px;width:14px;height:14px;border-radius:50%;background:#fff}.dm-switch input:checked+.dm-switch-control{background:#1769ff}.dm-switch input:checked+.dm-switch-control:after{left:16px}.dm-switch strong,.dm-switch small{display:block}.dm-switch small{margin-top:3px;color:#8495a6}.dm-impact{display:grid;gap:7px;margin-top:12px}.dm-impact-row{padding:9px 10px;border:1px solid #e0e9f2;border-radius:9px;color:#617a91;font-size:9px}.dm-impact-row.block{border-color:#efcdd0;background:#fff8f8;color:#9c4952}.dm-impact-row.ok{border-color:#cfe5d7;background:#f8fcf9;color:#3f7656}.dm-candidates{display:grid;gap:7px;max-height:300px;overflow:auto}.dm-candidate{display:flex;align-items:center;gap:9px;padding:8px;border:1px solid #dce7f2;border-radius:9px;background:#fff;text-align:left}.dm-candidate.selected{border-color:#8ab9ef;background:#edf6ff}.dm-radio{width:16px;height:16px;border:1px solid #b9cadb;border-radius:50%}.dm-candidate.selected .dm-radio{border:5px solid #1769ff}@media(max-width:1100px){.dm-work{grid-template-columns:270px minmax(0,1fr)}.dm-grid{grid-template-columns:1fr}.dm-facts{grid-template-columns:repeat(3,minmax(0,1fr))}}`;
-    document.head.appendChild(s);
+
+  const departments=()=>model().depts;
+  const members=()=>model().members;
+  const department=id=>departments().find(item=>item.id===id);
+  const member=id=>members().find(item=>item.id===id);
+  const children=id=>departments().filter(item=>item.parent===id);
+  const descendants=id=>children(id).flatMap(item=>[item,...descendants(item.id)]);
+  const directMembers=id=>id==='unassigned'?members().filter(item=>!item.departments.length):members().filter(item=>item.departments.includes(id));
+  const scopeDepartmentIds=id=>[id,...descendants(id).map(item=>item.id)];
+  const scopeMembers=id=>{
+    const ids=new Set(scopeDepartmentIds(id));
+    return members().filter(item=>item.departments.some(deptId=>ids.has(deptId)));
+  };
+  const currentDepartment=()=>model().selected==='unassigned'?null:department(model().selected);
+  const avatarText=name=>esc(String(name||'成员').slice(0,1));
+
+  function departmentPath(item){
+    const names=[];
+    let cursor=item;
+    while(cursor){names.unshift(cursor.name);cursor=department(cursor.parent)}
+    return names.join(' / ');
   }
-  function btn(text,action,cls=''){return `<button class="dm-btn ${cls}" onclick="${action}">${text}</button>`}
-  function head(){return `<div class="dm-head"><div><h1>部门管理</h1><p>维护公司与部门层级、成员归属、管理身份和部门公共资料库联动</p></div><span class="dm-scope">当前范围：贵安发展集团及全部下级组织</span></div><div class="dm-toolbar"><span class="dm-sync">组织数据正常 · 最近同步 今天 08:46</span><span class="spacer"></span>${btn(icon('transfer')+'同步组织',"dmOpen('sync')")}${btn(icon('plus')+'新建部门',"dmOpen('create',{parentId:state.dm.selected==='unassigned'?'group':state.dm.selected})",'primary')}</div>`}
-  function matches(x,q){return !q||`${x.name} ${x.code} ${desc(x.id).map(y=>y.name).join(' ')}`.toLowerCase().includes(q)}
-  function treeMenu(x){if(D().treeMenu!==x.id)return '';return `<div class="dm-menu" onclick="event.stopPropagation()">${btn(icon('plus')+'新建下级部门',`dmOpen('create',{parentId:'${x.id}'})`,'text')}${btn(icon('edit')+'编辑部门',"dmOpen('edit')",'text')}${x.kind==='department'?btn(icon('move')+'移动部门',"dmOpen('move')",'text')+btn(icon('trash')+'组织裁撤',"dmOpen('delete')",'text risk'):`<button onclick="dmOpen('status')">${icon(x.status==='active'?'lock':'check')}${x.status==='active'?'停用公司节点':'启用公司节点'}</button><button disabled>${icon('trash')}公司节点不可直接裁撤</button>`}</div>`}
-  function node(x){const q=D().treeQuery.trim().toLowerCase();if(!matches(x,q))return '';const ch=kids(x.id).filter(y=>matches(y,q)),open=q||D().expanded.includes(x.id),sel=D().selected===x.id;return `<div class="dm-node"><div class="dm-row ${x.kind==='company'?'company':''} ${sel?'active':''}"><button class="dm-toggle ${ch.length?'':'empty'} ${open?'':'closed'}" onclick="event.stopPropagation();dmToggleNode('${x.id}')">${ch.length?icon('down'):''}</button><button class="dm-pick" onclick="dmSelect('${x.id}')">${icon(x.kind==='company'?'building':'folder')}<span class="dm-name">${safe(x.name)}</span></button><span class="dm-count">${deptMembers(x.id).length}</span><button class="dm-more" onclick="event.stopPropagation();dmTreeMenu('${x.id}')">${icon('more')}</button>${treeMenu(x)}</div>${ch.length?`<div class="dm-children ${open?'':'closed'}">${ch.map(node).join('')}</div>`:''}</div>`}
-  function tree(){const roots=depts().filter(x=>!x.parent);return `<aside class="dm-tree"><div class="dm-tree-head"><div class="dm-title">${icon('building')}组织范围<small>${depts().length} 个正式节点</small></div><div class="dm-tools"><label class="dm-search">${icon('search')}<input value="${safe(D().treeQuery)}" placeholder="搜索部门名称或编码" oninput="dmTreeSearch(this.value)"></label><button class="dm-btn icon" onclick="dmToggleAll()">${icon('down')}</button></div></div><div class="dm-tree-body"><div class="dm-section">公司与部门</div>${roots.map(node).join('')||'<div class="dm-empty">未找到组织节点</div>'}<div class="dm-section">特殊节点</div><div class="dm-row ${D().selected==='unassigned'?'active':''}"><span class="dm-toggle empty"></span><button class="dm-pick" onclick="dmSelect('unassigned')">${icon('users')}<span class="dm-name">待分配人员池</span></button><span class="dm-count">${deptMembers('unassigned').length}</span></div></div></aside>`}
-  function people(a,empty='未设置'){return a?.length?`<div class="dm-people">${a.map(n=>`<span class="dm-person"><i>${first(n)}</i>${safe(n)}</span>`).join('')}</div>`:`<span class="dm-empty-inline">${empty}</span>`}
-  function facts(x){if(x.id==='unassigned')return `<div class="dm-facts"><div class="dm-fact"><label>节点性质</label><strong>虚拟人员池</strong></div><div class="dm-fact"><label>待分配成员</label><strong>${deptMembers('unassigned').length} 人</strong></div></div>`;return `<div class="dm-facts">${[['部门编码',x.code],['上级组织',dept(x.parent)?.name||'—'],['部门成员',deptMembers(x.id).length+' 人'],['直属下级',kids(x.id).length+' 个'],['公共资料库',x.library==='none'?'未创建':x.library==='disabled'?'已暂停':'已启用']].map(v=>`<div class="dm-fact"><label>${v[0]}</label><strong>${safe(v[1])}</strong></div>`).join('')}</div>`}
-  function hero(x){const virtual=x.id==='unassigned';return `<div class="dm-hero"><div class="dm-hero-main"><span class="dm-node-icon">${icon(virtual?'users':x.kind==='company'?'building':'folder')}</span><div class="dm-copy"><h2>${safe(x.name)}</h2><p>${virtual?'系统虚拟节点，不参与正式组织变更':safe(path(x))}</p><div class="dm-chips">${virtual?'<span class="dm-chip blue">特殊节点</span>':`<span class="dm-chip ${x.status==='active'?'ok':'off'}">${x.status==='active'?'已启用':'已停用'}</span><span class="dm-chip blue">${x.kind==='company'?'公司节点':'普通部门'}</span><span class="dm-chip">${safe(x.source)}</span>`}</div></div>${virtual?'':`<div class="dm-actions">${btn(icon('edit')+'编辑',"dmOpen('edit')")}${x.kind==='department'?btn(icon('move')+'移动',"dmOpen('move')"):''}<span style="position:relative"><button class="dm-btn icon" onclick="dmHeaderMenu(event)">${icon('more')}</button></span></div>`}</div>${facts(x)}</div>`}
-  function overview(x){if(x.id==='unassigned')return `<section class="dm-card"><div class="dm-card-head">待分配成员说明</div><div class="dm-card-body"><div class="dm-note">待分配人员池不是正式部门。成员分配到普通部门后，才会获得对应部门公共资料库的默认访问权限。</div></div></section>`;const admins=companyOf(x)?.subAdmins||[];return `<div class="dm-grid"><div><section class="dm-card"><div class="dm-card-head">部门详情<span class="spacer"></span><button class="dm-btn text" onclick="dmOpen('edit')">编辑</button></div><div class="dm-card-body dm-info">${[['节点类型',x.kind==='company'?'公司节点':'普通部门'],['上级组织',dept(x.parent)?.name||'无'],['数据来源',x.source],['最近更新',x.updated],['空间策略',x.quota],['公共资料库成员权限',x.permission]].map(v=>`<div><label>${v[0]}</label><span>${safe(v[1])}</span></div>`).join('')}</div></section><section class="dm-card"><div class="dm-card-head">部门公共资料库</div><div class="dm-card-body">${x.library==='none'?'<div class="dm-note">创建部门时选择了“暂不创建”。企业空间普通文件夹继续按独立权限管理。</div>':`<div class="dm-list-row">${icon('folder')}<strong>${safe(x.name)}公共资料库</strong><span class="spacer"></span><span class="dm-chip ${x.library==='disabled'?'off':'blue'}">${x.library==='disabled'?'普通成员暂停访问':'部门成员可访问'}</span></div><div class="dm-note" style="margin-top:9px">负责人和文件管理员拥有管理权限；成员归属变化会重算权限。负责人变更不会自动转移文件所有权。</div>`}</div></section></div><div><section class="dm-card"><div class="dm-card-head">管理身份<span class="spacer"></span><button class="dm-btn text" onclick="dmOpen('roles')">调整</button></div><div class="dm-card-body"><p>部门负责人</p>${people(x.managers,'暂未设置负责人')}<p>文件管理员</p>${people(x.fileAdmins,'暂未设置文件管理员')}<p>${x.kind==='company'?'分级管理员（只读）':'覆盖当前部门的分级管理员（只读）'}</p>${people(admins,'当前范围未关联分级管理员')}<div class="dm-note" style="margin-top:10px">三类身份来自不同授权关系，互不自动转换。</div></div></section><section class="dm-card"><div class="dm-card-head">下级部门</div><div class="dm-card-body dm-list">${kids(x.id).slice(0,3).map(c=>`<div class="dm-list-row">${icon('folder')}<strong>${safe(c.name)}</strong><span class="spacer"></span><button class="dm-btn text" onclick="dmSelect('${c.id}')">查看</button></div>`).join('')||'<span class="dm-empty-inline">当前没有下级部门</span>'}</div></section></div></div>`}
-  function filterMenu(kind,label,opts){const open=D().filter===kind;return `<div class="dm-filter"><button class="dm-btn" onclick="event.stopPropagation();dmFilterOpen('${kind}')">${safe(label)}${icon('down')}</button>${open?`<div class="dm-filter-menu" onclick="event.stopPropagation()">${opts.map(o=>`<button class="${D()[kind]===o[0]?'active':''}" onclick="dmSetFilter('${kind}','${o[0]}')">${o[1]}</button>`).join('')}</div>`:''}</div>`}
-  function memberMenu(m,x){if(D().memberMenu!==m.id)return '';if(x.id==='unassigned')return `<div class="dm-menu"><button onclick="dmOpen('assign',{memberId:'${m.id}'})">${icon('move')}分配到部门</button></div>`;if(x.kind==='company')return '<div class="dm-menu"><button disabled>请在普通部门维护成员归属</button></div>';return `<div class="dm-menu"><button onclick="dmOpen('memberRole',{memberId:'${m.id}'})">${icon('shield')}设置部门身份</button><button onclick="dmOpen('transfer',{memberId:'${m.id}'})">${icon('move')}转移部门</button><button class="risk" onclick="dmOpen('remove',{memberId:'${m.id}'})">${icon('x')}移出当前部门</button></div>`}
-  function memberRows(x){let a=deptMembers(x.id),q=D().memberQuery.trim().toLowerCase();if(q)a=a.filter(m=>`${m.name} ${m.no} ${m.job} ${m.phone}`.toLowerCase().includes(q));if(D().status!=='all')a=a.filter(m=>m.status===D().status);if(D().role!=='all')a=a.filter(m=>D().role==='member'?roles(m,x).length===0:roles(m,x).includes(D().role));const [f,dir]=D().sort;a=[...a].sort((u,v)=>String(u[f]||'').localeCompare(String(v[f]||''),'zh-CN')*(dir==='asc'?1:-1));return a}
-  function membersView(x){const a=memberRows(x),pages=Math.max(1,Math.ceil(a.length/D().size));D().page=Math.min(D().page,pages);const rows=a.slice((D().page-1)*D().size,D().page*D().size);const roleOpts=[['all','全部身份'],['部门负责人','部门负责人'],['文件管理员','文件管理员'],['分级管理员','分级管理员'],['member','普通成员']],statusOpts=[['all','全部状态'],['active','正常'],['disabled','停用']];const action=x.id==='unassigned'?'<span class="dm-empty-inline">从成员“更多”菜单分配</span>':x.kind==='company'?'<button class="dm-btn" disabled>请选择普通部门</button>':btn(icon('plus')+'添加成员',"dmOpen('add')",'primary');return `<section class="dm-members"><div class="dm-members-head"><strong>${x.id==='unassigned'?'待分配成员':'部门成员'}</strong><label class="dm-search" style="max-width:250px">${icon('search')}<input value="${safe(D().memberQuery)}" placeholder="搜索姓名、工号、岗位、手机号" oninput="dmMemberSearch(this.value)"></label>${filterMenu('role',roleOpts.find(o=>o[0]===D().role)?.[1]||'全部身份',roleOpts)}${filterMenu('status',statusOpts.find(o=>o[0]===D().status)?.[1]||'全部状态',statusOpts)}<span class="spacer"></span>${action}</div>${rows.length?`<div class="dm-table-wrap"><table class="dm-table"><colgroup><col style="width:23%"><col style="width:16%"><col style="width:16%"><col style="width:24%"><col style="width:11%"><col style="width:10%"></colgroup><thead><tr><th><button onclick="dmSort('name')">成员</button></th><th><button onclick="dmSort('job')">岗位</button></th><th>手机号</th><th>管理身份</th><th>状态</th><th>操作</th></tr></thead><tbody>${rows.map(m=>{const r=roles(m,x);return `<tr><td><div class="dm-member"><span class="dm-avatar">${first(m.name)}</span><div><strong>${safe(m.name)}</strong><small>工号 ${safe(m.no)}${m.primary===x.id?' · 主部门':''}</small></div></div></td><td>${safe(m.job)}</td><td>${safe(m.phone)}</td><td><div class="dm-role-tags">${r.length?r.map(t=>`<span class="dm-tag">${t}</span>`).join(''):'<span class="dm-tag">普通成员</span>'}</div></td><td><span class="dm-status ${m.status==='active'?'':'off'}"><i></i>${m.status==='active'?'正常':'停用'}</span></td><td><span style="position:relative"><button class="dm-btn icon sm" onclick="event.stopPropagation();dmMemberMenu('${m.id}')">${icon('more')}</button>${memberMenu(m,x)}</span></td></tr>`}).join('')}</tbody></table></div><div class="dm-pager"><span>共 ${a.length} 条，第 ${D().page}/${pages} 页</span><span class="spacer"></span><button class="dm-page-btn" ${D().page<=1?'disabled':''} onclick="dmPage(${D().page-1})">‹</button>${Array.from({length:pages},(_,i)=>i+1).map(p=>`<button class="dm-page-btn ${p===D().page?'active':''}" onclick="dmPage(${p})">${p}</button>`).join('')}<button class="dm-page-btn" ${D().page>=pages?'disabled':''} onclick="dmPage(${D().page+1})">›</button></div>`:`<div class="dm-empty">${icon('users')}<strong>当前没有成员</strong><p>${x.id==='unassigned'?'暂无待分配人员':x.kind==='company'?'请选择普通部门维护成员归属':'可从待分配人员池或其他部门添加'}</p></div>`}</section>`}
-  function childrenView(x){return `<div><div class="dm-toolbar" style="margin-bottom:10px"><strong>直属下级部门 ${kids(x.id).length} 个</strong><span class="spacer"></span>${btn(icon('plus')+'新建下级部门',`dmOpen('create',{parentId:'${x.id}'})`,'primary')}</div>${kids(x.id).map(c=>`<article class="dm-child"><strong>${icon('folder')}${safe(c.name)}</strong><span>${safe(c.code)}</span><span>${deptMembers(c.id).length} 人</span><span>${safe(c.managers[0]||'未设置负责人')}</span><button class="dm-btn sm" onclick="dmSelect('${c.id}')">查看</button></article>`).join('')||'<div class="dm-empty">当前没有下级部门</div>'}</div>`}
-  function identitiesView(x){const a=companyOf(x)?.subAdmins||[];return `<div class="dm-grid"><section class="dm-card"><div class="dm-card-head">部门负责人</div><div class="dm-card-body">${people(x.managers,'未设置负责人')}<div class="dm-note" style="margin-top:10px">更换负责人会解除原负责人身份，但不自动转移文件所有权。</div></div></section><section class="dm-card"><div class="dm-card-head">文件管理员</div><div class="dm-card-body">${people(x.fileAdmins,'未设置文件管理员')}<div class="dm-note" style="margin-top:10px">仅负责部门公共资料库治理，不自动成为部门负责人。</div></div></section><section class="dm-card"><div class="dm-card-head">分级管理员范围（只读）</div><div class="dm-card-body">${people(a,'当前范围无分级管理员')}<div class="dm-note" style="margin-top:10px">由管理员设置模块独立授权，部门管理不修改该身份。</div></div></section></div>`}
-  function detail(){const virtual=D().selected==='unassigned',x=virtual?{id:'unassigned',name:'待分配人员池'}:dept(D().selected);if(!x)return '<section class="dm-detail"><div class="dm-empty">请选择组织节点</div></section>';const tabs=virtual?[['overview','节点说明'],['members','成员列表']]:[['overview','部门概览'],['members','成员列表'],['children','下级部门'],['identities','管理身份']];if(!tabs.some(t=>t[0]===D().tab))D().tab='overview';const body=D().tab==='members'?membersView(x):D().tab==='children'?childrenView(x):D().tab==='identities'?identitiesView(x):overview(x);return `<section class="dm-detail">${hero(x)}<nav class="dm-tabs">${tabs.map(t=>`<button class="${D().tab===t[0]?'active':''}" onclick="dmTab('${t[0]}')">${t[1]}</button>`).join('')}</nav><div class="dm-body">${body}</div></section>`}
-  function current(){return D().selected==='unassigned'?null:dept(D().selected)}
-  function select(id,label,opts,value,help=''){const chosen=opts.find(o=>o[0]===value&&!o[2])||opts.find(o=>!o[2]);return `<div class="dm-field"><label>${label}</label><div class="dm-select" id="${id}Wrap"><input type="hidden" id="${id}" value="${safe(chosen?.[0]||'')}"><button type="button" class="dm-select-trigger" onclick="dmSelectOpen(event,'${id}Wrap')"><span id="${id}Text">${safe(chosen?.[1]||'请选择')}</span>${icon('down')}</button><div class="dm-select-panel">${opts.map(o=>`<button type="button" class="dm-option ${o[0]===chosen?.[0]?'selected':''}" ${o[2]?'disabled':''} style="padding-left:${10+(o[3]||0)*18}px" onclick="dmChoose(event,'${id}','${safe(o[0])}','${safe(o[1])}')">${o[4]||''}<span>${safe(o[1])}</span><small>${o[2]?'不可选择':safe(o[5]||'')}</small></button>`).join('')}</div></div>${help?`<p class="dm-help">${safe(help)}</p>`:''}</div>`}
-  function treeSelect(id,label,value,exclude=[],onlyDepartments=false,help=''){const opts=depts().filter(x=>!onlyDepartments||x.kind==='department'&&x.status==='active').map(x=>[x.id,x.name,exclude.includes(x.id),depth(x),icon(x.kind==='company'?'building':'folder'),x.code]);return select(id,label+' <b style="color:#c94c58">*</b>',opts,value,help)}
-  function peoplePick(id,label,names,help){return `<div class="dm-field"><label>${label}</label><input type="hidden" id="${id}" value="${safe(names.join('|'))}"><div class="dm-people-grid" id="${id}Grid">${members().filter(m=>m.status==='active').map(m=>`<button type="button" data-name="${safe(m.name)}" class="dm-person-choice ${names.includes(m.name)?'selected':''}" onclick="dmPerson('${id}',this)"><span class="dm-avatar">${first(m.name)}</span><span><strong>${safe(m.name)}</strong><small>${safe(m.no)} · ${safe(m.job)}</small></span></button>`).join('')}</div><p class="dm-help">${help}</p></div>`}
-  function form(mode,p){const edit=mode==='edit',x=edit?current():null,t=x||{name:'',code:'',kind:'department',permission:'操作者',quota:'共享企业剩余可用额度',library:'active',managers:[],fileAdmins:[]},root=edit&&x.kind==='company'&&!x.parent,par=edit?x.parent:(p?.parentId||D().selected||'group'),excluded=edit?[x.id,...desc(x.id).map(y=>y.id)]:[];const parent=root?`<div class="dm-field"><label>上级组织</label><input id="dmDeptParent" type="hidden" value=""><div class="dm-select-trigger">无（集团根公司）</div><p class="dm-help">根公司不可移动为下级节点。</p></div>`:treeSelect('dmDeptParent','上级组织',par,excluded,false,'不能选择自身或自身下级。');const type=root?`<div class="dm-field"><label>节点类型</label><input id="dmDeptKind" type="hidden" value="company"><div class="dm-select-trigger">公司节点</div></div>`:select('dmDeptKind','节点类型',[['department','普通部门'],['company','公司节点']],t.kind,'公司节点与普通部门必须明确区分。');return modal(edit?'编辑部门':'新建部门',`<div class="dm-form"><div class="dm-form-row"><label class="dm-field">部门名称 *<input class="dm-input" id="dmDeptName" value="${safe(t.name)}" maxlength="30"><p class="dm-help">同一上级组织下不可重名。</p></label><label class="dm-field">部门编码 *<input class="dm-input" id="dmDeptCode" value="${safe(t.code)}" maxlength="16"><p class="dm-help">2–16 位字母、数字、下划线或短横线。</p></label></div><div class="dm-form-row">${parent}${type}</div><div class="dm-form-row">${select('dmDeptPermission','公共资料库成员权限',['预览者','下载者','上传者','编辑者','操作者'].map(v=>[v,v]),t.permission)}${select('dmDeptQuota','空间策略',['共享企业剩余可用额度','指定额度 300 GB','不分配空间'].map(v=>[v,v]),t.quota)}</div>${peoplePick('dmManagers','部门负责人',t.managers,'可多人；移除后解除原负责人身份，不转移文件所有权。')}${peoplePick('dmFileAdmins','文件管理员',t.fileAdmins,'只负责公共资料库治理，不等同于负责人或分级管理员。')}<label class="dm-switch"><input id="dmLibrary" type="checkbox" ${t.library!=='none'?'checked':''} ${edit?'disabled':''}><span class="dm-switch-control"></span><span><strong>${edit?'部门公共资料库状态':'创建部门公共资料库'}</strong><small>${edit?'编辑部门不会删除或补建资料库。':'创建后全部部门成员可访问。'}</small></span></label>${edit&&t.source==='MDM 同步'?'<div class="dm-note warn">该节点来自 MDM，主数据字段可能在后续同步中被覆盖。</div>':''}</div>`,`<button class="dm-btn" onclick="dmClose()">取消</button><button class="dm-btn primary" onclick="dmSaveDept('${mode}')">${edit?'保存修改':'创建部门'}</button>`)}
-  function modal(title,body,foot,size=''){return `<div class="dm-modal ${size}"><div class="dm-modal-head">${title}<span class="spacer"></span><button class="dm-btn icon" onclick="dmClose()">${icon('x')}</button></div><div class="dm-modal-body">${body}</div><div class="dm-modal-foot">${foot}</div></div>`}
-  function moveDialog(x){const ex=[x.id,...desc(x.id).map(y=>y.id)];return modal('移动部门',`<div class="dm-info"><div><label>当前部门</label><span>${safe(x.name)}</span></div><div><label>原上级部门</label><span>${safe(dept(x.parent)?.name||'无')}</span></div></div>${treeSelect('dmMoveTarget','目标上级部门',x.parent,ex,false,'当前部门及其全部下级已禁用。')}<div class="dm-note warn" style="margin-top:12px">移动后重算组织路径、分级管理员范围继承和资料库访问，不执行文件所有权转移。</div>`,`<button class="dm-btn" onclick="dmClose()">取消</button><button class="dm-btn primary" onclick="dmMove()">确认移动</button>`,'medium')}
-  function risks(x){return [['公司节点不能按普通部门直接删除',x.kind==='company'],[`下级部门：${kids(x.id).length} 个`,kids(x.id).length>0],[`部门成员：${deptMembers(x.id).length} 人`,deptMembers(x.id).length>0],[`部门负责人：${x.managers.length} 人`,x.managers.length>0],[`分级管理员关联：${x.subAdmins.length} 人`,x.subAdmins.length>0],[`文件管理员：${x.fileAdmins.length} 人`,x.fileAdmins.length>0],[`部门公共资料库：${x.library==='none'?'未创建':'仍有关联'}`,x.library!=='none']]}
-  function deleteDialog(x){const r=risks(x),blocked=r.some(v=>v[1]);return modal('组织裁撤：'+safe(x.name),`<div class="dm-note risk">删除部门不等于删除成员账号。必须先处理组织、人员、管理员范围和资料库关联。</div><div class="dm-impact">${r.map(v=>`<div class="dm-impact-row ${v[1]?'block':'ok'}">${v[1]?icon('x'):icon('check')}${safe(v[0])}${v[1]?'，请先处理':''}</div>`).join('')}</div>${blocked?'<div class="dm-note warn" style="margin-top:12px">当前条件不满足，裁撤按钮已禁用。</div>':`<label class="dm-field" style="margin-top:12px">输入“${safe(x.name)}”确认<input class="dm-input" id="dmDeleteName" oninput="dmDeleteEnable(this.value,'${safe(x.name)}')"></label>`}`,`<button class="dm-btn" onclick="dmClose()">取消</button><button id="dmDeleteBtn" class="dm-btn risk" disabled onclick="dmDelete()">确认裁撤</button>`,'medium')}
-  function statusDialog(x){const stop=x.status==='active';return modal(stop?'停用部门':'启用部门',`<div class="dm-note ${stop?'warn':''}">${stop?'停用不是删除：组织、成员和资料库保留，普通成员访问暂停。':'启用后恢复部门成员资料库访问并重新计算权限。'}</div><div class="dm-impact"><div class="dm-impact-row">影响成员 ${deptMembers(x.id).length} 人</div><div class="dm-impact-row">公共资料库：${x.library==='none'?'未创建':'保留并同步状态'}</div></div>`,`<button class="dm-btn" onclick="dmClose()">取消</button><button class="dm-btn ${stop?'risk':'primary'}" onclick="dmStatus()">确认${stop?'停用':'启用'}</button>`,'small')}
-  function rolesDialog(x){return modal('调整部门管理身份',`<div class="dm-form">${peoplePick('dmRoleManagers','部门负责人',x.managers,'未选中的原负责人将解除身份，不转移文件所有权。')}${peoplePick('dmRoleFiles','文件管理员',x.fileAdmins,'文件管理员与负责人、分级管理员相互独立。')}<div class="dm-note">分级管理员由管理员设置模块维护，本弹窗不修改。</div></div>`,`<button class="dm-btn" onclick="dmClose()">取消</button><button class="dm-btn primary" onclick="dmSaveRoles()">保存身份设置</button>`)}
-  function candidates(x){return members().filter(m=>!m.departments.includes(x.id))}
-  function currentNames(m){return m.departments.length?m.departments.map(i=>dept(i)?.name).filter(Boolean).join('、'):'待分配人员池'}
-  function addDialog(x){return modal('添加成员到 '+safe(x.name),`<label class="dm-search" style="margin-bottom:10px">${icon('search')}<input placeholder="搜索姓名、工号或岗位" oninput="dmCandidateSearch(this.value)"></label><input id="dmCandidate" type="hidden"><div class="dm-candidates" id="dmCandidates">${candidates(x).map(m=>`<button class="dm-candidate" data-search="${safe(`${m.name} ${m.no} ${m.job}`.toLowerCase())}" onclick="dmCandidate(this,'${m.id}')"><span class="dm-radio"></span><span class="dm-avatar">${first(m.name)}</span><span><strong>${safe(m.name)} · ${safe(m.job)}</strong><small>工号 ${safe(m.no)} · 当前：${safe(currentNames(m))}</small></span></button>`).join('')}</div><label class="dm-switch" style="margin-top:12px"><input id="dmKeep" type="checkbox" checked><span class="dm-switch-control"></span><span><strong>保留成员原有部门</strong><small>开启为兼岗加入；关闭则替换原部门并设为主部门。</small></span></label>`,`<button class="dm-btn" onclick="dmClose()">取消</button><button class="dm-btn primary" onclick="dmAdd()">确认添加</button>`,'medium')}
-  function targetDialog(x,m,assign=false){const firstTarget=depts().find(d=>d.kind==='department'&&d.status==='active'&&d.id!==x?.id)?.id||'';return modal(assign?'分配成员到部门':'转移成员部门',`<div class="dm-info"><div><label>成员</label><span>${safe(m.name)}（${safe(m.no)}）</span></div><div><label>${assign?'当前归属':'原部门'}</label><span>${assign?'待分配人员池':safe(x.name)}</span></div></div>${treeSelect('dmMemberTarget','目标部门',firstTarget,x?[x.id]:[],true,'只可选择已启用的普通部门。')}<div class="dm-note" style="margin-top:12px">只调整组织归属，不删除成员账号、个人空间或已有文件；资料库权限会重新计算。</div>`,`<button class="dm-btn" onclick="dmClose()">取消</button><button class="dm-btn primary" onclick="${assign?`dmAssign('${m.id}')`:`dmTransfer('${m.id}')`}">确认${assign?'分配':'转移'}</button>`,'medium')}
-  function removeDialog(x,m){const r=roles(m,x).filter(v=>v!=='分级管理员'),blocked=r.length;return modal('移出当前部门',`<div class="dm-note">移出部门不等于删除成员账号，也不会删除个人空间或文件。无其他部门时进入待分配人员池。</div><div class="dm-impact"><div class="dm-impact-row">成员：${safe(m.name)}（${safe(m.no)}）</div><div class="dm-impact-row">移出：${safe(x.name)}</div>${blocked?`<div class="dm-impact-row block">请先解除身份：${safe(r.join('、'))}</div>`:'<div class="dm-impact-row ok">未发现负责人或文件管理员身份</div>'}</div>`,`<button class="dm-btn" onclick="dmClose()">取消</button><button class="dm-btn risk" ${blocked?'disabled':''} onclick="dmRemove('${m.id}')">确认移出</button>`,'small')}
-  function memberRoleDialog(x,m){return modal('设置 '+safe(m.name)+' 的部门身份',`<div class="dm-form"><label class="dm-switch"><input id="dmMemberManager" type="checkbox" ${x.managers.includes(m.name)?'checked':''}><span class="dm-switch-control"></span><span><strong>部门负责人</strong><small>取消后解除当前部门负责人身份。</small></span></label><label class="dm-switch"><input id="dmMemberFile" type="checkbox" ${x.fileAdmins.includes(m.name)?'checked':''}><span class="dm-switch-control"></span><span><strong>文件管理员</strong><small>负责公共资料库治理。</small></span></label><div class="dm-note">身份互不自动转换，且不会自动转移文件所有权。</div></div>`,`<button class="dm-btn" onclick="dmClose()">取消</button><button class="dm-btn primary" onclick="dmSaveMemberRole('${m.id}')">保存</button>`,'small')}
-  function dialog(){const q=D().dialog;if(!q)return '';const x=current(),m=member(q.payload?.memberId);let c='';if(q.type==='create'||q.type==='edit')c=form(q.type,q.payload);else if(q.type==='move'&&x)c=moveDialog(x);else if(q.type==='delete'&&x)c=deleteDialog(x);else if(q.type==='status'&&x)c=statusDialog(x);else if(q.type==='roles'&&x)c=rolesDialog(x);else if(q.type==='add'&&x?.kind==='department')c=addDialog(x);else if(q.type==='assign'&&m)c=targetDialog(null,m,true);else if(q.type==='transfer'&&x&&m)c=targetDialog(x,m);else if(q.type==='remove'&&x&&m)c=removeDialog(x,m);else if(q.type==='memberRole'&&x&&m)c=memberRoleDialog(x,m);else if(q.type==='sync')c=modal('同步组织数据','<div class="dm-note">同步外部主数据中的公司、部门和成员关系。本地维护字段不会被静默覆盖，冲突进入待处理状态。</div>','<button class="dm-btn" onclick="dmClose()">取消</button><button class="dm-btn primary" onclick="dmSync()">开始同步</button>','small');return c?`<div class="dm-modal-mask" onclick="if(event.target===this)dmClose()">${c}</div>`:''}
-  function page(){return `<div class="dm">${head()}<div class="dm-work">${tree()}${detail()}</div>${dialog()}</div>`}
-  window.adminPage=function(){init();return state.adminTab==='dept'?page():typeof prior==='function'?prior():''};
-  window.dmSelect=id=>{D().selected=id;D().tab='overview';D().memberQuery='';D().role='all';D().status='all';D().page=1;D().treeMenu=null;D().memberMenu=null;render()};
-  window.dmTab=t=>{D().tab=t;D().memberMenu=null;render()};window.dmToggleNode=id=>{const i=D().expanded.indexOf(id);i<0?D().expanded.push(id):D().expanded.splice(i,1);D().treeMenu=null;render()};window.dmToggleAll=()=>{const a=depts().filter(x=>kids(x.id).length).map(x=>x.id);D().expanded=D().expanded.length>=a.length?[]:a;render()};
-  let tt,mt;window.dmTreeSearch=v=>{clearTimeout(tt);tt=setTimeout(()=>{D().treeQuery=v;render()},100)};window.dmMemberSearch=v=>{clearTimeout(mt);mt=setTimeout(()=>{D().memberQuery=v;D().page=1;render()},100)};
-  window.dmTreeMenu=id=>{D().selected=id;D().treeMenu=D().treeMenu===id?null:id;D().memberMenu=null;render()};window.dmMemberMenu=id=>{D().memberMenu=D().memberMenu===id?null:id;render()};window.dmFilterOpen=k=>{D().filter=D().filter===k?null:k;render()};window.dmSetFilter=(k,v)=>{D()[k]=v;D().filter=null;D().page=1;render()};window.dmSort=f=>{D().sort=D().sort[0]===f?[f,D().sort[1]==='asc'?'desc':'asc']:[f,'asc'];render()};window.dmPage=p=>{D().page=Math.max(1,p);render()};
-  window.dmOpen=(type,payload)=>{D().dialog={type,payload:payload||null};D().treeMenu=null;D().memberMenu=null;D().filter=null;render()};window.dmClose=()=>{D().dialog=null;render()};
-  window.dmHeaderMenu=e=>{e.stopPropagation();const x=current(),old=document.getElementById('dmHeaderMenu');if(old){old.remove();return}const m=document.createElement('div');m.id='dmHeaderMenu';m.className='dm-menu';m.innerHTML=`<button onclick="dmOpen('status')">${icon(x.status==='active'?'lock':'check')}${x.status==='active'?'停用部门':'启用部门'}</button><button onclick="dmOpen('roles')">${icon('shield')}管理身份</button>${x.kind==='company'?'<button disabled>公司节点不可直接裁撤</button>':`<button class="risk" onclick="dmOpen('delete')">${icon('trash')}组织裁撤</button>`}`;e.currentTarget.parentElement.appendChild(m)};
-  window.dmSelectOpen=(e,id)=>{e.stopPropagation();document.querySelectorAll('.dm-select.open').forEach(n=>n.id===id||n.classList.remove('open'));document.getElementById(id)?.classList.toggle('open')};window.dmChoose=(e,id,v,l)=>{e.stopPropagation();document.getElementById(id).value=v;document.getElementById(id+'Text').textContent=l;document.getElementById(id+'Wrap').classList.remove('open')};window.dmPerson=(id,b)=>{b.classList.toggle('selected');document.getElementById(id).value=[...document.querySelectorAll(`#${id}Grid .selected`)].map(n=>n.dataset.name).join('|')};
-  const names=id=>String(document.getElementById(id)?.value||'').split('|').filter(Boolean);function validate(name,code,parent,id){if(!name)return '请输入部门名称';if(!parent&&!(id&&dept(id)?.kind==='company'&&!dept(id)?.parent))return '请选择有效的上级组织';if(parent&&!dept(parent))return '请选择有效的上级组织';if(!/^[A-Z0-9_-]{2,16}$/.test(code))return '部门编码格式不正确';if(depts().some(x=>x.id!==id&&x.parent===(parent||null)&&x.name===name))return '同一上级组织下已存在同名部门';if(depts().some(x=>x.id!==id&&x.code===code))return '部门编码已存在';if(parent&&id&&[id,...desc(id).map(x=>x.id)].includes(parent))return '不能移动到自身或自身下级';return ''}
-  window.dmSaveDept=mode=>{const edit=mode==='edit',x=edit?current():null,name=String(document.getElementById('dmDeptName')?.value||'').trim(),code=String(document.getElementById('dmDeptCode')?.value||'').trim().toUpperCase(),parent=document.getElementById('dmDeptParent')?.value||null,err=validate(name,code,parent,x?.id);if(err)return tell(err,'warning');const managers=names('dmManagers'),files=names('dmFileAdmins');if(edit){const removed=x.managers.filter(n=>!managers.includes(n)),old=x.name;Object.assign(x,{name,code,parent,kind:document.getElementById('dmDeptKind').value,permission:document.getElementById('dmDeptPermission').value,quota:document.getElementById('dmDeptQuota').value,managers,fileAdmins:files,updated:'刚刚'});D().dialog=null;render();tell(`部门已更新${old!==name&&x.library!=='none'?'；资料库同步改名':''}${removed.length?'；已解除 '+removed.join('、')+' 的负责人身份':''}`)}else{const id='dept_'+Date.now(),library=document.getElementById('dmLibrary').checked?'active':'none';depts().push({id,parent,name,code,kind:document.getElementById('dmDeptKind').value,status:'active',source:'本地维护',permission:document.getElementById('dmDeptPermission').value,quota:document.getElementById('dmDeptQuota').value,library,managers,fileAdmins:files,subAdmins:[],updated:'刚刚'});D().selected=id;D().tab='overview';D().dialog=null;if(!D().expanded.includes(parent))D().expanded.push(parent);render();tell(`部门“${name}”已创建${library==='active'?'，公共资料库已生成':''}`)}};
-  window.dmMove=()=>{const x=current(),target=document.getElementById('dmMoveTarget')?.value;if(!x||!target)return;if([x.id,...desc(x.id).map(y=>y.id)].includes(target))return tell('目标上级不能是自身或下级','warning');if(target===x.parent)return tell('目标上级未变化','warning');const old=dept(x.parent)?.name||'无';x.parent=target;D().dialog=null;render();tell(`已将“${x.name}”从“${old}”移动到“${dept(target).name}”`)};
-  window.dmDeleteEnable=(v,n)=>document.getElementById('dmDeleteBtn').disabled=String(v).trim()!==n;window.dmDelete=()=>{const x=current();if(!x||risks(x).some(v=>v[1]))return tell('仍有关联内容，不能裁撤','warning');const p=x.parent;D().depts=depts().filter(d=>d.id!==x.id);D().selected=p||'group';D().dialog=null;render();tell(`部门“${x.name}”已裁撤，成员账号未删除`)};
-  window.dmStatus=()=>{const x=current(),stop=x.status==='active';x.status=stop?'disabled':'active';if(x.library!=='none')x.library=stop?'disabled':'active';D().dialog=null;render();tell(`部门已${stop?'停用，普通成员资料库访问暂停':'启用，权限已重新计算'}`)};
-  window.dmSaveRoles=()=>{const x=current(),old=[...x.managers];x.managers=names('dmRoleManagers');x.fileAdmins=names('dmRoleFiles');const removed=old.filter(n=>!x.managers.includes(n));D().dialog=null;render();tell(`管理身份已保存${removed.length?'；已解除 '+removed.join('、')+' 的原负责人身份':''}；未转移文件所有权`)};
-  window.dmCandidateSearch=v=>document.querySelectorAll('#dmCandidates .dm-candidate').forEach(n=>n.hidden=v&&!n.dataset.search.includes(v.toLowerCase()));window.dmCandidate=(b,id)=>{document.querySelectorAll('#dmCandidates .dm-candidate').forEach(n=>n.classList.remove('selected'));b.classList.add('selected');document.getElementById('dmCandidate').value=id};
-  window.dmAdd=()=>{const x=current(),m=member(document.getElementById('dmCandidate')?.value);if(!x||x.kind!=='department'||!m)return tell('请选择成员','warning');const keep=document.getElementById('dmKeep').checked;if(keep){m.departments.includes(x.id)||m.departments.push(x.id);m.primary=m.primary||x.id}else{m.departments=[x.id];m.primary=x.id}D().dialog=null;render();tell(`已将 ${m.name} 添加到 ${x.name}${keep?'，原部门关系保留':''}`)};
-  window.dmAssign=id=>{const m=member(id),target=dept(document.getElementById('dmMemberTarget')?.value);if(!m||m.departments.length||!target||target.kind!=='department'||target.status!=='active')return tell('请选择有效目标部门','warning');m.departments=[target.id];m.primary=target.id;D().selected=target.id;D().tab='members';D().dialog=null;render();tell(`已将 ${m.name} 分配到 ${target.name}，成员账号保持不变`)};
-  window.dmTransfer=id=>{const x=current(),m=member(id),target=dept(document.getElementById('dmMemberTarget')?.value);if(!x||!m||!target||target.kind!=='department'||target.status!=='active'||target.id===x.id)return tell('请选择其他已启用普通部门','warning');m.departments=m.departments.filter(i=>i!==x.id);m.departments.includes(target.id)||m.departments.push(target.id);if(m.primary===x.id||!m.primary)m.primary=target.id;D().dialog=null;render();tell(`已将 ${m.name} 从 ${x.name} 转移到 ${target.name}，账号和个人空间不变`)};
-  window.dmRemove=id=>{const x=current(),m=member(id),r=roles(m,x).filter(v=>v!=='分级管理员');if(r.length)return tell('请先解除负责人或文件管理员身份','warning');m.departments=m.departments.filter(i=>i!==x.id);if(m.primary===x.id)m.primary=m.departments[0]||null;D().dialog=null;render();tell(`${m.name} 已移出 ${x.name}${m.departments.length?'，其他部门关系保留':'，现进入待分配人员池'}；成员账号未删除`)};
-  window.dmSaveMemberRole=id=>{const x=current(),m=member(id);x.managers=x.managers.filter(n=>n!==m.name);x.fileAdmins=x.fileAdmins.filter(n=>n!==m.name);if(document.getElementById('dmMemberManager').checked)x.managers.push(m.name);if(document.getElementById('dmMemberFile').checked)x.fileAdmins.push(m.name);D().dialog=null;render();tell(`${m.name} 的部门身份已更新；未转移文件所有权`)};window.dmSync=()=>{D().dialog=null;render();tell('组织同步完成：未发现结构冲突，本地维护字段未被覆盖')};
-  document.addEventListener('click',e=>{if(!e.target.closest('.dm-filter')&&D().filter){D().filter=null;render();return}if(!e.target.closest('.dm-menu')&&!e.target.closest('.dm-more')&&D().memberMenu){D().memberMenu=null;render();return}if(!e.target.closest('.dm-node')&&D().treeMenu){D().treeMenu=null;render();return}if(!e.target.closest('.dm-select'))document.querySelectorAll('.dm-select.open').forEach(n=>n.classList.remove('open'));const h=document.getElementById('dmHeaderMenu');if(h&&!e.target.closest('#dmHeaderMenu'))h.remove()});document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(D().dialog)dmClose();else document.querySelectorAll('.dm-select.open').forEach(n=>n.classList.remove('open'))}});
-  css();render();
+
+  function depth(item){
+    let value=0;
+    let cursor=item;
+    while(cursor&&cursor.parent){value++;cursor=department(cursor.parent)}
+    return value;
+  }
+
+  function owningCompany(item){
+    let cursor=item;
+    while(cursor){if(cursor.kind==='company')return cursor;cursor=department(cursor.parent)}
+    return null;
+  }
+
+  function memberRoles(item,dept){
+    const roles=[];
+    if(dept?.managers?.includes(item.name))roles.push('部门负责人');
+    if(dept?.fileAdmins?.includes(item.name))roles.push('文件管理员');
+    const company=dept?owningCompany(dept):null;
+    if(company&&item.subScopes.includes(company.id))roles.push('分级管理员');
+    return roles;
+  }
+
+  function injectStyles(){
+    if(document.getElementById('department-console-v12-style'))return;
+    const style=document.createElement('style');
+    style.id='department-console-v12-style';
+    style.textContent=`
+body.admin-console-v2 .main{padding:20px 22px 28px!important;background:#fff!important;background-image:none!important}
+.dp,.dp *{box-sizing:border-box}.dp [hidden]{display:none!important}.dp{min-height:calc(100vh - 112px);color:#27384a;background:#fff}.dp button,.dp input{font:inherit}.dp .icon-stack{width:18px;height:18px}
+.dp-page-head{display:flex;align-items:flex-start;gap:16px;margin-bottom:16px}.dp-page-title{margin:0;color:#1f3245;font-size:24px;line-height:1.25;letter-spacing:-.02em}.dp-page-subtitle{margin:6px 0 0;color:#7e8c9b;font-size:12px}.dp-page-scope{margin-left:auto;display:inline-flex;align-items:center;min-height:30px;padding:0 10px;border:1px solid #d9e6f2;border-radius:8px;background:#fff;color:#58728c;font-size:11px}
+.dp-toolbar{min-height:54px;display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:8px 10px 8px 14px;border:1px solid #e1e8ef;border-radius:12px;background:#fff;box-shadow:0 5px 18px rgba(37,60,83,.045)}.dp-sync{display:flex;align-items:center;gap:9px;color:#718294;font-size:11px}.dp-sync-dot{width:8px;height:8px;border:2px solid #d9eaff;border-radius:50%;background:#1769ff}.dp-spacer{flex:1}
+.dp-btn{height:38px;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:0 13px;border:1px solid #d8e2ec;border-radius:9px;background:#fff;color:#39566f;cursor:pointer;transition:border-color .16s,background .16s,color .16s}.dp-btn:hover:not(:disabled){border-color:#a8c9ed;background:#f7fbff;color:#1769ff}.dp-btn.primary{border-color:#1769ff;background:#1769ff;color:#fff}.dp-btn.primary:hover:not(:disabled){border-color:#0756d6;background:#0756d6;color:#fff}.dp-btn.ghost{border-color:transparent;background:transparent}.dp-btn.text{height:auto;padding:0;border:0;background:transparent;color:#1769ff}.dp-btn.icon{width:38px;padding:0}.dp-btn.small{height:32px;padding:0 10px;font-size:11px}.dp-btn.risk{border-color:#efcfd2;color:#b64a54}.dp-btn.risk:hover:not(:disabled){border-color:#e6aeb4;background:#fff7f8;color:#b43b48}.dp-btn:disabled{opacity:.45;cursor:not-allowed}
+.dp-workspace{height:calc(100vh - 196px);min-height:600px;display:grid;grid-template-columns:318px minmax(0,1fr);gap:16px}.dp-surface{min-height:0;border:1px solid #e0e8f0;border-radius:14px;background:#fff;box-shadow:0 8px 24px rgba(35,58,82,.045)}
+.dp-tree{display:flex;flex-direction:column;overflow:hidden}.dp-tree-head{padding:16px 14px 14px;border-bottom:1px solid #edf1f5}.dp-panel-title{display:flex;align-items:center;gap:8px;color:#2b4258;font-size:14px;font-weight:700}.dp-panel-title .icon-stack{color:#47789f}.dp-panel-meta{margin-left:auto;color:#98a4b0;font-size:10px;font-weight:500}.dp-tree-tools{display:flex;gap:8px;margin-top:14px}.dp-search{height:38px;min-width:0;display:flex;align-items:center;gap:8px;padding:0 11px;border:1px solid #dce5ee;border-radius:9px;background:#fff;color:#7890a5}.dp-search:focus-within,.dp-input:focus,.dp-select.open .dp-select-trigger,.dp-picker[open]{border-color:#9cc3ef;box-shadow:0 0 0 3px rgba(23,105,255,.06)}.dp-search input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:#314c65;font-size:12px}.dp-tree-scroll{flex:1;min-height:0;overflow:auto;padding:10px 9px 18px}.dp-tree-section{padding:9px 9px 7px;color:#9aa6b2;font-size:10px;font-weight:650}.dp-tree-node{position:relative}.dp-tree-row{height:42px;display:flex;align-items:center;margin:1px 0;padding:0 5px;border:1px solid transparent;border-radius:9px;color:#466079}.dp-tree-row:hover{background:#f7fafc}.dp-tree-row.active{border-color:#c7ddf6;background:#edf6ff;color:#1769ff;box-shadow:inset 3px 0 #1769ff}.dp-tree-row.company{font-weight:650}.dp-tree-toggle,.dp-tree-more{width:28px;height:30px;display:grid;place-items:center;flex:0 0 28px;border:0;border-radius:7px;background:transparent;color:#7a8ea1;cursor:pointer}.dp-tree-toggle:hover,.dp-tree-more:hover{background:#eaf3fc;color:#1769ff}.dp-tree-toggle.empty{visibility:hidden}.dp-tree-toggle.closed .icon-stack{transform:rotate(-90deg)}.dp-tree-pick{height:40px;min-width:0;flex:1;display:flex;align-items:center;gap:9px;padding:0 4px;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer}.dp-tree-pick>.icon-stack{width:17px;height:17px;color:#6285a4}.dp-tree-row.active .dp-tree-pick>.icon-stack{color:#1769ff}.dp-tree-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.dp-tree-status{width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:#c97b83}.dp-tree-children{position:relative;margin-left:16px;padding-left:13px;border-left:1px solid #dbe6f0}.dp-tree-children.closed{display:none}.dp-tree-footer{margin:10px 9px 0;padding:11px 12px;border:1px solid #e5ebf1;border-radius:10px;background:#fafbfd;color:#798a9b;font-size:10px;line-height:1.55}
+.dp-pop{position:absolute;right:4px;top:38px;z-index:180;width:218px;padding:7px;border:1px solid #d8e2ec;border-radius:11px;background:#fff;box-shadow:0 18px 46px rgba(26,51,77,.16)}.dp-pop button{width:100%;height:42px;display:flex;align-items:center;gap:9px;padding:0 8px;border:0;border-radius:8px;background:#fff;color:#425f79;text-align:left;font-size:12px;cursor:pointer}.dp-pop button>.icon-stack{width:30px;height:30px;display:grid;place-items:center;border-radius:8px;background:#f1f5f8;color:#5f7890}.dp-pop button:hover{background:#f7fafc;color:#1769ff}.dp-pop button:hover>.icon-stack{background:#e8f2fc;color:#1769ff}.dp-pop button.risk{color:#b14b55}.dp-pop button.risk>.icon-stack{background:#fff1f2;color:#c55560}.dp-pop button:disabled{color:#aab4be;cursor:not-allowed}.dp-pop button:disabled>.icon-stack{background:#f5f6f7;color:#b5bdc5}.dp-pop-sep{height:1px;margin:5px 4px;background:#edf1f5}
+.dp-detail{display:flex;flex-direction:column;overflow:hidden}.dp-hero{padding:20px 20px 0}.dp-hero-main{display:flex;align-items:flex-start;gap:13px}.dp-hero-icon{width:44px;height:44px;display:grid;place-items:center;flex:0 0 44px;border:1px solid #d3e5f8;border-radius:12px;background:#f2f8ff;color:#1769ff}.dp-hero-icon .icon-stack{width:21px;height:21px}.dp-hero-copy{min-width:0}.dp-hero-copy h2{margin:0;color:#22384d;font-size:20px;line-height:1.3}.dp-hero-path{margin:4px 0 0;overflow:hidden;color:#8a98a7;font-size:11px;text-overflow:ellipsis;white-space:nowrap}.dp-hero-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.dp-chip{display:inline-flex;align-items:center;min-height:24px;padding:0 8px;border:1px solid #dfe7ee;border-radius:7px;background:#fff;color:#708092;font-size:10px}.dp-chip.blue{border-color:#c9def6;background:#f3f8fe;color:#1769ff}.dp-chip.success{border-color:#cee6d7;background:#f6fbf7;color:#3c7b57}.dp-chip.off{border-color:#ead5d7;background:#fff8f8;color:#a6565e}.dp-hero-actions{margin-left:auto;display:flex;gap:8px}.dp-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));margin-top:18px;border-top:1px solid #edf1f5}.dp-summary-item{min-width:0;padding:13px 14px 14px 0}.dp-summary-item+.dp-summary-item{padding-left:14px;border-left:1px solid #edf1f5}.dp-summary-item label{display:block;color:#98a5b1;font-size:10px}.dp-summary-item strong{display:block;margin-top:5px;overflow:hidden;color:#304b64;font-size:13px;font-weight:650;text-overflow:ellipsis;white-space:nowrap}.dp-tabs{height:52px;display:flex;gap:26px;padding:0 20px;border-top:1px solid #edf1f5;border-bottom:1px solid #e8edf2}.dp-tabs button{height:52px;position:relative;padding:0;border:0;background:transparent;color:#718295;font-size:13px;cursor:pointer}.dp-tabs button.active{color:#1769ff;font-weight:700}.dp-tabs button.active:after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;border-radius:2px;background:#1769ff}.dp-detail-body{flex:1;min-height:0;overflow:auto;padding:16px 18px 22px;background:#fff}
+.dp-overview{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px}.dp-stack{display:grid;align-content:start;gap:16px}.dp-card{border:1px solid #e1e8ef;border-radius:12px;background:#fff}.dp-card-head{min-height:48px;display:flex;align-items:center;gap:8px;padding:0 15px;border-bottom:1px solid #edf1f5;color:#344d65;font-size:13px;font-weight:700}.dp-card-body{padding:15px}.dp-definition{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:26px}.dp-definition-item{min-height:62px;padding:10px 0;border-bottom:1px solid #f0f3f6}.dp-definition-item label{display:block;color:#9aa6b1;font-size:10px}.dp-definition-item span{display:block;margin-top:6px;color:#3a536b;font-size:12px}.dp-role-group+.dp-role-group{margin-top:18px;padding-top:18px;border-top:1px solid #eef2f5}.dp-role-title{display:flex;align-items:center;color:#536b82;font-size:12px;font-weight:650}.dp-role-title small{margin-left:auto;color:#9aa6b1;font-size:10px;font-weight:500}.dp-person-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.dp-person{display:inline-flex;align-items:center;gap:7px;min-height:32px;padding:3px 9px 3px 4px;border:1px solid #dce6ef;border-radius:9px;background:#fff;color:#3f5d78;font-size:11px}.dp-avatar{width:30px;height:30px;display:grid;place-items:center;flex:0 0 30px;border:1px solid #c8def7;border-radius:50%;background:#edf6ff;color:#1769ff;font-size:11px;font-weight:700;line-height:1;text-align:center;overflow:hidden}.dp-person .dp-avatar{width:24px;height:24px;flex-basis:24px;font-size:9px}.dp-muted{color:#9aa6b2;font-size:11px}.dp-note{padding:11px 12px;border:1px solid #e2e9ef;border-radius:10px;background:#fafbfd;color:#718294;font-size:11px;line-height:1.65}.dp-note.blue{border-color:#d6e7f8;background:#f7fbff}.dp-note.warn{border-color:#ead9bb;background:#fffaf2;color:#86652f}.dp-note.risk{border-color:#efcfd2;background:#fff8f8;color:#9e4c55}.dp-library{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid #e4eaf0;border-radius:10px;background:#fff}.dp-library-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:10px;background:#f1f5f8;color:#55758f}.dp-library-copy{min-width:0}.dp-library-copy strong,.dp-library-copy span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dp-library-copy strong{color:#334e67;font-size:12px}.dp-library-copy span{margin-top:4px;color:#95a2ae;font-size:10px}.dp-child-list{display:grid;gap:8px}.dp-child-row{min-height:52px;display:grid;grid-template-columns:minmax(160px,1fr) 90px 80px 130px 54px;align-items:center;gap:12px;padding:8px 12px;border:1px solid #e4eaf0;border-radius:10px;color:#597087;font-size:11px}.dp-child-name{display:flex;align-items:center;gap:8px;min-width:0;color:#38536d;font-weight:650}.dp-child-name span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dp-members{border:1px solid #e1e8ef;border-radius:12px;background:#fff;overflow:visible}.dp-members-toolbar{min-height:58px;display:flex;align-items:center;gap:9px;padding:9px 12px;border-bottom:1px solid #e8edf2}.dp-members-toolbar strong{color:#344d65;font-size:13px}.dp-members-toolbar .dp-search{width:270px;flex:none}.dp-filter{position:relative}.dp-filter>.dp-btn{min-width:108px;justify-content:space-between}.dp-filter-panel{position:absolute;right:0;top:44px;z-index:140;width:164px;padding:6px;border:1px solid #d8e2ec;border-radius:10px;background:#fff;box-shadow:0 16px 38px rgba(29,52,77,.15)}.dp-filter-panel button{width:100%;height:36px;padding:0 10px;border:0;border-radius:7px;background:#fff;color:#4b657d;text-align:left;font-size:11px}.dp-filter-panel button:hover,.dp-filter-panel button.active{background:#eef6ff;color:#1769ff}.dp-table-wrap{overflow:auto}.dp-table{width:100%;min-width:880px;border-collapse:collapse;table-layout:fixed}.dp-table th{height:42px;padding:0 13px;border-bottom:1px solid #e8edf2;background:#fafbfd;color:#8b99a7;font-size:10px;font-weight:600;text-align:left}.dp-table th button{padding:0;border:0;background:transparent;color:inherit;cursor:pointer}.dp-table td{height:66px;padding:8px 13px;border-bottom:1px solid #eef2f5;color:#50687f;font-size:11px;vertical-align:middle}.dp-table tbody tr:hover td{background:#fbfdff}.dp-member-cell{display:flex;align-items:center;gap:10px;min-width:0}.dp-member-copy{min-width:0}.dp-member-copy strong,.dp-member-copy small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dp-member-copy strong{color:#334d65;font-size:12px}.dp-member-copy small{margin-top:4px;color:#98a4b0;font-size:10px}.dp-role-tags{display:flex;flex-wrap:wrap;gap:5px}.dp-role-tag{display:inline-flex;align-items:center;min-height:24px;padding:0 7px;border:1px solid #d9e5f1;border-radius:7px;background:#f7fafc;color:#58728c;font-size:10px}.dp-status{display:inline-flex;align-items:center;gap:7px;color:#557087}.dp-status:before{content:'';width:7px;height:7px;border-radius:50%;background:#4a9a69}.dp-status.off:before{background:#bd7078}.dp-pagination{min-height:50px;display:flex;align-items:center;gap:6px;padding:8px 12px;color:#8493a1;font-size:10px}.dp-page{width:32px;height:32px;border:1px solid #dce5ee;border-radius:8px;background:#fff;color:#547087}.dp-page.active{border-color:#a9cbed;background:#eef6ff;color:#1769ff}.dp-page:disabled{opacity:.4}.dp-empty{min-height:280px;display:grid;place-items:center;align-content:center;gap:8px;color:#96a3af;text-align:center}.dp-empty>.icon-stack{width:28px;height:28px}.dp-empty strong{color:#65798c;font-size:13px}.dp-empty p{margin:0;font-size:10px}
+.dp-modal-mask{position:fixed;inset:0;z-index:2800;display:grid;place-items:center;padding:22px;background:rgba(27,43,60,.38)}.dp-modal{width:min(720px,calc(100vw - 36px));max-height:calc(100vh - 44px);display:flex;flex-direction:column;border:1px solid #d8e1ea;border-radius:15px;background:#fff;box-shadow:0 28px 80px rgba(19,40,63,.23);overflow:hidden}.dp-modal.medium{width:min(620px,calc(100vw - 36px))}.dp-modal.small{width:min(500px,calc(100vw - 36px))}.dp-modal-head{min-height:58px;display:flex;align-items:center;padding:0 18px;border-bottom:1px solid #e8edf2;color:#2c445b;font-size:15px;font-weight:700}.dp-modal-body{overflow:auto;padding:18px}.dp-modal-foot{min-height:64px;display:flex;justify-content:flex-end;align-items:center;gap:9px;padding:11px 18px;border-top:1px solid #e8edf2;background:#fff}.dp-form{display:grid;gap:16px}.dp-form-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.dp-field{display:grid;gap:7px;color:#536b82;font-size:11px}.dp-field-label{display:flex;align-items:center;gap:4px;color:#536b82;font-size:11px}.dp-required{color:#c8545e}.dp-input{width:100%;height:40px;padding:0 11px;border:1px solid #d8e2eb;border-radius:9px;background:#fff;color:#314d67;outline:0;font-size:12px}.dp-help{margin:0;color:#98a4af;font-size:10px;line-height:1.55}.dp-select{position:relative}.dp-select-trigger{width:100%;height:40px;display:flex;align-items:center;justify-content:space-between;padding:0 11px;border:1px solid #d8e2eb;border-radius:9px;background:#fff;color:#3d5870;text-align:left;font-size:12px;cursor:pointer}.dp-select-panel{display:none;position:absolute;left:0;right:0;top:46px;z-index:210;max-height:252px;overflow:auto;padding:6px;border:1px solid #d5e0ea;border-radius:11px;background:#fff;box-shadow:0 18px 42px rgba(25,49,74,.16)}.dp-select.open .dp-select-panel{display:block}.dp-option{width:100%;min-height:38px;display:flex;align-items:center;gap:8px;padding:7px 10px;border:0;border-radius:8px;background:#fff;color:#49647c;text-align:left;font-size:11px;cursor:pointer}.dp-option:hover,.dp-option.selected{background:#eef6ff;color:#1769ff}.dp-option:disabled{color:#b1bbc4;cursor:not-allowed}.dp-option small{margin-left:auto;color:#9ba7b2}.dp-picker{border:1px solid #dbe4ec;border-radius:10px;background:#fff}.dp-picker>summary{min-height:42px;display:flex;align-items:center;gap:8px;padding:8px 10px;list-style:none;cursor:pointer}.dp-picker>summary::-webkit-details-marker{display:none}.dp-picker-summary{min-width:0;flex:1;display:flex;flex-wrap:wrap;gap:6px}.dp-picker-placeholder{color:#98a4b0}.dp-picker-count{color:#7d8d9d;font-size:10px}.dp-picker-panel{padding:10px;border-top:1px solid #edf1f4;background:#fbfcfd}.dp-picker-search{margin-bottom:8px}.dp-picker-list{max-height:214px;overflow:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.dp-person-choice{min-height:46px;display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid #e0e7ed;border-radius:9px;background:#fff;color:#526b82;text-align:left;cursor:pointer}.dp-person-choice.selected{border-color:#a9cbed;background:#eef6ff;color:#1769ff}.dp-person-choice-copy{min-width:0}.dp-person-choice-copy strong,.dp-person-choice-copy small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dp-person-choice-copy strong{font-size:11px}.dp-person-choice-copy small{margin-top:3px;color:#96a3af;font-size:9px}.dp-check-mark{margin-left:auto;width:17px;height:17px;display:grid;place-items:center;border:1px solid #cbd7e1;border-radius:5px;color:transparent}.dp-person-choice.selected .dp-check-mark{border-color:#1769ff;background:#1769ff;color:#fff}.dp-switch{display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #e0e7ee;border-radius:10px}.dp-switch input{position:absolute;opacity:0}.dp-switch-control{width:34px;height:20px;position:relative;flex:0 0 34px;border-radius:12px;background:#cbd6e0}.dp-switch-control:after{content:'';position:absolute;left:3px;top:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left .15s}.dp-switch input:checked+.dp-switch-control{background:#1769ff}.dp-switch input:checked+.dp-switch-control:after{left:17px}.dp-switch strong,.dp-switch small{display:block}.dp-switch strong{color:#3c566e;font-size:11px}.dp-switch small{margin-top:4px;color:#94a1ad;font-size:10px;line-height:1.5}.dp-impact{display:grid;gap:8px;margin-top:14px}.dp-impact-row{padding:10px 11px;border:1px solid #e1e8ee;border-radius:9px;color:#60798f;font-size:11px}.dp-impact-row.block{border-color:#efcfd2;background:#fff8f8;color:#a24d57}.dp-impact-row.ok{border-color:#d4e7da;background:#f8fcf9;color:#46785a}.dp-candidate-list{display:grid;gap:7px;max-height:310px;overflow:auto}.dp-candidate{min-height:56px;display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid #e0e7ee;border-radius:10px;background:#fff;color:#4d667e;text-align:left;cursor:pointer}.dp-candidate.selected{border-color:#a6caef;background:#eef6ff}.dp-radio{width:17px;height:17px;flex:0 0 17px;border:1px solid #c4d1dc;border-radius:50%}.dp-candidate.selected .dp-radio{border:5px solid #1769ff}.dp-candidate-copy{min-width:0}.dp-candidate-copy strong,.dp-candidate-copy small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dp-candidate-copy strong{color:#3b566e;font-size:11px}.dp-candidate-copy small{margin-top:4px;color:#96a3af;font-size:10px}
+@media(max-width:1240px){.dp-workspace{grid-template-columns:285px minmax(0,1fr)}.dp-overview{grid-template-columns:1fr}.dp-summary{grid-template-columns:repeat(3,minmax(0,1fr))}.dp-summary-item:nth-child(4){border-left:0;padding-left:0}.dp-picker-list{grid-template-columns:1fr}}
+`;
+    document.head.appendChild(style);
+  }
+
+  function button(label,action,className=''){
+    return `<button class="dp-btn ${className}" onclick="${action}">${label}</button>`;
+  }
+
+  function renderPageHeader(){
+    return `<div class="dp-page-head"><div><h1 class="dp-page-title">部门管理</h1><p class="dp-page-subtitle">维护公司与部门层级、成员归属、管理身份和部门公共资料库</p></div><span class="dp-page-scope">当前范围：贵安发展集团及全部下级组织</span></div>`;
+  }
+
+  function renderToolbar(){
+    const selected=model().selected==='unassigned'?'group':model().selected;
+    return `<div class="dp-toolbar"><span class="dp-sync"><i class="dp-sync-dot"></i>组织数据正常 · 最近同步 今天 08:46</span><span class="dp-spacer"></span>${button(icon('transfer')+'同步组织',"dmOpen('sync')")}${button(icon('plus')+'新建部门',`dmOpen('create',{parentId:'${selected}'})`,'primary')}</div>`;
+  }
+
+  function treeMatches(item,query){
+    if(!query)return true;
+    const text=[item.name,item.code,...descendants(item.id).map(child=>child.name)].join(' ').toLowerCase();
+    return text.includes(query);
+  }
+
+  function renderTreeMenu(item){
+    if(model().treeMenu!==item.id)return '';
+    const companyRoot=item.kind==='company'&&!item.parent;
+    return `<div class="dp-pop" onclick="event.stopPropagation()">
+      <button onclick="dmOpen('create',{parentId:'${item.id}'})">${icon('plus')}<span>新建下级部门</span></button>
+      <button onclick="dmOpen('edit')">${icon('edit')}<span>编辑组织信息</span></button>
+      ${item.kind==='department'?`<button onclick="dmOpen('move')">${icon('move')}<span>调整上级部门</span></button>`:`<button ${companyRoot?'disabled':''} onclick="dmOpen('move')">${icon('move')}<span>${companyRoot?'根公司不可移动':'调整上级组织'}</span></button>`}
+      <div class="dp-pop-sep"></div>
+      <button onclick="dmOpen('status')">${icon(item.status==='active'?'lock':'check')}<span>${item.status==='active'?'停用当前节点':'启用当前节点'}</span></button>
+      ${item.kind==='department'?`<button class="risk" onclick="dmOpen('delete')">${icon('trash')}<span>组织裁撤</span></button>`:`<button disabled>${icon('trash')}<span>公司节点不可直接裁撤</span></button>`}
+    </div>`;
+  }
+
+  function renderTreeNode(item){
+    const query=model().treeQuery.trim().toLowerCase();
+    if(!treeMatches(item,query))return '';
+    const childNodes=children(item.id).filter(child=>treeMatches(child,query));
+    const expanded=Boolean(query)||model().expanded.includes(item.id);
+    const selected=model().selected===item.id;
+    return `<div class="dp-tree-node"><div class="dp-tree-row ${item.kind==='company'?'company':''} ${selected?'active':''}">
+      <button class="dp-tree-toggle ${childNodes.length?'':'empty'} ${expanded?'':'closed'}" title="${expanded?'收起':'展开'}" onclick="event.stopPropagation();dmToggleNode('${item.id}')">${childNodes.length?icon('down'):''}</button>
+      <button class="dp-tree-pick" onclick="dmSelect('${item.id}')">${icon(item.kind==='company'?'building':'folder')}<span class="dp-tree-name">${esc(item.name)}</span>${item.status==='disabled'?'<i class="dp-tree-status" title="已停用"></i>':''}</button>
+      <button class="dp-tree-more" title="更多操作" onclick="event.stopPropagation();dmTreeMenu('${item.id}')">${icon('more')}</button>
+      ${renderTreeMenu(item)}
+    </div>${childNodes.length?`<div class="dp-tree-children ${expanded?'':'closed'}">${childNodes.map(renderTreeNode).join('')}</div>`:''}</div>`;
+  }
+
+  function renderTree(){
+    const roots=departments().filter(item=>!item.parent);
+    const selected=model().selected==='unassigned'?null:department(model().selected);
+    const summary=selected?`${selected.kind==='company'?'公司节点':'普通部门'} · ${children(selected.id).length} 个直属下级 · ${directMembers(selected.id).length} 名直属成员`:`虚拟节点 · ${directMembers('unassigned').length} 名待分配成员`;
+    return `<aside class="dp-surface dp-tree"><div class="dp-tree-head"><div class="dp-panel-title">${icon('building')}组织架构<span class="dp-panel-meta">${departments().length} 个正式节点</span></div><div class="dp-tree-tools"><label class="dp-search">${icon('search')}<input value="${esc(model().treeQuery)}" placeholder="搜索部门名称或编码" oninput="dmTreeSearch(this.value)"></label><button class="dp-btn icon" title="展开或收起全部" onclick="dmToggleAll()">${icon('down')}</button></div></div><div class="dp-tree-scroll"><div class="dp-tree-section">公司与部门</div>${roots.map(renderTreeNode).join('')||'<div class="dp-empty"><strong>未找到组织节点</strong></div>'}<div class="dp-tree-section">特殊节点</div><div class="dp-tree-row ${model().selected==='unassigned'?'active':''}"><span class="dp-tree-toggle empty"></span><button class="dp-tree-pick" onclick="dmSelect('unassigned')">${icon('users')}<span class="dp-tree-name">待分配人员池</span></button></div><div class="dp-tree-footer">当前选中：${esc(model().selected==='unassigned'?'待分配人员池':selected?.name||'未选择')}<br>${esc(summary)}</div></div></aside>`;
+  }
+
+  function people(items,emptyText){
+    if(!items?.length)return `<span class="dp-muted">${esc(emptyText)}</span>`;
+    return `<div class="dp-person-list">${items.map(name=>`<span class="dp-person"><i class="dp-avatar">${avatarText(name)}</i>${esc(name)}</span>`).join('')}</div>`;
+  }
+
+  function summaryItems(item){
+    if(!item)return `<div class="dp-summary"><div class="dp-summary-item"><label>节点性质</label><strong>虚拟人员池</strong></div><div class="dp-summary-item"><label>待分配成员</label><strong>${directMembers('unassigned').length} 人</strong></div></div>`;
+    return `<div class="dp-summary">
+      <div class="dp-summary-item"><label>部门编码</label><strong>${esc(item.code)}</strong></div>
+      <div class="dp-summary-item"><label>上级组织</label><strong>${esc(department(item.parent)?.name||'无')}</strong></div>
+      <div class="dp-summary-item"><label>${item.kind==='company'?'范围成员':'部门成员'}</label><strong>${item.kind==='company'?scopeMembers(item.id).length:directMembers(item.id).length} 人</strong></div>
+      <div class="dp-summary-item"><label>直属下级</label><strong>${children(item.id).length} 个</strong></div>
+      <div class="dp-summary-item"><label>公共资料库</label><strong>${item.library==='none'?'未创建':item.library==='disabled'?'访问暂停':'已启用'}</strong></div>
+    </div>`;
+  }
+
+  function renderHero(item){
+    const virtual=!item;
+    return `<div class="dp-hero"><div class="dp-hero-main"><span class="dp-hero-icon">${icon(virtual?'users':item.kind==='company'?'building':'folder')}</span><div class="dp-hero-copy"><h2>${esc(virtual?'待分配人员池':item.name)}</h2><p class="dp-hero-path">${esc(virtual?'系统虚拟节点，不参与正式组织变更':departmentPath(item))}</p><div class="dp-hero-tags">${virtual?'<span class="dp-chip blue">特殊节点</span>':`<span class="dp-chip ${item.status==='active'?'success':'off'}">${item.status==='active'?'已启用':'已停用'}</span><span class="dp-chip blue">${item.kind==='company'?'公司节点':'普通部门'}</span><span class="dp-chip">${esc(item.source)}</span>`}</div></div>${virtual?'':`<div class="dp-hero-actions">${button(icon('edit')+'编辑',"dmOpen('edit')")}${item.kind==='department'?button(icon('move')+'移动',"dmOpen('move')"):''}<span style="position:relative"><button class="dp-btn icon" title="更多操作" onclick="event.stopPropagation();dmHeaderMenu(event)">${icon('more')}</button></span></div>`}</div>${summaryItems(item)}</div>`;
+  }
+
+  function renderOverview(item){
+    if(!item)return `<div class="dp-card"><div class="dp-card-head">待分配人员池说明</div><div class="dp-card-body"><div class="dp-note blue">该节点用于收纳已进入租户但尚未挂载正式部门的成员。成员分配到普通部门后，才会获得对应部门公共资料库的默认访问权限。</div></div></div>`;
+    const scopedAdmins=owningCompany(item)?.subAdmins||[];
+    return `<div class="dp-overview"><div class="dp-stack"><section class="dp-card"><div class="dp-card-head">部门信息<span class="dp-spacer"></span><button class="dp-btn text" onclick="dmOpen('edit')">编辑</button></div><div class="dp-card-body"><div class="dp-definition">${[
+      ['节点类型',item.kind==='company'?'公司节点':'普通部门'],['上级组织',department(item.parent)?.name||'无'],['数据来源',item.source],['最近更新',item.updated],['空间策略',item.quota],['公共资料库成员权限',item.permission]
+    ].map(row=>`<div class="dp-definition-item"><label>${row[0]}</label><span>${esc(row[1])}</span></div>`).join('')}</div></div></section><section class="dp-card"><div class="dp-card-head">部门公共资料库</div><div class="dp-card-body">${item.library==='none'?'<div class="dp-note">创建部门时选择了“暂不创建”。企业空间中的普通文件夹继续按独立权限管理。</div>':`<div class="dp-library"><span class="dp-library-icon">${icon('folder')}</span><div class="dp-library-copy"><strong>${esc(item.name)}公共资料库</strong><span>企业空间 / 部门公共资料库 / ${esc(item.name)}</span></div><span class="dp-spacer"></span><span class="dp-chip ${item.library==='disabled'?'off':'blue'}">${item.library==='disabled'?'普通成员暂停访问':'部门成员可访问'}</span></div><div class="dp-note blue" style="margin-top:10px">负责人和文件管理员拥有治理权限；成员归属变化会重新计算访问权限。负责人变更不会自动转移文件所有权。</div>`}</div></section><section class="dp-card"><div class="dp-card-head">直属下级部门<span class="dp-spacer"></span><button class="dp-btn text" onclick="dmTab('children')">查看全部</button></div><div class="dp-card-body"><div class="dp-child-list">${children(item.id).slice(0,4).map(child=>`<div class="dp-child-row"><div class="dp-child-name">${icon('folder')}<span>${esc(child.name)}</span></div><span>${esc(child.code)}</span><span>${directMembers(child.id).length} 人</span><span>${esc(child.managers[0]||'未设置负责人')}</span><button class="dp-btn text" onclick="dmSelect('${child.id}')">查看</button></div>`).join('')||'<span class="dp-muted">当前没有直属下级部门</span>'}</div></div></section></div><aside class="dp-stack"><section class="dp-card"><div class="dp-card-head">管理身份<span class="dp-spacer"></span><button class="dp-btn text" onclick="dmOpen('roles')">调整</button></div><div class="dp-card-body"><div class="dp-role-group"><div class="dp-role-title">部门负责人<small>${item.managers.length} 人</small></div>${people(item.managers,'暂未设置负责人')}</div><div class="dp-role-group"><div class="dp-role-title">文件管理员<small>${item.fileAdmins.length} 人</small></div>${people(item.fileAdmins,'暂未设置文件管理员')}</div><div class="dp-role-group"><div class="dp-role-title">${item.kind==='company'?'分级管理员':'覆盖当前部门的分级管理员'}<small>只读</small></div>${people(scopedAdmins,'当前范围未关联分级管理员')}</div><div class="dp-note" style="margin-top:16px">三类身份来自不同授权关系，互不自动转换。</div></div></section><section class="dp-card"><div class="dp-card-head">权限联动</div><div class="dp-card-body"><div class="dp-role-group"><div class="dp-role-title">成员默认权限</div><div class="dp-person-list"><span class="dp-chip blue">${esc(item.permission)}</span></div></div><div class="dp-role-group"><div class="dp-role-title">组织状态</div><div class="dp-note ${item.status==='active'?'blue':'warn'}">${item.status==='active'?'成员可按部门关系访问公共资料库。':'普通成员的部门资料库访问已暂停，授权管理员仍可治理历史资料。'}</div></div></div></section></aside></div>`;
+  }
+
+  function filterPanel(key,label,options){
+    const opened=model().filterMenu===key;
+    return `<div class="dp-filter"><button class="dp-btn" onclick="event.stopPropagation();dmFilterOpen('${key}')"><span>${esc(label)}</span>${icon('down')}</button>${opened?`<div class="dp-filter-panel" onclick="event.stopPropagation()">${options.map(option=>`<button class="${model()[key]===option[0]?'active':''}" onclick="dmSetFilter('${key}','${option[0]}')">${option[1]}</button>`).join('')}</div>`:''}</div>`;
+  }
+
+  function memberRowsFor(item){
+    let rows=item?.kind==='company'?scopeMembers(item.id):item?directMembers(item.id):directMembers('unassigned');
+    const query=model().memberQuery.trim().toLowerCase();
+    if(query)rows=rows.filter(person=>`${person.name} ${person.no} ${person.job} ${person.phone}`.toLowerCase().includes(query));
+    if(model().status!=='all')rows=rows.filter(person=>person.status===model().status);
+    if(model().role!=='all')rows=rows.filter(person=>{
+      const roles=item?memberRoles(person,item):[];
+      return model().role==='member'?roles.length===0:roles.includes(model().role);
+    });
+    const [field,direction]=model().sort;
+    return [...rows].sort((a,b)=>String(a[field]||'').localeCompare(String(b[field]||''),'zh-CN')*(direction==='asc'?1:-1));
+  }
+
+  function renderMemberMenu(person,item){
+    if(model().memberMenu!==person.id)return '';
+    if(!item)return `<div class="dp-pop"><button onclick="dmOpen('assign',{memberId:'${person.id}'})">${icon('move')}<span>分配到部门</span></button></div>`;
+    if(item.kind==='company')return `<div class="dp-pop"><button disabled>${icon('info')}<span>请进入普通部门维护归属</span></button></div>`;
+    return `<div class="dp-pop"><button onclick="dmOpen('memberRole',{memberId:'${person.id}'})">${icon('shield')}<span>设置部门身份</span></button><button onclick="dmOpen('transfer',{memberId:'${person.id}'})">${icon('move')}<span>转移到其他部门</span></button><div class="dp-pop-sep"></div><button class="risk" onclick="dmOpen('remove',{memberId:'${person.id}'})">${icon('x')}<span>移出当前部门</span></button></div>`;
+  }
+
+  function renderMembers(item){
+    const allRows=memberRowsFor(item);
+    const pages=Math.max(1,Math.ceil(allRows.length/model().pageSize));
+    model().page=Math.min(model().page,pages);
+    const rows=allRows.slice((model().page-1)*model().pageSize,model().page*model().pageSize);
+    const roleOptions=[['all','全部身份'],['部门负责人','部门负责人'],['文件管理员','文件管理员'],['分级管理员','分级管理员'],['member','普通成员']];
+    const statusOptions=[['all','全部状态'],['active','正常'],['disabled','停用']];
+    const roleLabel=roleOptions.find(option=>option[0]===model().role)?.[1]||'全部身份';
+    const statusLabel=statusOptions.find(option=>option[0]===model().status)?.[1]||'全部状态';
+    const title=!item?'待分配成员':item.kind==='company'?'范围成员':'部门成员';
+    const action=!item?'<span class="dp-muted">通过成员“更多”菜单完成分配</span>':item.kind==='company'?'<span class="dp-muted">公司节点只展示范围成员，请进入普通部门维护归属</span>':button(icon('plus')+'添加成员',"dmOpen('add')",'primary');
+    return `<section class="dp-members"><div class="dp-members-toolbar"><strong>${title}</strong><label class="dp-search">${icon('search')}<input value="${esc(model().memberQuery)}" placeholder="搜索姓名、工号、岗位或手机号" oninput="dmMemberSearch(this.value)"></label>${filterPanel('role',roleLabel,roleOptions)}${filterPanel('status',statusLabel,statusOptions)}<span class="dp-spacer"></span>${action}</div>${rows.length?`<div class="dp-table-wrap"><table class="dp-table"><colgroup><col style="width:21%"><col style="width:14%"><col style="width:15%"><col style="width:14%"><col style="width:21%"><col style="width:9%"><col style="width:6%"></colgroup><thead><tr><th><button onclick="dmSort('name')">成员 ${model().sort[0]==='name'?(model().sort[1]==='asc'?'↑':'↓'):''}</button></th><th><button onclick="dmSort('job')">岗位 ${model().sort[0]==='job'?(model().sort[1]==='asc'?'↑':'↓'):''}</button></th><th>手机号</th><th>主部门</th><th>管理身份</th><th>状态</th><th>操作</th></tr></thead><tbody>${rows.map(person=>{
+      const roles=item?memberRoles(person,item):[];
+      return `<tr><td><div class="dp-member-cell"><span class="dp-avatar">${avatarText(person.name)}</span><div class="dp-member-copy"><strong>${esc(person.name)}</strong><small>工号 ${esc(person.no)}</small></div></div></td><td>${esc(person.job)}</td><td>${esc(person.phone)}</td><td>${esc(department(person.primary)?.name||'待分配')}</td><td><div class="dp-role-tags">${roles.length?roles.map(role=>`<span class="dp-role-tag">${role}</span>`).join(''):'<span class="dp-role-tag">普通成员</span>'}</div></td><td><span class="dp-status ${person.status==='active'?'':'off'}">${person.status==='active'?'正常':'停用'}</span></td><td><span style="position:relative"><button class="dp-btn icon small" title="成员操作" onclick="event.stopPropagation();dmMemberMenu('${person.id}')">${icon('more')}</button>${renderMemberMenu(person,item)}</span></td></tr>`;
+    }).join('')}</tbody></table></div><div class="dp-pagination"><span>共 ${allRows.length} 条，第 ${model().page}/${pages} 页</span><span class="dp-spacer"></span><button class="dp-page" ${model().page<=1?'disabled':''} onclick="dmPage(${model().page-1})">‹</button>${Array.from({length:pages},(_,index)=>index+1).map(page=>`<button class="dp-page ${page===model().page?'active':''}" onclick="dmPage(${page})">${page}</button>`).join('')}<button class="dp-page" ${model().page>=pages?'disabled':''} onclick="dmPage(${model().page+1})">›</button></div>`:`<div class="dp-empty">${icon('users')}<strong>当前没有成员</strong><p>${!item?'暂无待分配人员':item.kind==='company'?'当前公司范围内暂无成员':'可从待分配人员池或其他部门添加成员'}</p></div>`}</section>`;
+  }
+
+  function renderChildren(item){
+    const rows=children(item.id);
+    return `<div class="dp-stack"><div class="dp-toolbar" style="margin:0"><strong style="font-size:13px;color:#344d65">直属下级部门 ${rows.length} 个</strong><span class="dp-spacer"></span>${button(icon('plus')+'新建下级部门',`dmOpen('create',{parentId:'${item.id}'})`,'primary')}</div><div class="dp-card"><div class="dp-card-body"><div class="dp-child-list">${rows.map(child=>`<div class="dp-child-row"><div class="dp-child-name">${icon('folder')}<span>${esc(child.name)}</span></div><span>${esc(child.code)}</span><span>${directMembers(child.id).length} 人</span><span>${esc(child.managers[0]||'未设置负责人')}</span><button class="dp-btn text" onclick="dmSelect('${child.id}')">查看</button></div>`).join('')||'<div class="dp-empty"><strong>当前没有下级部门</strong></div>'}</div></div></div></div>`;
+  }
+
+  function renderIdentities(item){
+    const admins=owningCompany(item)?.subAdmins||[];
+    return `<section class="dp-card"><div class="dp-card-head">组织管理身份<span class="dp-spacer"></span><button class="dp-btn" onclick="dmOpen('roles')">${icon('edit')}调整负责人和文件管理员</button></div><div class="dp-card-body"><div class="dp-role-group"><div class="dp-role-title">部门负责人<small>${item.managers.length} 人</small></div>${people(item.managers,'未设置负责人')}<div class="dp-note blue" style="margin-top:10px">更换后会解除原负责人身份，但不会自动转移任何文件所有权。</div></div><div class="dp-role-group"><div class="dp-role-title">文件管理员<small>${item.fileAdmins.length} 人</small></div>${people(item.fileAdmins,'未设置文件管理员')}<div class="dp-note" style="margin-top:10px">仅负责部门公共资料库内容和权限治理，不自动成为部门负责人。</div></div><div class="dp-role-group"><div class="dp-role-title">${item.kind==='company'?'分级管理员':'覆盖当前部门的分级管理员'}<small>只读 · 由管理员设置维护</small></div>${people(admins,'当前范围未关联分级管理员')}<div class="dp-note" style="margin-top:10px">分级管理员属于管理中心授权，与部门负责人、文件管理员使用不同授权关系。</div></div></div></section>`;
+  }
+
+  function renderDetail(){
+    const item=currentDepartment();
+    const virtual=model().selected==='unassigned';
+    const tabs=virtual?[['overview','节点说明'],['members','成员列表']]:[['overview','部门概览'],['members','成员列表'],['children','下级部门'],['identities','管理身份']];
+    if(!tabs.some(tab=>tab[0]===model().tab))model().tab='overview';
+    const content=model().tab==='members'?renderMembers(item):model().tab==='children'?renderChildren(item):model().tab==='identities'?renderIdentities(item):renderOverview(item);
+    return `<section class="dp-surface dp-detail">${renderHero(item)}<nav class="dp-tabs">${tabs.map(tab=>`<button class="${model().tab===tab[0]?'active':''}" onclick="dmTab('${tab[0]}')">${tab[1]}</button>`).join('')}</nav><div class="dp-detail-body">${content}</div></section>`;
+  }
+
+  function renderPage(){
+    return `<div class="dp">${renderPageHeader()}${renderToolbar()}<div class="dp-workspace">${renderTree()}${renderDetail()}</div>${renderDialog()}</div>`;
+  }
+
+  function selectControl(id,label,options,value,help=''){
+    const selected=options.find(option=>option[0]===value&&!option[2])||options.find(option=>!option[2]);
+    return `<div class="dp-field"><div class="dp-field-label">${label}</div><div class="dp-select" id="${id}Wrap"><input type="hidden" id="${id}" value="${esc(selected?.[0]||'')}"><button type="button" class="dp-select-trigger" onclick="dmSelectOpen(event,'${id}Wrap')"><span id="${id}Text">${esc(selected?.[1]||'请选择')}</span>${icon('down')}</button><div class="dp-select-panel">${options.map(option=>`<button type="button" class="dp-option ${option[0]===selected?.[0]?'selected':''}" ${option[2]?'disabled':''} style="padding-left:${10+(option[3]||0)*18}px" onclick="dmChoose(event,'${id}','${esc(option[0])}','${esc(option[1])}')">${option[4]||''}<span>${esc(option[1])}</span><small>${option[2]?'不可选择':esc(option[5]||'')}</small></button>`).join('')}</div></div>${help?`<p class="dp-help">${esc(help)}</p>`:''}</div>`;
+  }
+
+  function treeSelect(id,label,value,exclude=[],onlyDepartments=false,help=''){
+    const options=departments().filter(item=>!onlyDepartments||item.kind==='department'&&item.status==='active').map(item=>[
+      item.id,item.name,exclude.includes(item.id),depth(item),icon(item.kind==='company'?'building':'folder'),item.code
+    ]);
+    return selectControl(id,`${label} <span class="dp-required">*</span>`,options,value,help);
+  }
+
+  function selectedPersonChips(names){
+    return names.length?names.map(name=>`<span class="dp-person"><i class="dp-avatar">${avatarText(name)}</i>${esc(name)}</span>`).join(''):'<span class="dp-picker-placeholder">暂未选择</span>';
+  }
+
+  function peoplePicker(id,label,selectedNames,help){
+    return `<div class="dp-field"><div class="dp-field-label">${label}</div><input type="hidden" id="${id}" value="${esc(selectedNames.join('|'))}"><details class="dp-picker"><summary><span class="dp-picker-summary" id="${id}Selected">${selectedPersonChips(selectedNames)}</span><span class="dp-picker-count" id="${id}Count">已选 ${selectedNames.length} 人</span>${icon('down')}</summary><div class="dp-picker-panel"><label class="dp-search dp-picker-search">${icon('search')}<input placeholder="搜索姓名、工号或岗位" oninput="dmFilterPeople('${id}',this.value)"></label><div class="dp-picker-list" id="${id}List">${members().filter(person=>person.status==='active').map(person=>`<button type="button" data-search="${esc(`${person.name} ${person.no} ${person.job}`.toLowerCase())}" data-name="${esc(person.name)}" class="dp-person-choice ${selectedNames.includes(person.name)?'selected':''}" onclick="dmPersonToggle('${id}',this)"><span class="dp-avatar">${avatarText(person.name)}</span><span class="dp-person-choice-copy"><strong>${esc(person.name)}</strong><small>${esc(person.no)} · ${esc(person.job)}</small></span><span class="dp-check-mark">${icon('check')}</span></button>`).join('')}</div></div></details><p class="dp-help">${esc(help)}</p></div>`;
+  }
+
+  function modal(title,body,footer,size=''){
+    return `<div class="dp-modal ${size}"><div class="dp-modal-head">${title}<span class="dp-spacer"></span><button class="dp-btn icon" onclick="dmClose()">${icon('x')}</button></div><div class="dp-modal-body">${body}</div><div class="dp-modal-foot">${footer}</div></div>`;
+  }
+
+  function renderDepartmentForm(mode,payload){
+    const editing=mode==='edit';
+    const item=editing?currentDepartment():null;
+    const target=item||{name:'',code:'',kind:'department',permission:'操作者',quota:'共享企业剩余可用额度',library:'active',managers:[],fileAdmins:[]};
+    const rootCompany=Boolean(editing&&item.kind==='company'&&!item.parent);
+    const parentValue=editing?item.parent:(payload?.parentId||model().selected||'group');
+    const excluded=editing?[item.id,...descendants(item.id).map(child=>child.id)]:[];
+    const parentField=rootCompany?`<div class="dp-field"><div class="dp-field-label">上级组织</div><input id="dmDeptParent" type="hidden" value=""><div class="dp-select-trigger">无（集团根公司）</div><p class="dp-help">根公司不可移动为下级节点。</p></div>`:treeSelect('dmDeptParent','上级组织',parentValue,excluded,false,'不能选择自身或自身下级节点。');
+    const typeField=rootCompany?`<div class="dp-field"><div class="dp-field-label">节点类型</div><input id="dmDeptKind" type="hidden" value="company"><div class="dp-select-trigger">公司节点</div></div>`:selectControl('dmDeptKind','节点类型',[['department','普通部门'],['company','公司节点']],target.kind,'公司节点和普通部门必须明确区分。');
+    return modal(editing?'编辑部门':'新建部门',`<div class="dp-form"><div class="dp-form-row"><label class="dp-field"><span class="dp-field-label">部门名称 <span class="dp-required">*</span></span><input class="dp-input" id="dmDeptName" value="${esc(target.name)}" maxlength="30" placeholder="请输入部门名称"><p class="dp-help">同一上级组织下不可重名。</p></label><label class="dp-field"><span class="dp-field-label">部门编码 <span class="dp-required">*</span></span><input class="dp-input" id="dmDeptCode" value="${esc(target.code)}" maxlength="16" placeholder="例如：YFZX"><p class="dp-help">2–16 位大写字母、数字、下划线或短横线。</p></label></div><div class="dp-form-row">${parentField}${typeField}</div><div class="dp-form-row">${selectControl('dmDeptPermission','公共资料库成员权限',['预览者','下载者','上传者','编辑者','操作者'].map(value=>[value,value]),target.permission)}${selectControl('dmDeptQuota','空间策略',['共享企业剩余可用额度','指定额度 300 GB','不分配空间'].map(value=>[value,value]),target.quota)}</div>${peoplePicker('dmManagers','部门负责人',target.managers,'可设置多人。移除原负责人只解除身份，不自动转移文件所有权。')}${peoplePicker('dmFileAdmins','文件管理员',target.fileAdmins,'负责部门公共资料库治理，不等同于部门负责人或分级管理员。')}<label class="dp-switch"><input id="dmLibrary" type="checkbox" ${target.library!=='none'?'checked':''} ${editing?'disabled':''}><span class="dp-switch-control"></span><span><strong>${editing?'部门公共资料库状态':'创建部门公共资料库'}</strong><small>${editing?'编辑部门时不会删除或补建资料库。':'创建后，当前部门全部成员均可访问。'}</small></span></label>${editing&&target.source==='MDM 同步'?'<div class="dp-note warn">该节点来自 MDM，名称、上级关系等主数据字段可能在后续同步中被覆盖。</div>':''}</div>`,`<button class="dp-btn" onclick="dmClose()">取消</button><button class="dp-btn primary" onclick="dmSaveDept('${mode}')">${editing?'保存修改':'创建部门'}</button>`);
+  }
+
+  function renderMoveDialog(item){
+    const excluded=[item.id,...descendants(item.id).map(child=>child.id)];
+    return modal('调整上级部门',`<div class="dp-definition"><div class="dp-definition-item"><label>当前部门</label><span>${esc(item.name)}</span></div><div class="dp-definition-item"><label>原上级部门</label><span>${esc(department(item.parent)?.name||'无')}</span></div></div>${treeSelect('dmMoveTarget','目标上级部门',item.parent,excluded,false,'当前部门及其全部下级节点均不可选择。')}<div class="dp-note warn" style="margin-top:14px">移动后会重新计算组织路径、管理范围继承和资料库访问，不会移动文件或转移文件所有权。</div>`,`<button class="dp-btn" onclick="dmClose()">取消</button><button class="dp-btn primary" onclick="dmMove()">确认调整</button>`,'medium');
+  }
+
+  function deletionRisks(item){
+    return [
+      ['公司节点不能按普通部门直接裁撤',item.kind==='company'],
+      [`直属下级部门：${children(item.id).length} 个`,children(item.id).length>0],
+      [`部门成员：${directMembers(item.id).length} 人`,directMembers(item.id).length>0],
+      [`部门负责人：${item.managers.length} 人`,item.managers.length>0],
+      [`分级管理员关联：${item.subAdmins.length} 人`,item.subAdmins.length>0],
+      [`文件管理员：${item.fileAdmins.length} 人`,item.fileAdmins.length>0],
+      [`部门公共资料库：${item.library==='none'?'未创建':'仍有关联'}`,item.library!=='none']
+    ];
+  }
+
+  function renderDeleteDialog(item){
+    const risks=deletionRisks(item);
+    const blocked=risks.some(risk=>risk[1]);
+    return modal(`组织裁撤：${esc(item.name)}`,`<div class="dp-note risk">组织裁撤不会删除成员账号。必须先处理下级组织、成员归属、管理身份和公共资料库。</div><div class="dp-impact">${risks.map(risk=>`<div class="dp-impact-row ${risk[1]?'block':'ok'}">${risk[1]?icon('x'):icon('check')}${esc(risk[0])}${risk[1]?'，请先处理':''}</div>`).join('')}</div>${blocked?'<div class="dp-note warn" style="margin-top:14px">当前条件不满足，确认裁撤按钮已禁用。</div>':`<label class="dp-field" style="margin-top:14px"><span class="dp-field-label">输入“${esc(item.name)}”确认</span><input class="dp-input" id="dmDeleteName" oninput="dmDeleteEnable(this.value,'${esc(item.name)}')"></label>`}`,`<button class="dp-btn" onclick="dmClose()">取消</button><button id="dmDeleteButton" class="dp-btn risk" disabled onclick="dmDelete()">确认裁撤</button>`,'medium');
+  }
+
+  function renderStatusDialog(item){
+    const stopping=item.status==='active';
+    return modal(stopping?'停用部门':'启用部门',`<div class="dp-note ${stopping?'warn':'blue'}">${stopping?'停用不是删除：组织节点、成员关系和资料库都会保留，但普通成员将暂停通过该部门访问公共资料库。':'启用后恢复部门成员对公共资料库的访问，并重新计算权限。'}</div><div class="dp-impact"><div class="dp-impact-row">影响成员：${item.kind==='company'?scopeMembers(item.id).length:directMembers(item.id).length} 人</div><div class="dp-impact-row">公共资料库：${item.library==='none'?'未创建':'保留并同步访问状态'}</div><div class="dp-impact-row">授权管理员仍可处理历史资料</div></div>`,`<button class="dp-btn" onclick="dmClose()">取消</button><button class="dp-btn ${stopping?'risk':'primary'}" onclick="dmStatus()">确认${stopping?'停用':'启用'}</button>`,'small');
+  }
+
+  function renderRolesDialog(item){
+    return modal('调整部门管理身份',`<div class="dp-form">${peoplePicker('dmRoleManagers','部门负责人',item.managers,'未选中的原负责人会解除身份，但不会自动转移文件所有权。')}${peoplePicker('dmRoleFiles','文件管理员',item.fileAdmins,'文件管理员与负责人、分级管理员相互独立。')}<div class="dp-note">分级管理员由管理员设置模块维护，本弹窗只调整部门负责人和文件管理员。</div></div>`,`<button class="dp-btn" onclick="dmClose()">取消</button><button class="dp-btn primary" onclick="dmSaveRoles()">保存身份设置</button>`);
+  }
+
+  function memberDepartmentNames(person){
+    return person.departments.length?person.departments.map(id=>department(id)?.name).filter(Boolean).join('、'):'待分配人员池';
+  }
+
+  function renderAddDialog(item){
+    const candidates=members().filter(person=>!person.departments.includes(item.id));
+    return modal(`添加成员到 ${esc(item.name)}`,`<label class="dp-search" style="margin-bottom:12px">${icon('search')}<input placeholder="搜索姓名、工号或岗位" oninput="dmCandidateSearch(this.value)"></label><input id="dmCandidate" type="hidden"><div class="dp-candidate-list" id="dmCandidateList">${candidates.map(person=>`<button type="button" class="dp-candidate" data-search="${esc(`${person.name} ${person.no} ${person.job}`.toLowerCase())}" onclick="dmCandidate(this,'${person.id}')"><span class="dp-radio"></span><span class="dp-avatar">${avatarText(person.name)}</span><span class="dp-candidate-copy"><strong>${esc(person.name)} · ${esc(person.job)}</strong><small>工号 ${esc(person.no)} · 当前：${esc(memberDepartmentNames(person))}</small></span></button>`).join('')}</div><label class="dp-switch" style="margin-top:14px"><input id="dmKeepDepartments" type="checkbox" checked><span class="dp-switch-control"></span><span><strong>保留成员原有部门</strong><small>开启后以兼岗方式加入；关闭后替换原部门并设为主部门。</small></span></label>`,`<button class="dp-btn" onclick="dmClose()">取消</button><button class="dp-btn primary" onclick="dmAddMember()">确认添加</button>`,'medium');
+  }
+
+  function renderTargetDialog(item,person,assign){
+    const defaultTarget=departments().find(dept=>dept.kind==='department'&&dept.status==='active'&&dept.id!==item?.id)?.id||'';
+    return modal(assign?'分配成员到部门':'转移成员部门',`<div class="dp-definition"><div class="dp-definition-item"><label>成员</label><span>${esc(person.name)}（${esc(person.no)}）</span></div><div class="dp-definition-item"><label>${assign?'当前归属':'原部门'}</label><span>${assign?'待分配人员池':esc(item.name)}</span></div></div>${treeSelect('dmMemberTarget','目标部门',defaultTarget,item?[item.id]:[],true,'只允许选择已启用的普通部门。')}<div class="dp-note blue" style="margin-top:14px">该操作只调整组织归属，不删除成员账号、个人空间或已有文件；资料库权限会重新计算。</div>`,`<button class="dp-btn" onclick="dmClose()">取消</button><button class="dp-btn primary" onclick="${assign?`dmAssign('${person.id}')`:`dmTransfer('${person.id}')`}">确认${assign?'分配':'转移'}</button>`,'medium');
+  }
+
+  function renderRemoveDialog(item,person){
+    const blockingRoles=memberRoles(person,item).filter(role=>role!=='分级管理员');
+    return modal('移出当前部门',`<div class="dp-note">移出部门不等于删除成员账号，也不会删除个人空间或文件。成员没有其他部门时，将进入待分配人员池。</div><div class="dp-impact"><div class="dp-impact-row">成员：${esc(person.name)}（${esc(person.no)}）</div><div class="dp-impact-row">移出部门：${esc(item.name)}</div>${blockingRoles.length?`<div class="dp-impact-row block">请先解除身份：${esc(blockingRoles.join('、'))}</div>`:'<div class="dp-impact-row ok">未发现负责人或文件管理员身份</div>'}</div>`,`<button class="dp-btn" onclick="dmClose()">取消</button><button class="dp-btn risk" ${blockingRoles.length?'disabled':''} onclick="dmRemove('${person.id}')">确认移出</button>`,'small');
+  }
+
+  function renderMemberRoleDialog(item,person){
+    return modal(`设置 ${esc(person.name)} 的部门身份`,`<div class="dp-form"><label class="dp-switch"><input id="dmMemberManager" type="checkbox" ${item.managers.includes(person.name)?'checked':''}><span class="dp-switch-control"></span><span><strong>部门负责人</strong><small>取消后解除当前部门负责人身份，不转移文件所有权。</small></span></label><label class="dp-switch"><input id="dmMemberFileAdmin" type="checkbox" ${item.fileAdmins.includes(person.name)?'checked':''}><span class="dp-switch-control"></span><span><strong>文件管理员</strong><small>负责部门公共资料库治理，不自动成为负责人。</small></span></label><div class="dp-note">身份互不自动转换，分级管理员仍由管理员设置模块维护。</div></div>`,`<button class="dp-btn" onclick="dmClose()">取消</button><button class="dp-btn primary" onclick="dmSaveMemberRole('${person.id}')">保存</button>`,'small');
+  }
+
+  function renderDialog(){
+    const dialog=model().dialog;
+    if(!dialog)return '';
+    const item=currentDepartment();
+    const person=member(dialog.payload?.memberId);
+    let content='';
+    if(dialog.type==='create'||dialog.type==='edit')content=renderDepartmentForm(dialog.type,dialog.payload);
+    else if(dialog.type==='move'&&item)content=renderMoveDialog(item);
+    else if(dialog.type==='delete'&&item)content=renderDeleteDialog(item);
+    else if(dialog.type==='status'&&item)content=renderStatusDialog(item);
+    else if(dialog.type==='roles'&&item)content=renderRolesDialog(item);
+    else if(dialog.type==='add'&&item?.kind==='department')content=renderAddDialog(item);
+    else if(dialog.type==='assign'&&person)content=renderTargetDialog(null,person,true);
+    else if(dialog.type==='transfer'&&item&&person)content=renderTargetDialog(item,person,false);
+    else if(dialog.type==='remove'&&item&&person)content=renderRemoveDialog(item,person);
+    else if(dialog.type==='memberRole'&&item&&person)content=renderMemberRoleDialog(item,person);
+    else if(dialog.type==='sync')content=modal('同步组织数据','<div class="dp-note blue">同步外部主数据中的公司、部门和成员关系。本地维护字段不会被静默覆盖，冲突项进入待处理状态。</div>','<button class="dp-btn" onclick="dmClose()">取消</button><button class="dp-btn primary" onclick="dmSync()">开始同步</button>','small');
+    return content?`<div class="dp-modal-mask" onclick="if(event.target===this)dmClose()">${content}</div>`:'';
+  }
+
+  window.adminPage=function(){
+    model();
+    if(state.adminTab==='dept')return renderPage();
+    return typeof previousAdminPage==='function'?previousAdminPage():'';
+  };
+
+  window.dmSelect=id=>{model().selected=id;model().tab='overview';model().memberQuery='';model().role='all';model().status='all';model().page=1;model().treeMenu=null;model().memberMenu=null;render()};
+  window.dmTab=tab=>{model().tab=tab;model().memberMenu=null;render()};
+  window.dmToggleNode=id=>{const index=model().expanded.indexOf(id);if(index>=0)model().expanded.splice(index,1);else model().expanded.push(id);model().treeMenu=null;render()};
+  window.dmToggleAll=()=>{const expandable=departments().filter(item=>children(item.id).length).map(item=>item.id);model().expanded=model().expanded.length>=expandable.length?[]:expandable;render()};
+
+  let treeSearchTimer=0;
+  let memberSearchTimer=0;
+  window.dmTreeSearch=value=>{clearTimeout(treeSearchTimer);treeSearchTimer=setTimeout(()=>{model().treeQuery=value;render()},90)};
+  window.dmMemberSearch=value=>{clearTimeout(memberSearchTimer);memberSearchTimer=setTimeout(()=>{model().memberQuery=value;model().page=1;render()},90)};
+
+  window.dmTreeMenu=id=>{model().selected=id;model().treeMenu=model().treeMenu===id?null:id;model().memberMenu=null;render()};
+  window.dmMemberMenu=id=>{model().memberMenu=model().memberMenu===id?null:id;model().treeMenu=null;render()};
+  window.dmFilterOpen=key=>{model().filterMenu=model().filterMenu===key?null:key;render()};
+  window.dmSetFilter=(key,value)=>{model()[key]=value;model().filterMenu=null;model().page=1;render()};
+  window.dmSort=field=>{model().sort=model().sort[0]===field?[field,model().sort[1]==='asc'?'desc':'asc']:[field,'asc'];render()};
+  window.dmPage=page=>{model().page=Math.max(1,page);render()};
+
+  window.dmOpen=(type,payload)=>{model().dialog={type,payload:payload||null};model().treeMenu=null;model().memberMenu=null;model().filterMenu=null;render()};
+  window.dmClose=()=>{model().dialog=null;render()};
+
+  window.dmHeaderMenu=event=>{
+    event.stopPropagation();
+    const item=currentDepartment();
+    const existing=document.getElementById('dpHeaderMenu');
+    if(existing){existing.remove();return}
+    const popup=document.createElement('div');
+    popup.id='dpHeaderMenu';
+    popup.className='dp-pop';
+    popup.innerHTML=`<button onclick="dmOpen('status')">${icon(item.status==='active'?'lock':'check')}<span>${item.status==='active'?'停用当前节点':'启用当前节点'}</span></button><button onclick="dmOpen('roles')">${icon('shield')}<span>管理身份</span></button><div class="dp-pop-sep"></div>${item.kind==='company'?`<button disabled>${icon('trash')}<span>公司节点不可直接裁撤</span></button>`:`<button class="risk" onclick="dmOpen('delete')">${icon('trash')}<span>组织裁撤</span></button>`}`;
+    event.currentTarget.parentElement.appendChild(popup);
+  };
+
+  window.dmSelectOpen=(event,id)=>{
+    event.stopPropagation();
+    document.querySelectorAll('.dp-select.open').forEach(node=>{if(node.id!==id)node.classList.remove('open')});
+    document.getElementById(id)?.classList.toggle('open');
+  };
+
+  window.dmChoose=(event,id,value,label)=>{
+    event.stopPropagation();
+    const input=document.getElementById(id);
+    const text=document.getElementById(id+'Text');
+    if(input)input.value=value;
+    if(text)text.textContent=label;
+    document.getElementById(id+'Wrap')?.classList.remove('open');
+  };
+
+  window.dmFilterPeople=(id,value)=>{
+    const query=String(value||'').trim().toLowerCase();
+    document.querySelectorAll(`#${id}List .dp-person-choice`).forEach(node=>{node.hidden=Boolean(query)&&!String(node.dataset.search||'').includes(query)});
+  };
+
+  window.dmPersonToggle=(id,buttonNode)=>{
+    buttonNode.classList.toggle('selected');
+    const names=[...document.querySelectorAll(`#${id}List .dp-person-choice.selected`)].map(node=>node.dataset.name);
+    const input=document.getElementById(id);
+    if(input)input.value=names.join('|');
+    const selected=document.getElementById(id+'Selected');
+    if(selected)selected.innerHTML=selectedPersonChips(names);
+    const count=document.getElementById(id+'Count');
+    if(count)count.textContent=`已选 ${names.length} 人`;
+  };
+
+  const selectedNames=id=>String(document.getElementById(id)?.value||'').split('|').filter(Boolean);
+
+  function validateDepartment(name,code,parentId,currentId){
+    if(!name)return '请输入部门名称';
+    if(!parentId&&!(currentId&&department(currentId)?.kind==='company'&&!department(currentId)?.parent))return '请选择有效的上级组织';
+    if(parentId&&!department(parentId))return '请选择有效的上级组织';
+    if(!/^[A-Z0-9_-]{2,16}$/.test(code))return '部门编码格式不正确';
+    if(departments().some(item=>item.id!==currentId&&item.parent===(parentId||null)&&item.name===name))return '同一上级组织下已存在同名部门';
+    if(departments().some(item=>item.id!==currentId&&item.code===code))return '部门编码已存在';
+    if(parentId&&currentId&&[currentId,...descendants(currentId).map(item=>item.id)].includes(parentId))return '不能移动到自身或自身下级节点';
+    return '';
+  }
+
+  window.dmSaveDept=mode=>{
+    const editing=mode==='edit';
+    const item=editing?currentDepartment():null;
+    const name=String(document.getElementById('dmDeptName')?.value||'').trim();
+    const code=String(document.getElementById('dmDeptCode')?.value||'').trim().toUpperCase();
+    const parentId=document.getElementById('dmDeptParent')?.value||null;
+    const error=validateDepartment(name,code,parentId,item?.id);
+    if(error)return toast(error,'warning');
+    const managers=selectedNames('dmManagers');
+    const fileAdmins=selectedNames('dmFileAdmins');
+    if(editing){
+      const oldName=item.name;
+      const removedManagers=item.managers.filter(person=>!managers.includes(person));
+      Object.assign(item,{name,code,parent:parentId,kind:document.getElementById('dmDeptKind').value,permission:document.getElementById('dmDeptPermission').value,quota:document.getElementById('dmDeptQuota').value,managers,fileAdmins,updated:'刚刚'});
+      model().dialog=null;
+      render();
+      toast(`部门已更新${oldName!==name&&item.library!=='none'?'；公共资料库已同步改名':''}${removedManagers.length?'；已解除 '+removedManagers.join('、')+' 的负责人身份':''}`);
+    }else{
+      const id='dept_'+Date.now();
+      const library=document.getElementById('dmLibrary').checked?'active':'none';
+      departments().push({id,parent:parentId,name,code,kind:document.getElementById('dmDeptKind').value,status:'active',source:'本地维护',permission:document.getElementById('dmDeptPermission').value,quota:document.getElementById('dmDeptQuota').value,library,managers,fileAdmins,subAdmins:[],updated:'刚刚'});
+      model().selected=id;
+      model().tab='overview';
+      model().dialog=null;
+      if(parentId&&!model().expanded.includes(parentId))model().expanded.push(parentId);
+      render();
+      toast(`部门“${name}”已创建${library==='active'?'，公共资料库已生成':''}`);
+    }
+  };
+
+  window.dmMove=()=>{
+    const item=currentDepartment();
+    const targetId=document.getElementById('dmMoveTarget')?.value;
+    if(!item||!targetId)return;
+    if([item.id,...descendants(item.id).map(child=>child.id)].includes(targetId))return toast('目标上级不能是自身或自身下级','warning');
+    if(targetId===item.parent)return toast('目标上级未发生变化','warning');
+    const oldParent=department(item.parent)?.name||'无';
+    item.parent=targetId;
+    model().dialog=null;
+    render();
+    toast(`已将“${item.name}”从“${oldParent}”移动到“${department(targetId).name}”`);
+  };
+
+  window.dmDeleteEnable=(value,name)=>{const buttonNode=document.getElementById('dmDeleteButton');if(buttonNode)buttonNode.disabled=String(value).trim()!==name};
+  window.dmDelete=()=>{
+    const item=currentDepartment();
+    if(!item||deletionRisks(item).some(risk=>risk[1]))return toast('仍存在关联内容，不能裁撤','warning');
+    const parentId=item.parent;
+    model().depts=departments().filter(dept=>dept.id!==item.id);
+    model().selected=parentId||'group';
+    model().dialog=null;
+    render();
+    toast(`部门“${item.name}”已裁撤，成员账号未删除`);
+  };
+
+  window.dmStatus=()=>{
+    const item=currentDepartment();
+    const stopping=item.status==='active';
+    item.status=stopping?'disabled':'active';
+    if(item.library!=='none')item.library=stopping?'disabled':'active';
+    model().dialog=null;
+    render();
+    toast(`部门已${stopping?'停用，普通成员资料库访问已暂停':'启用，资料库权限已重新计算'}`);
+  };
+
+  window.dmSaveRoles=()=>{
+    const item=currentDepartment();
+    const oldManagers=[...item.managers];
+    item.managers=selectedNames('dmRoleManagers');
+    item.fileAdmins=selectedNames('dmRoleFiles');
+    const removed=oldManagers.filter(name=>!item.managers.includes(name));
+    model().dialog=null;
+    render();
+    toast(`管理身份已保存${removed.length?'；已解除 '+removed.join('、')+' 的原负责人身份':''}；未转移文件所有权`);
+  };
+
+  window.dmCandidateSearch=value=>{
+    const query=String(value||'').trim().toLowerCase();
+    document.querySelectorAll('#dmCandidateList .dp-candidate').forEach(node=>{node.hidden=Boolean(query)&&!String(node.dataset.search||'').includes(query)});
+  };
+
+  window.dmCandidate=(buttonNode,id)=>{
+    document.querySelectorAll('#dmCandidateList .dp-candidate').forEach(node=>node.classList.remove('selected'));
+    buttonNode.classList.add('selected');
+    document.getElementById('dmCandidate').value=id;
+  };
+
+  window.dmAddMember=()=>{
+    const item=currentDepartment();
+    const person=member(document.getElementById('dmCandidate')?.value);
+    if(!item||item.kind!=='department'||!person)return toast('请选择要添加的成员','warning');
+    const keep=document.getElementById('dmKeepDepartments').checked;
+    if(keep){if(!person.departments.includes(item.id))person.departments.push(item.id);person.primary=person.primary||item.id}
+    else{person.departments=[item.id];person.primary=item.id}
+    model().dialog=null;
+    render();
+    toast(`已将 ${person.name} 添加到 ${item.name}${keep?'，原部门关系已保留':''}`);
+  };
+
+  window.dmAssign=id=>{
+    const person=member(id);
+    const target=department(document.getElementById('dmMemberTarget')?.value);
+    if(!person||person.departments.length||!target||target.kind!=='department'||target.status!=='active')return toast('请选择有效的目标部门','warning');
+    person.departments=[target.id];
+    person.primary=target.id;
+    model().selected=target.id;
+    model().tab='members';
+    model().dialog=null;
+    render();
+    toast(`已将 ${person.name} 分配到 ${target.name}，成员账号保持不变`);
+  };
+
+  window.dmTransfer=id=>{
+    const item=currentDepartment();
+    const person=member(id);
+    const target=department(document.getElementById('dmMemberTarget')?.value);
+    if(!item||!person||!target||target.kind!=='department'||target.status!=='active'||target.id===item.id)return toast('请选择其他已启用的普通部门','warning');
+    person.departments=person.departments.filter(deptId=>deptId!==item.id);
+    if(!person.departments.includes(target.id))person.departments.push(target.id);
+    if(person.primary===item.id||!person.primary)person.primary=target.id;
+    model().dialog=null;
+    render();
+    toast(`已将 ${person.name} 从 ${item.name} 转移到 ${target.name}，账号和个人空间保持不变`);
+  };
+
+  window.dmRemove=id=>{
+    const item=currentDepartment();
+    const person=member(id);
+    const blockingRoles=memberRoles(person,item).filter(role=>role!=='分级管理员');
+    if(blockingRoles.length)return toast('请先解除负责人或文件管理员身份','warning');
+    person.departments=person.departments.filter(deptId=>deptId!==item.id);
+    if(person.primary===item.id)person.primary=person.departments[0]||null;
+    model().dialog=null;
+    render();
+    toast(`${person.name} 已移出 ${item.name}${person.departments.length?'，其他部门关系已保留':'，现进入待分配人员池'}；成员账号未删除`);
+  };
+
+  window.dmSaveMemberRole=id=>{
+    const item=currentDepartment();
+    const person=member(id);
+    item.managers=item.managers.filter(name=>name!==person.name);
+    item.fileAdmins=item.fileAdmins.filter(name=>name!==person.name);
+    if(document.getElementById('dmMemberManager').checked)item.managers.push(person.name);
+    if(document.getElementById('dmMemberFileAdmin').checked)item.fileAdmins.push(person.name);
+    model().dialog=null;
+    render();
+    toast(`${person.name} 的部门身份已更新；未转移文件所有权`);
+  };
+
+  window.dmSync=()=>{model().dialog=null;render();toast('组织同步完成：未发现结构冲突，本地维护字段未被覆盖')};
+
+  document.addEventListener('click',event=>{
+    if(!event.target.closest('.dp-filter')&&model().filterMenu){model().filterMenu=null;render();return}
+    if(!event.target.closest('.dp-pop')&&!event.target.closest('.dp-tree-more')&&!event.target.closest('.dp-btn.icon')&&model().memberMenu){model().memberMenu=null;render();return}
+    if(!event.target.closest('.dp-tree-node')&&model().treeMenu){model().treeMenu=null;render();return}
+    if(!event.target.closest('.dp-select'))document.querySelectorAll('.dp-select.open').forEach(node=>node.classList.remove('open'));
+    const headerMenu=document.getElementById('dpHeaderMenu');
+    if(headerMenu&&!event.target.closest('#dpHeaderMenu'))headerMenu.remove();
+  });
+
+  document.addEventListener('keydown',event=>{
+    if(event.key!=='Escape')return;
+    if(model().dialog)dmClose();
+    else document.querySelectorAll('.dp-select.open').forEach(node=>node.classList.remove('open'));
+  });
+
+  injectStyles();
+  render();
 })();
