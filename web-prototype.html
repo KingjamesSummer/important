@@ -9,9 +9,17 @@ html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;backgr
 </style>
 </head>
 <body>
-<div class="loader"><strong>正在载入 GDG知识库原型…</strong><small>正在加载管理员设置新版交互与系统蓝主题</small></div>
+<div class="loader"><strong>正在载入 GDG知识库原型…</strong><small>正在加载管理中心界面</small></div>
 <script>
 (async()=>{
+  const query=new URLSearchParams(window.location.search);
+  const section=String(window.location.hash||'').replace('#','');
+  const localDepartment=query.get('console')==='admin'&&(!section||section==='dept'||section==='audit');
+  if(window.location.protocol==='file:'&&localDepartment){
+    window.location.replace('admin-dept-local.html'+window.location.search+window.location.hash);
+    return;
+  }
+
   const revision='971ebd67af097c2581fbe22d60be6df7fa8bc801';
   const sources=[
     `https://cdn.jsdelivr.net/gh/KingjamesSummer/important@${revision}/web-prototype.html`,
