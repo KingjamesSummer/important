@@ -1,1 +1,0 @@
-window.adminDeptPolishVersion='12';
