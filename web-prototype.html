@@ -9,7 +9,7 @@ html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;backgr
 </style>
 </head>
 <body>
-<div class="loader"><strong>正在载入 GDG知识库原型…</strong><small>正在加载纯蓝白、无渐变的成员管理界面</small></div>
+<div class="loader"><strong>正在载入 GDG知识库原型…</strong><small>正在加载纯蓝白、无渐变的管理中心界面</small></div>
 <script>
 (async()=>{
   const revision='1ac99de78e4af6875f73cf446f8659b074b0f68d';
@@ -25,33 +25,6 @@ html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;backgr
     }catch(error){}
   }
   if(!source)throw new Error('管理中心基础版本加载失败');
-
-  const payloadRevision='a7268de8fbd120a5d0947855bd2e7195e4d67a1b';
-  const payloadNames=[1,2,3,4,5,6].map(index=>`admin-member-console-v12.part${String(index).padStart(2,'0')}.txt`);
-  const loadPayloadPart=async name=>{
-    const urls=[
-      `assets/${name}`,
-      `https://cdn.jsdelivr.net/gh/KingjamesSummer/important@${payloadRevision}/assets/${name}`,
-      `https://raw.githubusercontent.com/KingjamesSummer/important/${payloadRevision}/assets/${name}`
-    ];
-    for(const url of urls){
-      try{
-        const response=await fetch(url,{cache:'no-store'});
-        if(response.ok)return (await response.text()).trim();
-      }catch(error){}
-    }
-    throw new Error(`成员管理资源加载失败：${name}`);
-  };
-  const memberV12Base64=(await Promise.all(payloadNames.map(loadPayloadPart))).join('');
-  const memberV12Compressed=Uint8Array.from(atob(memberV12Base64),char=>char.charCodeAt(0));
-  const memberV12Stream=new Blob([memberV12Compressed]).stream().pipeThrough(new DecompressionStream('gzip'));
-  const memberV12Patch=await new Response(memberV12Stream).text();
-  const memberV12Separator='/*__MEMBER_V12_SCRIPT__*/';
-  const memberV12SplitAt=memberV12Patch.indexOf(memberV12Separator);
-  if(memberV12SplitAt<0)throw new Error('成员管理资源结构不完整');
-  const memberV12Styles=memberV12Patch.slice(0,memberV12SplitAt);
-  const memberV12ScriptSource=memberV12Patch.slice(memberV12SplitAt+memberV12Separator.length);
-  const memberV12ScriptTag='<scr'+'ipt>'+memberV12ScriptSource.replace(/<\/script/gi,'<\\/script')+'</scr'+'ipt>';
 
   const systemBlueTheme=`<style id="admin-system-blue-v4">
 body.admin-console-v2{background:#fff!important}
@@ -97,14 +70,14 @@ body.admin-console-v2 .admin-shell-brand .gdg-brand-v4:before,body.admin-console
 </style>`;
 
   const styleNeedle="  const memberStyles=memberPatch.slice(0,splitAt);";
-  const styleReplacement="  const memberStyles=memberPatch.slice(0,splitAt)+"+JSON.stringify(systemBlueTheme+memberV12Styles)+";";
+  const styleReplacement="  const memberStyles=memberPatch.slice(0,splitAt)+"+JSON.stringify(systemBlueTheme)+";";
   if(!source.includes(styleNeedle))throw new Error('管理中心样式补丁结构不兼容');
   source=source.replace(styleNeedle,styleReplacement);
 
   const oldOrder="    \"  html=html.replace('</body>','<scr'+'ipt src=\\\"assets/admin-dept-console-v1.js?v=1\\\"></scr'+'ipt>'+memberAdminScript+'</body>');\\n\";";
   const scriptSequence='<scr'+'ipt src="assets/admin-dept-console-v2.js?v=2"></scr'+'ipt><scr'+'ipt src="assets/public-shell-v1.js?v=3"></scr'+'ipt><scr'+'ipt src="assets/public-shell-hotfix-v1.js?v=2"></scr'+'ipt><scr'+'ipt src="assets/admin-grant-polish-v2.js?v=2"></scr'+'ipt><scr'+'ipt src="assets/admin-shell-hotfix-v1.js?v=2"></scr'+'ipt><scr'+'ipt src="assets/admin-sunny-theme-v1.js?v=1"></scr'+'ipt><scr'+'ipt src="assets/admin-dept-console-v11.js?v=3"></scr'+'ipt>';
   const scriptSuffix='<scr'+'ipt src="assets/admin-dept-console-v12.js?v=1"></scr'+'ipt>';
-  const injectedBodyLine="  html=html.replace('</body>',"+JSON.stringify(scriptSequence)+"+memberAdminScript+"+JSON.stringify(scriptSuffix+memberV12ScriptTag)+"+'</body>');\n";
+  const injectedBodyLine="  html=html.replace('</body>',"+JSON.stringify(scriptSequence)+"+memberAdminScript+"+JSON.stringify(scriptSuffix)+"+'</body>');\n";
   const newOrder='    '+JSON.stringify(injectedBodyLine)+';';
   if(!source.includes(oldOrder))throw new Error('管理中心脚本顺序补丁结构不兼容');
   source=source.replace(oldOrder,newOrder);
