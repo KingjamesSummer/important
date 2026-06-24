@@ -3,78 +3,35 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>GDG知识库｜智能知识库管理平台高保真交互原型</title>
+<title>GDG知识库｜管理中心</title>
 <style>
 html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;background:#fff;color:#315a84;font-family:Inter,"PingFang SC","Microsoft YaHei",sans-serif}.loader{padding:22px 26px;border:1px solid #d5e9ff;border-radius:14px;background:#fff;box-shadow:0 16px 46px rgba(23,105,255,.09)}.loader strong{display:block;color:#12345d;margin-bottom:7px}.loader small{color:#5f80a0;line-height:1.6}
 </style>
 </head>
 <body>
-<div class="loader"><strong>正在载入 GDG知识库原型…</strong><small>正在加载管理中心界面</small></div>
+<div class="loader"><strong>正在进入管理中心</strong><small id="routeHint">正在读取本地模块</small></div>
 <script>
-(async()=>{
+(()=>{
   const query=new URLSearchParams(window.location.search);
   const section=String(window.location.hash||'').replace('#','');
-  const departmentRoute=query.get('console')==='admin'&&(!section||section==='dept'||section==='audit');
-  const memberRoute=query.get('console')==='admin'&&section==='member';
-  const grantRoute=query.get('console')==='admin'&&section==='grant';
+  const isAdmin=query.get('console')==='admin';
+  let target='admin-member-local.html?console=admin#member';
+  let label='成员管理';
 
-  if(memberRoute){
-    const hint=document.querySelector('.loader small');
-    if(hint)hint.textContent='正在进入成员管理工作台';
-    window.location.replace('admin-member-local.html'+window.location.search+window.location.hash);
-    return;
+  if(isAdmin&&(section==='dept'||section==='audit')){
+    target='admin-dept-local.html'+window.location.search+window.location.hash;
+    label=section==='audit'?'治理与审计':'部门管理';
+  }else if(isAdmin&&(section==='grant'||section==='security')){
+    target='admin-grant-local.html'+window.location.search+window.location.hash;
+    label=section==='security'?'安全配置':'管理员设置';
+  }else if(isAdmin&&section==='member'){
+    target='admin-member-local.html'+window.location.search+window.location.hash;
   }
 
-  if(window.location.protocol==='file:'&&departmentRoute){
-    window.location.replace('admin-dept-local.html'+window.location.search+window.location.hash);
-    return;
-  }
-
-  if(window.location.protocol==='file:'&&grantRoute){
-    const hint=document.querySelector('.loader small');
-    if(hint)hint.textContent='正在进入管理员设置安全预览';
-    window.location.replace('admin-grant-local.html'+window.location.search+window.location.hash);
-    return;
-  }
-
-  if(window.location.protocol==='file:'){
-    const hint=document.querySelector('.loader small');
-    if(hint)hint.textContent='正在进入本地成员管理工作台';
-    window.location.replace('admin-member-local.html?console=admin#member');
-    return;
-  }
-
-  const revision='971ebd67af097c2581fbe22d60be6df7fa8bc801';
-  const sources=[
-    `https://cdn.jsdelivr.net/gh/KingjamesSummer/important@${revision}/web-prototype.html`,
-    `https://raw.githubusercontent.com/KingjamesSummer/important/${revision}/web-prototype.html`
-  ];
-  let source='';
-  for(const url of sources){
-    try{
-      const response=await fetch(url,{cache:'no-store'});
-      if(response.ok){source=await response.text();break}
-    }catch(error){}
-  }
-  if(!source)throw new Error('管理中心基础版本加载失败');
-
-  const adminWorkspaceTag='<scr'+'ipt src="assets/admin-grant-workspace.js?v=20260624"></scr'+'ipt>';
-  const loadCheck="  if(!source)throw new Error('检索模块基础版本加载失败');";
-  const versionLine="  source=source.split('assets/admin-grant-polish-v2.js?v=2').join('assets/admin-grant-polish-v2.js?v=3');";
-  const enterpriseLine="  source=source.replace(/assets\\/enterprise-space-v2\\.js\\?v=\\d+/g,'assets/enterprise-space-bundle-v1.js?v=1');";
-  const deptVersionLine="  source=source.split('assets/admin-dept-console-v12.js?v=3').join('assets/admin-dept-console-v12.js?v=5');";
-  if(!source.includes(loadCheck))throw new Error('管理中心脚本挂载点不兼容');
-  source=source.replace(loadCheck,loadCheck+'\n'+versionLine+'\n'+enterpriseLine+'\n'+deptVersionLine);
-
-  if(!source.includes('</body>'))throw new Error('管理中心挂载点不兼容');
-  source=source.replace('</body>',adminWorkspaceTag+'</body>');
-
-  document.open();
-  document.write(source);
-  document.close();
-})().catch(error=>{
-  document.body.innerHTML='<div class="loader"><strong>原型载入失败</strong><small>'+String(error.message||error)+'</small></div>';
-});
+  const hint=document.getElementById('routeHint');
+  if(hint)hint.textContent=`正在进入本地${label}页面`;
+  window.location.replace(target);
+})();
 </script>
 </body>
 </html>
