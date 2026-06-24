@@ -1,12 +1,15 @@
 /* Administrator settings workspace 2026.06.24 — scoped to admin/grant; no gradients. */
 (async()=>{
   try{
-    const revision='778d0580ca085b52c0c4377540642a279dac3806';
+    const fallbackRevision='778d0580ca085b52c0c4377540642a279dac3806';
     const names=[1,2,3,4,5,6].map(i=>`admin-grant-workspace-src.part${String(i).padStart(2,'0')}.txt`);
     const read=async name=>{
       const urls=[
-        `https://cdn.jsdelivr.net/gh/KingjamesSummer/important@${revision}/assets/${name}`,
-        `https://raw.githubusercontent.com/KingjamesSummer/important/${revision}/assets/${name}`
+        `assets/${name}?v=20260624-2`,
+        `https://cdn.jsdelivr.net/gh/KingjamesSummer/important@main/assets/${name}?v=20260624-2`,
+        `https://raw.githubusercontent.com/KingjamesSummer/important/main/assets/${name}`,
+        `https://cdn.jsdelivr.net/gh/KingjamesSummer/important@${fallbackRevision}/assets/${name}`,
+        `https://raw.githubusercontent.com/KingjamesSummer/important/${fallbackRevision}/assets/${name}`
       ];
       for(const url of urls){
         try{
