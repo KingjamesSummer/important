@@ -3,9 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; url=web-prototype.html">
 <title>正在进入智汇云知工作台</title>
-<style>html,body{height:100%;margin:0}body{display:grid;place-items:center;background:#edf3f6;color:#5f7386;font-family:Inter,"PingFang SC","Microsoft YaHei",sans-serif}a{color:#496f8a}</style>
+<style>
+html,body{height:100%;margin:0}body{display:grid;place-items:center;background:#fff;color:#5f7386;font-family:Inter,"PingFang SC","Microsoft YaHei",sans-serif}.loading{padding:20px 24px;border:1px solid #dce7f3;border-radius:12px;background:#fff}.loading strong{display:block;color:#173b5e;margin-bottom:6px}.loading small{color:#7d90a3}
+</style>
 </head>
-<body><p>正在进入完整 Web 原型；未自动跳转时，请<a href="web-prototype.html">点击这里</a>。</p></body>
+<body>
+<div class="loading"><strong>正在进入智汇云知工作台</strong><small>本地预览将进入成员管理模块</small></div>
+<script>
+const target=window.location.protocol==='file:'
+  ? 'web-prototype.html?console=admin#member'
+  : 'web-prototype.html';
+window.location.replace(target);
+</script>
+</body>
 </html>
