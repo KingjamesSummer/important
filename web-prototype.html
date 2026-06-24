@@ -9,30 +9,32 @@ html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;backgr
 </style>
 </head>
 <body>
-<div class="loader"><strong>正在载入 GDG知识库原型…</strong><small>正在加载成员管理工作台</small></div>
+<div class="loader"><strong>正在载入 GDG知识库原型…</strong><small>正在加载管理中心界面</small></div>
 <script>
 (async()=>{
   const query=new URLSearchParams(window.location.search);
   const section=String(window.location.hash||'').replace('#','');
-  const localDepartment=query.get('console')==='admin'&&(!section||section==='dept'||section==='audit');
-  const localMember=query.get('console')==='admin'&&section==='member';
-  if(window.location.protocol==='file:'&&localDepartment){
-    window.location.replace('admin-dept-local.html'+window.location.search+window.location.hash);
-    return;
-  }
-  if(window.location.protocol==='file:'&&localMember){
+  const departmentRoute=query.get('console')==='admin'&&(!section||section==='dept'||section==='audit');
+  const memberRoute=query.get('console')==='admin'&&section==='member';
+
+  if(memberRoute){
     const hint=document.querySelector('.loader small');
-    if(hint)hint.textContent='正在进入本地成员管理工作台';
+    if(hint)hint.textContent='正在进入成员管理工作台';
     window.location.replace('admin-member-local.html'+window.location.search+window.location.hash);
     return;
   }
+
+  if(window.location.protocol==='file:'&&departmentRoute){
+    window.location.replace('admin-dept-local.html'+window.location.search+window.location.hash);
+    return;
+  }
+
   if(window.location.protocol==='file:'){
     const safePreview=new URL('https://cdn.jsdelivr.net/gh/KingjamesSummer/important@75624a04452ef6b3b64218a8ea2fac76ded7411f/web-prototype.html');
     query.forEach((value,key)=>safePreview.searchParams.append(key,value));
-    safePreview.searchParams.set('_memberLocal','20260624-2');
     safePreview.hash=window.location.hash;
     const hint=document.querySelector('.loader small');
-    if(hint)hint.textContent='正在切换到 HTTPS 安全预览，避免本地文件跨域限制';
+    if(hint)hint.textContent='正在切换到 HTTPS 安全预览';
     window.location.replace(safePreview.href);
     return;
   }
@@ -49,46 +51,18 @@ html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;backgr
       if(response.ok){source=await response.text();break}
     }catch(error){}
   }
-  if(!source)throw new Error('管理员设置基础版本加载失败');
+  if(!source)throw new Error('管理中心基础版本加载失败');
 
-  const payloadRevision='a7268de8fbd120a5d0947855bd2e7195e4d67a1b';
-  const payloadNames=[1,2,3,4,5,6].map(index=>`admin-member-console-v12.part${String(index).padStart(2,'0')}.txt`);
-  const loadPayloadPart=async name=>{
-    const urls=[
-      `assets/${name}`,
-      `https://cdn.jsdelivr.net/gh/KingjamesSummer/important@${payloadRevision}/assets/${name}`,
-      `https://raw.githubusercontent.com/KingjamesSummer/important/${payloadRevision}/assets/${name}`
-    ];
-    for(const url of urls){
-      try{
-        const response=await fetch(url,{cache:'no-store'});
-        if(response.ok)return (await response.text()).trim();
-      }catch(error){}
-    }
-    throw new Error(`成员管理资源加载失败：${name}`);
-  };
-  const memberBase64=(await Promise.all(payloadNames.map(loadPayloadPart))).join('');
-  const memberCompressed=Uint8Array.from(atob(memberBase64),char=>char.charCodeAt(0));
-  const memberStream=new Blob([memberCompressed]).stream().pipeThrough(new DecompressionStream('gzip'));
-  const memberPatch=await new Response(memberStream).text();
-  const memberSeparator='/*__MEMBER_V12_SCRIPT__*/';
-  const memberSplitAt=memberPatch.indexOf(memberSeparator);
-  if(memberSplitAt<0)throw new Error('成员管理资源结构不完整');
-  const memberStyles=memberPatch.slice(0,memberSplitAt);
-  const memberScriptSource=memberPatch.slice(memberSplitAt+memberSeparator.length);
-  const memberScriptTag='<scr'+'ipt>'+memberScriptSource.replace(/<\/script/gi,'<\\/script')+'</scr'+'ipt>';
   const adminWorkspaceTag='<scr'+'ipt src="assets/admin-grant-workspace.js?v=20260624"></scr'+'ipt>';
-
   const loadCheck="  if(!source)throw new Error('检索模块基础版本加载失败');";
   const versionLine="  source=source.split('assets/admin-grant-polish-v2.js?v=2').join('assets/admin-grant-polish-v2.js?v=3');";
   const enterpriseLine="  source=source.replace(/assets\\/enterprise-space-v2\\.js\\?v=\\d+/g,'assets/enterprise-space-bundle-v1.js?v=1');";
   const deptVersionLine="  source=source.split('assets/admin-dept-console-v12.js?v=3').join('assets/admin-dept-console-v12.js?v=5');";
-  if(!source.includes(loadCheck))throw new Error('管理员设置脚本挂载点不兼容');
+  if(!source.includes(loadCheck))throw new Error('管理中心脚本挂载点不兼容');
   source=source.replace(loadCheck,loadCheck+'\n'+versionLine+'\n'+enterpriseLine+'\n'+deptVersionLine);
 
-  if(!source.includes('</head>')||!source.includes('</body>'))throw new Error('成员管理挂载点不兼容');
-  source=source.replace('</head>',memberStyles+'</head>');
-  source=source.replace('</body>',adminWorkspaceTag+memberScriptTag+'</body>');
+  if(!source.includes('</body>'))throw new Error('管理中心挂载点不兼容');
+  source=source.replace('</body>',adminWorkspaceTag+'</body>');
 
   document.open();
   document.write(source);
