@@ -20,9 +20,9 @@ html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;backgr
     return;
   }
   if(window.location.protocol==='file:'){
-    const safePreview=new URL('https://cdn.jsdelivr.net/gh/KingjamesSummer/important@main/web-prototype.html');
+    const safePreview=new URL('https://cdn.jsdelivr.net/gh/KingjamesSummer/important@75624a04452ef6b3b64218a8ea2fac76ded7411f/web-prototype.html');
     query.forEach((value,key)=>safePreview.searchParams.append(key,value));
-    safePreview.searchParams.set('_memberLocal','20260624-1');
+    safePreview.searchParams.set('_memberLocal','20260624-2');
     safePreview.hash=window.location.hash;
     const hint=document.querySelector('.loader small');
     if(hint)hint.textContent='正在切换到 HTTPS 安全预览，避免本地文件跨域限制';
