@@ -75,7 +75,7 @@ html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;backgr
   const loadCheck="  if(!source)throw new Error('检索模块基础版本加载失败');";
   const versionLine="  source=source.split('assets/admin-grant-polish-v2.js?v=2').join('assets/admin-grant-polish-v2.js?v=3');";
   const enterpriseLine="  source=source.replace(/assets\\/enterprise-space-v2\\.js\\?v=\\d+/g,'assets/enterprise-space-bundle-v1.js?v=1');";
-  const deptVersionLine="  source=source.split('assets/admin-dept-console-v12.js?v=3').join('assets/admin-dept-console-v12.js?v=4');";
+  const deptVersionLine="  source=source.split('assets/admin-dept-console-v12.js?v=3').join('assets/admin-dept-console-v12.js?v=5');";
   if(!source.includes(loadCheck))throw new Error('管理员设置脚本挂载点不兼容');
   source=source.replace(loadCheck,loadCheck+'\n'+versionLine+'\n'+enterpriseLine+'\n'+deptVersionLine);
 
