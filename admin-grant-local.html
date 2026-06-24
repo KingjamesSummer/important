@@ -9,10 +9,10 @@
 <body>
 <div class="box"><strong>正在进入管理员设置工作台…</strong><small>正在切换到 HTTPS 安全预览，避免本地文件跨域限制</small></div>
 <script>
-const target=new URL('https://cdn.jsdelivr.net/gh/KingjamesSummer/important@ba8ca1eac344c3df1c9a7f676357d2d51bf90eaf/web-prototype.html');
+const target=new URL('https://cdn.jsdelivr.net/gh/KingjamesSummer/important@624df41cb30b246f15b4901218efb59c6d3b57b4/web-prototype.html');
 const query=new URLSearchParams(location.search);
 query.forEach((value,key)=>target.searchParams.append(key,value));
-target.searchParams.set('_adminGrantLocal','20260624-1');
+target.searchParams.set('_adminGrantLocal','20260624-2');
 target.hash='#grant';
 location.replace(target.href);
 </script>
