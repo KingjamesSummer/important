@@ -68,6 +68,7 @@ html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;backgr
   const memberStyles=memberPatch.slice(0,memberSplitAt);
   const memberScriptSource=memberPatch.slice(memberSplitAt+memberSeparator.length);
   const memberScriptTag='<scr'+'ipt>'+memberScriptSource.replace(/<\/script/gi,'<\\/script')+'</scr'+'ipt>';
+  const adminWorkspaceTag='<scr'+'ipt src="assets/admin-grant-workspace.js?v=20260624"></scr'+'ipt>';
 
   const loadCheck="  if(!source)throw new Error('检索模块基础版本加载失败');";
   const versionLine="  source=source.split('assets/admin-grant-polish-v2.js?v=2').join('assets/admin-grant-polish-v2.js?v=3');";
@@ -78,7 +79,7 @@ html,body{margin:0;width:100%;height:100%;display:grid;place-items:center;backgr
 
   if(!source.includes('</head>')||!source.includes('</body>'))throw new Error('成员管理挂载点不兼容');
   source=source.replace('</head>',memberStyles+'</head>');
-  source=source.replace('</body>',memberScriptTag+'</body>');
+  source=source.replace('</body>',memberScriptTag+adminWorkspaceTag+'</body>');
 
   document.open();
   document.write(source);
