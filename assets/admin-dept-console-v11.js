@@ -119,3 +119,16 @@ body.admin-console-v2 .org-final-panel,body.admin-console-v2 .org-final-panel *{
   if(app)new MutationObserver(enhance).observe(app,{childList:true,subtree:true});
   enhance();
 })();
+
+/* Load the audit module after member and department patches have finished installing. */
+(function(){
+  if(window.__adminAuditLoaderV1)return;
+  window.__adminAuditLoaderV1=true;
+  window.setTimeout(function(){
+    if(document.getElementById('admin-audit-console-v1-loader'))return;
+    const script=document.createElement('script');
+    script.id='admin-audit-console-v1-loader';
+    script.src='assets/admin-audit-console-v1.js?v=1';
+    document.head.appendChild(script);
+  },0);
+})();
