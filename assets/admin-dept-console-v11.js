@@ -129,6 +129,17 @@ body.admin-console-v2 .org-final-panel,body.admin-console-v2 .org-final-panel *{
     const script=document.createElement('script');
     script.id='admin-audit-console-v1-loader';
     script.src='assets/admin-audit-console-v1.js?v=1';
+    script.onload=function(){
+      if(window.__adminAuditBreadcrumbV1)return;
+      window.__adminAuditBreadcrumbV1=true;
+      const previousBreadcrumb=window.breadcrumb;
+      window.breadcrumb=function(){
+        if(typeof state!=='undefined'&&state.page==='admin'&&state.adminTab==='audit'){
+          return '<div class="breadcrumb"><span>GDG知识库</span><span class="sep">/</span><span>管理中心</span><span class="sep">/</span><b>日志审计</b></div>';
+        }
+        return typeof previousBreadcrumb==='function'?previousBreadcrumb():'';
+      };
+    };
     document.head.appendChild(script);
   },0);
 })();
