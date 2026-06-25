@@ -1,0 +1,43 @@
+name: Build authoritative web prototype
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/flatten-authoritative-prototype.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: authoritative-web-prototype
+  cancel-in-progress: false
+
+jobs:
+  flatten-and-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out complete repository history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build the direct authoritative HTML
+        run: node tools/flatten-prototype/build-authoritative.mjs . web-prototype.html
+
+      - name: Validate scripts, modules and forbidden loaders
+        run: node tools/flatten-prototype/validate-authoritative.mjs web-prototype.html
+
+      - name: Commit the repaired main prototype
+        run: |
+          if git diff --quiet -- web-prototype.html; then
+            echo "web-prototype.html is already authoritative."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web-prototype.html
+          git commit -m "fix: flatten web prototype into authoritative source"
+          git push origin HEAD:main
