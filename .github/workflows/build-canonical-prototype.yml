@@ -1,0 +1,106 @@
+name: Build canonical web prototype
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/build-canonical-prototype.yml
+      - tools/build-canonical-prototype.mjs
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: canonical-prototype-main
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.event_name == 'workflow_dispatch' || github.event.head_commit.message == 'chore: run one-time canonical prototype build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install build dependencies
+        run: |
+          npm install --no-save \
+            playwright@1.55.0 \
+            cheerio@1.0.0 \
+            postcss@8.5.6 \
+            cssnano@7.1.0 \
+            @babel/parser@7.28.0 \
+            @babel/traverse@7.28.0 \
+            @babel/generator@7.28.0 \
+            terser@5.43.1
+          npx playwright install --with-deps chromium
+
+      - name: Apply runner compatibility fix
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('tools/build-canonical-prototype.mjs')
+          s = p.read_text(encoding='utf-8')
+          old = """  for (const locator of candidates) {
+              try {
+                const target = locator.filter({ visible: true }).first();
+                if (await target.count()) {
+                  await target.click({ timeout: 2500 });
+                  await page.waitForTimeout(700);
+                  return true;
+                }
+              } catch {}
+            }
+          """
+          new = """  for (const locator of candidates) {
+              try {
+                const count = await locator.count();
+                for (let index = 0; index < Math.min(count, 12); index += 1) {
+                  const target = locator.nth(index);
+                  if (!await target.isVisible()) continue;
+                  await target.click({ timeout: 2500 });
+                  await page.waitForTimeout(700);
+                  return true;
+                }
+              } catch {}
+            }
+          """
+          if old not in s:
+              raise SystemExit('Playwright compatibility patch target not found')
+          p.write_text(s.replace(old, new), encoding='utf-8')
+          PY
+
+      - name: Build and validate authoritative prototype
+        run: node tools/build-canonical-prototype.mjs
+
+      - name: Upload generated prototype
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: canonical-web-prototype
+          path: web-prototype.html
+          retention-days: 7
+
+      - name: Commit canonical source to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web-prototype.html
+          if git diff --cached --quiet; then
+            echo "No canonical source changes to commit."
+            exit 0
+          fi
+          git commit -m "refactor: make web prototype canonical"
+          git pull --rebase origin main
+          git push origin HEAD:main
