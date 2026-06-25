@@ -17,7 +17,7 @@ jobs:
   build:
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'issues' && github.event.issue.title == '[temporary] Run canonical prototype build')
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
 
     steps:
       - name: Report start
@@ -82,13 +82,13 @@ jobs:
 
           browser_old = "chromium.launch({ headless: true })"
           browser_new = "chromium.launch({ headless: true, ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {}), args: ['--no-sandbox', '--disable-dev-shm-usage'] })"
-          count = s.count(browser_old)
-          if count < 1:
+          browser_count = s.count(browser_old)
+          if browser_count < 1:
               raise SystemExit('Browser launch target not found')
           s = s.replace(browser_old, browser_new)
 
-          pattern = re.compile(r"  const result = await minify\(combined, \{[\s\S]*?\n  \}\);\n  return canonicalNames\(result\.code \|\| combined\);", re.M)
-          replacement = """  parse(combined, {
+          minify_pattern = re.compile(r"  const result = await minify\(combined, \{[\s\S]*?\n  \}\);\n  return canonicalNames\(result\.code \|\| combined\);", re.M)
+          minify_replacement = """  parse(combined, {
             sourceType: 'script',
             allowAwaitOutsideFunction: true,
             allowReturnOutsideFunction: true,
@@ -96,12 +96,53 @@ jobs:
             plugins: ['optionalChaining', 'nullishCoalescingOperator', 'classProperties', 'topLevelAwait']
           });
           return canonicalNames(combined);"""
-          s, replaced = pattern.subn(replacement, s, count=1)
-          if replaced != 1:
+          s, minify_count = minify_pattern.subn(minify_replacement, s, count=1)
+          if minify_count != 1:
               raise SystemExit('Minifier replacement target not found')
 
+          main_pattern = re.compile(r"async function main\(\) \{[\s\S]*?\n\}\n\nmain\(\)\.catch", re.M)
+          main_replacement = """async function main() {
+            if (!fsSync.existsSync(ENTRY)) throw new Error('web-prototype.html not found');
+            const { server, origin } = await startServer();
+            try {
+              const pageUrl = `${origin}/web-prototype.html`;
+              const staticPage = { content: async () => fs.readFile(ENTRY, 'utf8') };
+              const result = await buildFromPage(staticPage, pageUrl);
+              assertStaticContract(result.output);
+              await fs.writeFile(ENTRY, result.output, 'utf8');
+              console.log(`Canonicalized ${result.cssParts} style sources and ${result.jsParts} script sources.`);
+              await validateGenerated(origin);
+              console.log('Canonical prototype validation passed.');
+            } finally {
+              await new Promise(resolve => server.close(resolve));
+            }
+          }
+
+          main().catch"""
+          s, main_count = main_pattern.subn(main_replacement, s, count=1)
+          if main_count != 1:
+              raise SystemExit('Main function replacement target not found')
+
+          route_marker = "  await page.goto(`${origin}/web-prototype.html?canonical-validation=1`, { waitUntil: 'domcontentloaded', timeout: 120000 });"
+          route_insert = """  await page.route('**/*', async route => {
+            const request = route.request();
+            try {
+              const url = new URL(request.url());
+              if (url.origin !== origin && ['script', 'stylesheet', 'font', 'image'].includes(request.resourceType())) {
+                await route.abort();
+                return;
+              }
+            } catch {}
+            await route.continue();
+          });
+
+          await page.goto(`${origin}/web-prototype.html?canonical-validation=1`, { waitUntil: 'domcontentloaded', timeout: 60000 });"""
+          if route_marker not in s:
+              raise SystemExit('Validation route insertion target not found')
+          s = s.replace(route_marker, route_insert, 1)
+
           p.write_text(s, encoding='utf-8')
-          print(f'Prepared compiler: browser launches={count}, minifier replacements={replaced}')
+          print(f'Prepared compiler: browser={browser_count}, minifier={minify_count}, main={main_count}')
           PY
 
       - name: Build and validate authoritative prototype
@@ -153,7 +194,7 @@ jobs:
           script: |
             const fs = require('fs');
             let log = 'No build log was produced.';
-            if (fs.existsSync('canonical-build.log')) log = fs.readFileSync('canonical-build.log', 'utf8').slice(-9000);
+            if (fs.existsSync('canonical-build.log')) log = fs.readFileSync('canonical-build.log', 'utf8').slice(-10000);
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
