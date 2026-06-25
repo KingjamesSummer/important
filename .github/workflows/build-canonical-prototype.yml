@@ -17,7 +17,7 @@ jobs:
   build:
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'issues' && github.event.issue.title == '[temporary] Run canonical prototype build')
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 6
 
     steps:
       - name: Report start
@@ -29,7 +29,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: 'Lightweight canonical finalizer started.'
+              body: 'Deterministic canonical finalizer started.'
             });
 
       - name: Checkout main
@@ -54,14 +54,11 @@ jobs:
         run: |
           set -o pipefail
           CHROME_PATH="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser || true)"
-          if [ -z "$CHROME_PATH" ]; then
-            echo "No preinstalled Chrome/Chromium found." | tee -a canonical-build.log
-            exit 1
-          fi
+          test -n "$CHROME_PATH"
           echo "CHROME_PATH=$CHROME_PATH" >> "$GITHUB_ENV"
           echo "Browser: $CHROME_PATH" | tee -a canonical-build.log
 
-      - name: Prepare semantic authoritative finalizer
+      - name: Prepare finalizer
         shell: bash
         run: |
           set -o pipefail
@@ -73,12 +70,12 @@ jobs:
           s = p.read_text(encoding='utf-8')
 
           marker = "const REPLACEMENTS = ["
-          semantic = """const REPLACEMENTS = [
-            [/public-shell-hotfix(?:-v\\d+)?/gi, 'public-shell-refinement'],
-            [/admin-shell-hotfix(?:-v\\d+)?/gi, 'admin-shell-refinement'],
-            [/admin-grant-polish(?:-v\\d+)?/gi, 'admin-grant-refinement'],
-            [/admin-dept-console-v\\d+/gi, 'admin-department'],
-            [/admin-dept-polish-v\\d+/gi, 'admin-department-refinement'],
+          semantic = r"""const REPLACEMENTS = [
+            [/public-shell-hotfix(?:-v\d+)?/gi, 'public-shell-refinement'],
+            [/admin-shell-hotfix(?:-v\d+)?/gi, 'admin-shell-refinement'],
+            [/admin-grant-polish(?:-v\d+)?/gi, 'admin-grant-refinement'],
+            [/admin-dept-console-v\d+/gi, 'admin-department'],
+            [/admin-dept-polish-v\d+/gi, 'admin-department-refinement'],
             [/__personalSpaceV8Loaded/g, '__personalCoreReady'],
             [/__personalSpaceV9Loaded/g, '__personalNavigationReady'],
             [/__personalSpaceV10Loaded/g, '__personalDetailsReady'],
@@ -99,19 +96,114 @@ jobs:
               raise SystemExit('Replacement marker not found')
           s = s.replace(marker, semantic, 1)
 
-          pattern = re.compile(r"function removeVersionScaffolding\(code\) \{[\s\S]*?\n\}", re.M)
-          s, count = pattern.subn("function removeVersionScaffolding(code) { return code; }", s, count=1)
-          if count != 1:
+          s, guard_count = re.subn(
+              r"function removeVersionScaffolding\(code\) \{[\s\S]*?\n\}",
+              "function removeVersionScaffolding(code) { return code; }",
+              s,
+              count=1,
+          )
+          if guard_count != 1:
               raise SystemExit('Version scaffolding function not found')
 
+          validation = r'''async function validateInBrowser(origin) {
+            const executablePath = process.env.CHROME_PATH || undefined;
+            const browser = await chromium.launch({ headless: true, executablePath, args: ['--no-sandbox', '--disable-dev-shm-usage'] });
+            const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+            const errors = [];
+            const localCodeRequests = [];
+            try {
+              page.on('pageerror', error => errors.push(`pageerror: ${error.message}`));
+              page.on('console', message => { if (message.type() === 'error') errors.push(`console: ${message.text()}`); });
+              page.on('request', request => {
+                try {
+                  const url = new URL(request.url());
+                  if (url.origin === origin && /\.(?:js|css)$/i.test(url.pathname)) localCodeRequests.push(url.href);
+                } catch {}
+              });
+              await page.route('**/*', async route => {
+                const request = route.request();
+                try {
+                  const url = new URL(request.url());
+                  if (url.origin !== origin) {
+                    if (request.resourceType() === 'script') {
+                      const stub = url.href.includes('anime')
+                        ? 'window.anime=function(){return {pause(){},play(){}}};window.anime.timeline=function(){return {add(){return this}}};'
+                        : '';
+                      await route.fulfill({ status: 200, contentType: 'application/javascript', body: stub });
+                      return;
+                    }
+                    if (request.resourceType() === 'stylesheet') {
+                      await route.fulfill({ status: 200, contentType: 'text/css', body: '' });
+                      return;
+                    }
+                    if (['font', 'image'].includes(request.resourceType())) {
+                      await route.abort();
+                      return;
+                    }
+                  }
+                } catch {}
+                await route.continue();
+              });
+
+              await page.goto(`${origin}/web-prototype.html`, { waitUntil: 'domcontentloaded', timeout: 20000 });
+              await page.waitForFunction(() => document.querySelector('#app') && document.body.innerText.length > 100, null, { timeout: 10000 });
+
+              const clickText = async text => page.evaluate(label => {
+                const normalize = value => String(value || '').replace(/\s+/g, ' ').trim();
+                const visible = element => {
+                  const style = getComputedStyle(element);
+                  const rect = element.getBoundingClientRect();
+                  return style.display !== 'none' && style.visibility !== 'hidden' && rect.width > 0 && rect.height > 0;
+                };
+                const nodes = [...document.querySelectorAll('button,a,[role="button"],.nav-item,.menu-item,.admin-menu button')];
+                const target = nodes.find(node => visible(node) && normalize(node.textContent) === label)
+                  || nodes.find(node => visible(node) && normalize(node.textContent).includes(label));
+                if (!target) return false;
+                target.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+                return true;
+              }, text);
+
+              for (const route of ['工作台', '企业空间', '个人空间', '协作空间', '检索', '管理中心']) {
+                if (!await clickText(route)) throw new Error(`Unable to open module: ${route}`);
+                await page.waitForTimeout(180);
+              }
+              for (const section of ['部门管理', '成员管理', '管理员设置', '统计报表', '安全配置']) {
+                await clickText('管理中心');
+                await page.waitForTimeout(120);
+                if (!await clickText(section)) throw new Error(`Unable to open admin module: ${section}`);
+                await page.waitForTimeout(180);
+              }
+
+              await clickText('个人空间');
+              const row = page.locator('tbody tr').first();
+              if (await row.count()) await row.click({ button: 'right', timeout: 1000 }).catch(() => {});
+              await clickText('协作空间');
+              const card = page.locator('.collab-card').first();
+              if (await card.count()) await card.click({ timeout: 1000 }).catch(() => {});
+            } finally {
+              await browser.close().catch(() => {});
+            }
+
+            const meaningful = errors.filter(item => !/favicon|ERR_ABORTED|Failed to load resource/i.test(item));
+            if (localCodeRequests.length) throw new Error(`Local JS/CSS requests remain:\n${localCodeRequests.join('\n')}`);
+            if (meaningful.length) throw new Error(`Browser validation errors:\n${meaningful.join('\n')}`);
+          }'''
+          s, validation_count = re.subn(
+              r"async function validateInBrowser\(origin\) \{[\s\S]*?\n\}\n\nasync function main",
+              validation + "\n\nasync function main",
+              s,
+              count=1,
+          )
+          if validation_count != 1:
+              raise SystemExit('Browser validation function not found')
+
           close_line = "await new Promise(resolve => server.close(resolve));"
-          forced_close = "server.closeAllConnections?.();\n    await new Promise(resolve => server.close(resolve));"
           if close_line not in s:
               raise SystemExit('Server close target not found')
-          s = s.replace(close_line, forced_close, 1)
+          s = s.replace(close_line, "server.closeAllConnections?.();\n    await new Promise(resolve => server.close(resolve));", 1)
 
           p.write_text(s, encoding='utf-8')
-          print('Semantic labels and failure cleanup applied.')
+          print(f'Finalizer prepared: guards={guard_count}, validation={validation_count}')
           PY
 
       - name: Finalize and validate authoritative prototype
