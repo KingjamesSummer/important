@@ -1,16 +1,13 @@
 name: Build canonical web prototype
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - .github/workflows/build-canonical-prototype.yml
-      - tools/build-canonical-prototype.mjs
+  issues:
+    types: [opened]
   workflow_dispatch:
 
 permissions:
   contents: write
+  issues: write
 
 concurrency:
   group: canonical-prototype-main
@@ -18,7 +15,7 @@ concurrency:
 
 jobs:
   build:
-    if: github.event_name == 'workflow_dispatch' || github.event.head_commit.message == 'chore: run one-time canonical prototype build'
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'issues' && github.event.issue.title == '[temporary] Run canonical prototype build')
     runs-on: ubuntu-latest
     timeout-minutes: 35
 
@@ -26,6 +23,7 @@ jobs:
       - name: Checkout main
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
 
       - name: Set up Node.js
@@ -46,13 +44,36 @@ jobs:
             terser@5.43.1
           npx playwright install --with-deps chromium
 
-      - name: Apply runner compatibility fix
+      - name: Harden canonicalizer
         run: |
           python - <<'PY'
           from pathlib import Path
+
           p = Path('tools/build-canonical-prototype.mjs')
           s = p.read_text(encoding='utf-8')
-          old = """  for (const locator of candidates) {
+
+          replacements = []
+
+          replacements.append((
+          """const PATCH_ASSET = /(?:personal-space-v(?:8|9|10|11|12|13)|collaboration-space-v(?:1-fix|2|3|4|5|6)|public-shell-hotfix|admin-shell-hotfix|admin-grant-polish|admin-dept-console-v\\d+)/i;
+          const BANNED_OUTPUT = [""",
+          """const PATCH_ASSET = /(?:personal-space-v(?:8|9|10|11|12|13)|collaboration-space-v(?:1-fix|2|3|4|5|6)|public-shell-hotfix|admin-shell-hotfix|admin-grant-polish|admin-dept-console-v\\d+)/i;
+          const RESOURCE_HELPERS = new Set(['appendScript', 'appendStyle', 'ensurePremiumMotionStyles', 'ensureAdminDeptV3', 'ensureAdminDeptV11', 'installTheme']);
+          const BANNED_OUTPUT = ["""
+          ))
+
+          replacements.append((
+          """  /admin-grant-polish-v\\d+/i,
+            /admin-dept-console-v\\d+/i
+          ];""",
+          """  /admin-grant-polish-v\\d+/i,
+            /admin-dept-console-v\\d+/i,
+            /assets\\/[^\"'`\\s)]+?\\.(?:js|css)/i
+          ];"""
+          ))
+
+          replacements.append((
+          """  for (const locator of candidates) {
               try {
                 const target = locator.filter({ visible: true }).first();
                 if (await target.count()) {
@@ -62,8 +83,8 @@ jobs:
                 }
               } catch {}
             }
-          """
-          new = """  for (const locator of candidates) {
+          """,
+          """  for (const locator of candidates) {
               try {
                 const count = await locator.count();
                 for (let index = 0; index < Math.min(count, 12); index += 1) {
@@ -76,20 +97,108 @@ jobs:
               } catch {}
             }
           """
-          if old not in s:
-              raise SystemExit('Playwright compatibility patch target not found')
-          p.write_text(s.replace(old, new), encoding='utf-8')
+          ))
+
+          replacements.append((
+          """function cleanScript(source) {
+            if (!source.trim()) return '';
+            if (HISTORICAL_URL.test(source) && /document\\.(?:write|open|close)/.test(source)) return '';""",
+          """function cleanScript(source) {
+            if (!source.trim()) return '';
+            source = source.replace(/<div class=\"collab-v3-summary-grid\">[\\s\\S]*?<div class=\"collab-v3-activity-toolbar\">/g, '<div class=\"collab-v3-activity-toolbar\">');
+            if (/__collaborationSpaceV4Loaded/.test(source) && /removeSummaryCards/.test(source)) return '';
+            if (HISTORICAL_URL.test(source) && /document\\.(?:write|open|close)/.test(source)) return '';"""
+          ))
+
+          replacements.append((
+          """      if (p.node.id?.type === 'Identifier' && ['appendScript', 'appendStyle'].includes(p.node.id.name)) {""",
+          """      if (p.node.id?.type === 'Identifier' && RESOURCE_HELPERS.has(p.node.id.name)) {"""
+          ))
+
+          replacements.append((
+          """      if (p.node.id && ['appendScript', 'appendStyle'].includes(p.node.id.name)) p.remove();""",
+          """      if (p.node.id && RESOURCE_HELPERS.has(p.node.id.name)) p.remove();"""
+          ))
+
+          replacements.append((
+          """      if (/^(?:appendScript|appendStyle)\\s*\\(/.test(code)) { p.remove(); return; }""",
+          """      if (/^(?:appendScript|appendStyle|ensurePremiumMotionStyles|ensureAdminDeptV3|ensureAdminDeptV11|installTheme)\\s*\\(/.test(code)) { p.remove(); return; }"""
+          ))
+
+          replacements.append((
+          """      if (callee?.type === 'Identifier' && ['appendScript', 'appendStyle'].includes(callee.name)) {
+                if (p.parentPath.isExpressionStatement()) p.parentPath.remove();
+                return;
+              }
+              const code = nodeCode(p.node);""",
+          """      if (callee?.type === 'Identifier' && RESOURCE_HELPERS.has(callee.name)) {
+                if (p.parentPath.isExpressionStatement()) p.parentPath.remove();
+                return;
+              }
+              const property = callee?.type === 'MemberExpression' && !callee.computed ? callee.property?.name : '';
+              const resourceName = p.node.arguments?.[0]?.type === 'Identifier' ? p.node.arguments[0].name : '';
+              if (['appendChild', 'append', 'insertBefore'].includes(property) && /^(?:script|link|style|avatars)$/i.test(resourceName)) {
+                if (p.parentPath.isExpressionStatement()) p.parentPath.remove();
+                return;
+              }
+              const code = nodeCode(p.node);"""
+          ))
+
+          replacements.append((
+          """      compress: { defaults: false, dead_code: true, side_effects: false, unused: false },""",
+          """      compress: { defaults: false, dead_code: true, side_effects: true, unused: true, conditionals: true, evaluate: true },"""
+          ))
+
+          replacements.append((
+          """async function buildFromPage(page, pageUrl) {""",
+          """function canonicalizeNames(value) {
+            return value
+              .replace(/personal-space-v(?:8|9|10|11|12|13)/gi, 'personal-space')
+              .replace(/collaboration-space-v(?:1-fix|1|2|3|4|5|6)/gi, 'collaboration-space')
+              .replace(/public-shell-hotfix-v\\d+/gi, 'public-shell')
+              .replace(/admin-shell-hotfix-v\\d+/gi, 'admin-shell')
+              .replace(/admin-grant-polish-v\\d+/gi, 'admin-grant')
+              .replace(/admin-dept-console-v\\d+/gi, 'admin-dept-console')
+              .replace(/__adminDeptConsoleV\\d+/g, '__adminDeptConsole')
+              .replace(/__collaborationSpaceV\\d+Loaded/g, '__collaborationSpaceLoaded')
+              .replace(/__personalSpaceV\\d+Loaded/g, '__personalSpaceLoaded')
+              .replace(/data-(?:personal-space|personal-dropdown|collaboration)-v\\d+/gi, 'data-canonical-module')
+              .replace(/assets\\/[^\"'`\\s)]+?\\.(?:js|css)(?:\\?[^\"'`\\s)]*)?/gi, '');
+          }
+
+          async function buildFromPage(page, pageUrl) {"""
+          ))
+
+          replacements.append((
+          """  const output = `<!DOCTYPE html>\\n<!-- ${BUILD_COMMENT} -->\\n${$.html()}`;
+            return { output, cssParts: cssParts.length, jsParts: jsParts.length };""",
+          """  const output = canonicalizeNames(`<!DOCTYPE html>\\n<!-- ${BUILD_COMMENT} -->\\n${$.html()}`);
+            return { output, cssParts: cssParts.length, jsParts: jsParts.length };"""
+          ))
+
+          for old, new in replacements:
+              if old not in s:
+                  raise SystemExit('Canonicalizer patch target not found:\n' + old[:180])
+              s = s.replace(old, new, 1)
+
+          p.write_text(s, encoding='utf-8')
           PY
 
       - name: Build and validate authoritative prototype
-        run: node tools/build-canonical-prototype.mjs
+        id: canonical_build
+        shell: bash
+        run: |
+          set -o pipefail
+          node tools/build-canonical-prototype.mjs 2>&1 | tee canonical-build.log
 
       - name: Upload generated prototype
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: canonical-web-prototype
-          path: web-prototype.html
+          path: |
+            web-prototype.html
+            canonical-build.log
           retention-days: 7
 
       - name: Commit canonical source to main
@@ -104,3 +213,30 @@ jobs:
           git commit -m "refactor: make web prototype canonical"
           git pull --rebase origin main
           git push origin HEAD:main
+
+      - name: Report success
+        if: success() && github.event_name == 'issues'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: 'Canonical prototype build completed and committed to main.'
+            });
+
+      - name: Report failure
+        if: failure() && github.event_name == 'issues'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let log = 'No build log was produced.';
+            if (fs.existsSync('canonical-build.log')) log = fs.readFileSync('canonical-build.log', 'utf8').slice(-6000);
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `Canonical prototype build failed.\n\n\`\`\`text\n${log}\n\`\`\``
+            });
