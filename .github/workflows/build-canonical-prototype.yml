@@ -61,6 +61,48 @@ jobs:
           echo "CHROME_PATH=$CHROME_PATH" >> "$GITHUB_ENV"
           echo "Browser: $CHROME_PATH" | tee -a canonical-build.log
 
+      - name: Preserve semantic module initialization guards
+        shell: bash
+        run: |
+          set -o pipefail
+          python - <<'PY' 2>&1 | tee -a canonical-build.log
+          from pathlib import Path
+          import re
+
+          p = Path('tools/finalize-authoritative.mjs')
+          s = p.read_text(encoding='utf-8')
+
+          marker = "const REPLACEMENTS = ["
+          semantic = """const REPLACEMENTS = [
+            [/__personalSpaceV8Loaded/g, '__personalCoreReady'],
+            [/__personalSpaceV9Loaded/g, '__personalNavigationReady'],
+            [/__personalSpaceV10Loaded/g, '__personalDetailsReady'],
+            [/__personalSpaceV11Loaded/g, '__personalToolbarReady'],
+            [/__personalSpaceV12Loaded/g, '__personalTransferReady'],
+            [/__personalSpaceV13Loaded/g, '__personalDropdownReady'],
+            [/__collaborationSpaceV1Loaded/g, '__collaborationCoreReady'],
+            [/__collaborationSpaceV2Loaded/g, '__collaborationFilesReady'],
+            [/__collaborationSpaceV3Loaded/g, '__collaborationDetailReady'],
+            [/__collaborationSpaceV4Loaded/g, '__collaborationLayoutReady'],
+            [/__collaborationSpaceV5Loaded/g, '__collaborationListReady'],
+            [/__collaborationSpaceV6Loaded/g, '__collaborationActionsReady'],
+            [/__adminDeptConsoleV2/g, '__adminDepartmentLayoutReady'],
+            [/__adminDeptConsoleV3/g, '__adminDepartmentInteractionReady'],
+            [/__adminDeptConsoleV9/g, '__adminDepartmentThemeReady'],
+            [/__adminDeptConsoleV11/g, '__adminDepartmentFinalReady'],"""
+          if marker not in s:
+              raise SystemExit('Replacement marker not found')
+          s = s.replace(marker, semantic, 1)
+
+          pattern = re.compile(r"function removeVersionScaffolding\(code\) \{[\s\S]*?\n\}", re.M)
+          s, count = pattern.subn("function removeVersionScaffolding(code) { return code; }", s, count=1)
+          if count != 1:
+              raise SystemExit('Version scaffolding function not found')
+
+          p.write_text(s, encoding='utf-8')
+          print('Semantic guard patch applied.')
+          PY
+
       - name: Finalize and validate authoritative prototype
         shell: bash
         run: |
