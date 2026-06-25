@@ -74,6 +74,11 @@ jobs:
 
           marker = "const REPLACEMENTS = ["
           semantic = """const REPLACEMENTS = [
+            [/public-shell-hotfix(?:-v\\d+)?/gi, 'public-shell-refinement'],
+            [/admin-shell-hotfix(?:-v\\d+)?/gi, 'admin-shell-refinement'],
+            [/admin-grant-polish(?:-v\\d+)?/gi, 'admin-grant-refinement'],
+            [/admin-dept-console-v\\d+/gi, 'admin-department'],
+            [/admin-dept-polish-v\\d+/gi, 'admin-department-refinement'],
             [/__personalSpaceV8Loaded/g, '__personalCoreReady'],
             [/__personalSpaceV9Loaded/g, '__personalNavigationReady'],
             [/__personalSpaceV10Loaded/g, '__personalDetailsReady'],
@@ -100,7 +105,7 @@ jobs:
               raise SystemExit('Version scaffolding function not found')
 
           p.write_text(s, encoding='utf-8')
-          print('Semantic guard patch applied.')
+          print('Semantic guard and legacy label patches applied.')
           PY
 
       - name: Finalize and validate authoritative prototype
