@@ -72,25 +72,23 @@ jobs:
       - name: Prepare deterministic compiler
         shell: bash
         run: |
-          python - <<'PY'
+          set -o pipefail
+          python - <<'PY' 2>&1 | tee -a canonical-build.log
           from pathlib import Path
+          import re
+
           p = Path('tools/build-canonical-prototype-v2.mjs')
           s = p.read_text(encoding='utf-8')
 
           browser_old = "chromium.launch({ headless: true })"
           browser_new = "chromium.launch({ headless: true, ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {}), args: ['--no-sandbox', '--disable-dev-shm-usage'] })"
-          if browser_old not in s:
+          count = s.count(browser_old)
+          if count < 1:
               raise SystemExit('Browser launch target not found')
           s = s.replace(browser_old, browser_new)
 
-          minify_old = """  const result = await minify(combined, {
-            ecma: 2022,
-            compress: { defaults: false, dead_code: true, side_effects: true, unused: true, conditionals: true, evaluate: true },
-            mangle: false,
-            format: { beautify: true, comments: false, semicolons: true }
-          });
-          return canonicalNames(result.code || combined);"""
-          minify_new = """  parse(combined, {
+          pattern = re.compile(r"  const result = await minify\(combined, \{[\s\S]*?\n  \}\);\n  return canonicalNames\(result\.code \|\| combined\);", re.M)
+          replacement = """  parse(combined, {
             sourceType: 'script',
             allowAwaitOutsideFunction: true,
             allowReturnOutsideFunction: true,
@@ -98,10 +96,12 @@ jobs:
             plugins: ['optionalChaining', 'nullishCoalescingOperator', 'classProperties', 'topLevelAwait']
           });
           return canonicalNames(combined);"""
-          if minify_old not in s:
+          s, replaced = pattern.subn(replacement, s, count=1)
+          if replaced != 1:
               raise SystemExit('Minifier replacement target not found')
-          s = s.replace(minify_old, minify_new)
+
           p.write_text(s, encoding='utf-8')
+          print(f'Prepared compiler: browser launches={count}, minifier replacements={replaced}')
           PY
 
       - name: Build and validate authoritative prototype
@@ -153,7 +153,7 @@ jobs:
           script: |
             const fs = require('fs');
             let log = 'No build log was produced.';
-            if (fs.existsSync('canonical-build.log')) log = fs.readFileSync('canonical-build.log', 'utf8').slice(-7000);
+            if (fs.existsSync('canonical-build.log')) log = fs.readFileSync('canonical-build.log', 'utf8').slice(-9000);
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
