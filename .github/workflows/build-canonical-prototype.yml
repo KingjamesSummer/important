@@ -17,7 +17,7 @@ jobs:
   build:
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'issues' && github.event.issue.title == '[temporary] Run canonical prototype build')
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 12
 
     steps:
       - name: Report start
@@ -100,6 +100,11 @@ jobs:
           if minify_count != 1:
               raise SystemExit('Minifier replacement target not found')
 
+          css_pattern = re.compile(r"  const result = await postcss\(\[[\s\S]*?\n  \]\)\.process\(root\.toString\(\), \{ from: undefined \}\);\n  return result\.css\.trim\(\);", re.M)
+          s, css_count = css_pattern.subn("  return root.toString().trim();", s, count=1)
+          if css_count != 1:
+              raise SystemExit('CSS minifier replacement target not found')
+
           main_pattern = re.compile(r"async function main\(\) \{[\s\S]*?\n\}\n\nmain\(\)\.catch", re.M)
           main_replacement = """async function main() {
             if (!fsSync.existsSync(ENTRY)) throw new Error('web-prototype.html not found');
@@ -142,7 +147,7 @@ jobs:
           s = s.replace(route_marker, route_insert, 1)
 
           p.write_text(s, encoding='utf-8')
-          print(f'Prepared compiler: browser={browser_count}, minifier={minify_count}, main={main_count}')
+          print(f'Prepared compiler: browser={browser_count}, minifier={minify_count}, css={css_count}, main={main_count}')
           PY
 
       - name: Build and validate authoritative prototype
