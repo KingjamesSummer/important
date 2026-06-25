@@ -11,13 +11,13 @@ permissions:
 
 concurrency:
   group: canonical-prototype-main
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'issues' && github.event.issue.title == '[temporary] Run canonical prototype build')
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 25
 
     steps:
       - name: Checkout main
@@ -31,22 +31,45 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install build dependencies
+      - name: Install compiler packages
         shell: bash
         run: |
           set -o pipefail
-          {
-            npm install --no-save \
-              playwright@1.55.0 \
-              cheerio@1.0.0 \
-              postcss@8.5.6 \
-              cssnano@7.1.0 \
-              @babel/parser@7.28.0 \
-              @babel/traverse@7.28.0 \
-              @babel/generator@7.28.0 \
-              terser@5.43.1
-            npx playwright install --with-deps chromium
-          } 2>&1 | tee -a canonical-build.log
+          npm install --no-save \
+            playwright@1.55.0 \
+            cheerio@1.0.0 \
+            postcss@8.5.6 \
+            cssnano@7.1.0 \
+            @babel/parser@7.28.0 \
+            @babel/traverse@7.28.0 \
+            @babel/generator@7.28.0 \
+            terser@5.43.1 2>&1 | tee -a canonical-build.log
+
+      - name: Select preinstalled browser
+        shell: bash
+        run: |
+          set -o pipefail
+          CHROME_PATH="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser || true)"
+          if [ -z "$CHROME_PATH" ]; then
+            npx playwright install chromium 2>&1 | tee -a canonical-build.log
+            CHROME_PATH=""
+          fi
+          echo "CHROME_PATH=$CHROME_PATH" >> "$GITHUB_ENV"
+          echo "Browser: ${CHROME_PATH:-Playwright managed Chromium}" | tee -a canonical-build.log
+
+      - name: Prepare runner browser launch
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('tools/build-canonical-prototype-v2.mjs')
+          s = p.read_text(encoding='utf-8')
+          old = "chromium.launch({ headless: true })"
+          new = "chromium.launch({ headless: true, ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {}), args: ['--no-sandbox', '--disable-dev-shm-usage'] })"
+          if old not in s:
+              raise SystemExit('Browser launch target not found')
+          p.write_text(s.replace(old, new), encoding='utf-8')
+          PY
 
       - name: Build and validate authoritative prototype
         id: canonical_build
