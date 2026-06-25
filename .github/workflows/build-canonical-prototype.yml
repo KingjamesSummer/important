@@ -2,7 +2,7 @@ name: Build canonical web prototype
 
 on:
   issues:
-    types: [opened, reopened]
+    types: [opened, reopened, edited]
   workflow_dispatch:
 
 permissions:
