@@ -17,7 +17,7 @@ jobs:
   build:
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'issues' && github.event.issue.title == '[temporary] Run canonical prototype build')
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 8
 
     steps:
       - name: Report start
@@ -29,7 +29,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: 'Canonical compiler started.'
+              body: 'Lightweight canonical finalizer started.'
             });
 
       - name: Checkout main
@@ -43,121 +43,31 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install compiler packages
+      - name: Install browser driver
         shell: bash
         run: |
           set -o pipefail
-          npm install --no-save \
-            playwright@1.55.0 \
-            cheerio@1.0.0 \
-            postcss@8.5.6 \
-            cssnano@7.1.0 \
-            @babel/parser@7.28.0 \
-            @babel/traverse@7.28.0 \
-            @babel/generator@7.28.0 \
-            terser@5.43.1 2>&1 | tee -a canonical-build.log
+          npm install --no-save --package-lock=false playwright-core@1.55.0 2>&1 | tee -a canonical-build.log
 
-      - name: Select preinstalled browser
+      - name: Select runner Chrome
         shell: bash
         run: |
           set -o pipefail
           CHROME_PATH="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser || true)"
           if [ -z "$CHROME_PATH" ]; then
-            npx playwright install chromium 2>&1 | tee -a canonical-build.log
-            CHROME_PATH=""
+            echo "No preinstalled Chrome/Chromium found." | tee -a canonical-build.log
+            exit 1
           fi
           echo "CHROME_PATH=$CHROME_PATH" >> "$GITHUB_ENV"
-          echo "Browser: ${CHROME_PATH:-Playwright managed Chromium}" | tee -a canonical-build.log
+          echo "Browser: $CHROME_PATH" | tee -a canonical-build.log
 
-      - name: Prepare deterministic compiler
+      - name: Finalize and validate authoritative prototype
         shell: bash
         run: |
           set -o pipefail
-          python - <<'PY' 2>&1 | tee -a canonical-build.log
-          from pathlib import Path
-          import re
+          node tools/finalize-authoritative.mjs 2>&1 | tee -a canonical-build.log
 
-          p = Path('tools/build-canonical-prototype-v2.mjs')
-          s = p.read_text(encoding='utf-8')
-
-          browser_old = "chromium.launch({ headless: true })"
-          browser_new = "chromium.launch({ headless: true, ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {}), args: ['--no-sandbox', '--disable-dev-shm-usage'] })"
-          browser_count = s.count(browser_old)
-          if browser_count < 1:
-              raise SystemExit('Browser launch target not found')
-          s = s.replace(browser_old, browser_new)
-
-          minify_pattern = re.compile(r"  const result = await minify\(combined, \{[\s\S]*?\n  \}\);\n  return canonicalNames\(result\.code \|\| combined\);", re.M)
-          minify_replacement = """  parse(combined, {
-            sourceType: 'script',
-            allowAwaitOutsideFunction: true,
-            allowReturnOutsideFunction: true,
-            errorRecovery: false,
-            plugins: ['optionalChaining', 'nullishCoalescingOperator', 'classProperties', 'topLevelAwait']
-          });
-          return canonicalNames(combined);"""
-          s, minify_count = minify_pattern.subn(minify_replacement, s, count=1)
-          if minify_count != 1:
-              raise SystemExit('Minifier replacement target not found')
-
-          css_pattern = re.compile(r"  const result = await postcss\(\[[\s\S]*?\n  \]\)\.process\(root\.toString\(\), \{ from: undefined \}\);\n  return result\.css\.trim\(\);", re.M)
-          s, css_count = css_pattern.subn("  return root.toString().trim();", s, count=1)
-          if css_count != 1:
-              raise SystemExit('CSS minifier replacement target not found')
-
-          main_pattern = re.compile(r"async function main\(\) \{[\s\S]*?\n\}\n\nmain\(\)\.catch", re.M)
-          main_replacement = """async function main() {
-            if (!fsSync.existsSync(ENTRY)) throw new Error('web-prototype.html not found');
-            const { server, origin } = await startServer();
-            try {
-              const pageUrl = `${origin}/web-prototype.html`;
-              const staticPage = { content: async () => fs.readFile(ENTRY, 'utf8') };
-              const result = await buildFromPage(staticPage, pageUrl);
-              assertStaticContract(result.output);
-              await fs.writeFile(ENTRY, result.output, 'utf8');
-              console.log(`Canonicalized ${result.cssParts} style sources and ${result.jsParts} script sources.`);
-              await validateGenerated(origin);
-              console.log('Canonical prototype validation passed.');
-            } finally {
-              await new Promise(resolve => server.close(resolve));
-            }
-          }
-
-          main().catch"""
-          s, main_count = main_pattern.subn(main_replacement, s, count=1)
-          if main_count != 1:
-              raise SystemExit('Main function replacement target not found')
-
-          route_marker = "  await page.goto(`${origin}/web-prototype.html?canonical-validation=1`, { waitUntil: 'domcontentloaded', timeout: 120000 });"
-          route_insert = """  await page.route('**/*', async route => {
-            const request = route.request();
-            try {
-              const url = new URL(request.url());
-              if (url.origin !== origin && ['script', 'stylesheet', 'font', 'image'].includes(request.resourceType())) {
-                await route.abort();
-                return;
-              }
-            } catch {}
-            await route.continue();
-          });
-
-          await page.goto(`${origin}/web-prototype.html?canonical-validation=1`, { waitUntil: 'domcontentloaded', timeout: 60000 });"""
-          if route_marker not in s:
-              raise SystemExit('Validation route insertion target not found')
-          s = s.replace(route_marker, route_insert, 1)
-
-          p.write_text(s, encoding='utf-8')
-          print(f'Prepared compiler: browser={browser_count}, minifier={minify_count}, css={css_count}, main={main_count}')
-          PY
-
-      - name: Build and validate authoritative prototype
-        id: canonical_build
-        shell: bash
-        run: |
-          set -o pipefail
-          node tools/build-canonical-prototype-v2.mjs 2>&1 | tee -a canonical-build.log
-
-      - name: Upload generated prototype
+      - name: Upload validation artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -168,6 +78,7 @@ jobs:
           retention-days: 7
 
       - name: Commit canonical source to main
+        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -189,7 +100,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: 'Canonical prototype build completed and committed to main.'
+              body: 'Canonical prototype build completed, browser validation passed, and web-prototype.html was committed to main.'
             });
 
       - name: Report failure
