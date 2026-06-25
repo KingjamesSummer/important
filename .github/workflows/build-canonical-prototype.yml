@@ -61,7 +61,7 @@ jobs:
           echo "CHROME_PATH=$CHROME_PATH" >> "$GITHUB_ENV"
           echo "Browser: $CHROME_PATH" | tee -a canonical-build.log
 
-      - name: Preserve semantic module initialization guards
+      - name: Prepare semantic authoritative finalizer
         shell: bash
         run: |
           set -o pipefail
@@ -104,8 +104,14 @@ jobs:
           if count != 1:
               raise SystemExit('Version scaffolding function not found')
 
+          close_line = "await new Promise(resolve => server.close(resolve));"
+          forced_close = "server.closeAllConnections?.();\n    await new Promise(resolve => server.close(resolve));"
+          if close_line not in s:
+              raise SystemExit('Server close target not found')
+          s = s.replace(close_line, forced_close, 1)
+
           p.write_text(s, encoding='utf-8')
-          print('Semantic guard and legacy label patches applied.')
+          print('Semantic labels and failure cleanup applied.')
           PY
 
       - name: Finalize and validate authoritative prototype
@@ -157,7 +163,7 @@ jobs:
           script: |
             const fs = require('fs');
             let log = 'No build log was produced.';
-            if (fs.existsSync('canonical-build.log')) log = fs.readFileSync('canonical-build.log', 'utf8').slice(-10000);
+            if (fs.existsSync('canonical-build.log')) log = fs.readFileSync('canonical-build.log', 'utf8').slice(-12000);
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
